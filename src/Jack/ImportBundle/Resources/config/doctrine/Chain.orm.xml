@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doctrine-mapping xmlns="http://doctrine-project.org/schemas/orm/doctrine-mapping"
+                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                  xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping http://doctrine-project.org/schemas/orm/doctrine-mapping.xsd">
+    <entity name="Jack\ImportBundle\Entity\Chain" table="chain">
+        <id name="id" type="integer" column="id">
+            <generator strategy="IDENTITY"/>
+        </id>
+        <field name="dte" type="integer" column="dte" nullable="false"/>
+        <field name="bid" type="float" column="bid" nullable="false"/>
+        <field name="ask" type="float" column="ask" nullable="false"/>
+        <field name="delta" type="float" column="delta" nullable="false"/>
+        <field name="gamma" type="float" column="gamma" nullable="false"/>
+        <field name="theta" type="float" column="theta" nullable="false"/>
+        <field name="vega" type="float" column="vega" nullable="false"/>
+        <field name="rho" type="float" column="rho" nullable="false"/>
+        <field name="theo" type="float" column="theo" nullable="false"/>
+        <field name="impl" type="float" column="impl" nullable="false"/>
+        <field name="probitm" type="float" column="probITM" nullable="false"/>
+        <field name="probotm" type="float" column="probOTM" nullable="false"/>
+        <field name="probtouch" type="float" column="probTouch" nullable="false"/>
+        <field name="volume" type="integer" column="volume" nullable="false"/>
+        <field name="openinterest" type="integer" column="openInterest" nullable="false"/>
+        <field name="intrinsic" type="float" column="intrinsic" nullable="false"/>
+        <field name="extrinsic" type="float" column="extrinsic" nullable="false"/>
+        <many-to-one field="contractid" target-entity="Contract">
+            <join-columns>
+                <join-column name="contractId" referenced-column-name="id"/>
+            </join-columns>
+        </many-to-one>
+        <many-to-one field="underlyingid" target-entity="Underlying">
+            <join-columns>
+                <join-column name="underlyingId" referenced-column-name="id"/>
+            </join-columns>
+        </many-to-one>
+        <many-to-one field="cycleid" target-entity="Cycle">
+            <join-columns>
+                <join-column name="cycleId" referenced-column-name="id"/>
+            </join-columns>
+        </many-to-one>
+    </entity>
+</doctrine-mapping>

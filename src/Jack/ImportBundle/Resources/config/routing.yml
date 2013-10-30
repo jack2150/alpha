@@ -1,0 +1,3 @@
+jack_import_default:
+    pattern:  /default/
+    defaults: { _controller: JackImportBundle:Default:index }

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doctrine-mapping xmlns="http://doctrine-project.org/schemas/orm/doctrine-mapping"
+                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                  xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping http://doctrine-project.org/schemas/orm/doctrine-mapping.xsd">
+    <entity name="Jack\ImportBundle\Entity\Underlying" table="underlying">
+        <id name="id" type="integer" column="id">
+            <generator strategy="IDENTITY"/>
+        </id>
+        <field name="name" type="string" column="name" length="255" nullable="false"/>
+        <field name="date" type="date" column="date" nullable="false"/>
+        <field name="last" type="float" column="last" nullable="false"/>
+        <field name="netchange" type="float" column="netChange" nullable="false"/>
+        <field name="volume" type="integer" column="volume" nullable="false"/>
+        <field name="open" type="float" column="open" nullable="false"/>
+        <field name="high" type="float" column="high" nullable="false"/>
+        <field name="low" type="float" column="low" nullable="false"/>
+    </entity>
+</doctrine-mapping>

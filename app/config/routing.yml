@@ -1,0 +1,4 @@
+jack_import:
+    resource: "@JackImportBundle/Resources/config/routing.yml"
+    prefix:   /jack/import
+

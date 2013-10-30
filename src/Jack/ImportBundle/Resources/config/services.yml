@@ -1,0 +1,7 @@
+parameters:
+#    jack_import.example.class: Jack\ImportBundle\Example
+
+services:
+#    jack_import.example:
+#        class: %jack_import.example.class%
+#        arguments: [@service_id, "plain_value", %parameter%]

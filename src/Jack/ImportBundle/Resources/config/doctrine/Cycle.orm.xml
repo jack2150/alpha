@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doctrine-mapping xmlns="http://doctrine-project.org/schemas/orm/doctrine-mapping"
+                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                  xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping http://doctrine-project.org/schemas/orm/doctrine-mapping.xsd">
+    <entity name="Jack\ImportBundle\Entity\Cycle" table="cycle">
+        <id name="id" type="integer" column="id">
+            <generator strategy="IDENTITY"/>
+        </id>
+        <field name="expiremonth" type="string" column="expireMonth" length="255" nullable="false"/>
+        <field name="expireyear" type="integer" column="expireYear" nullable="false"/>
+        <field name="expiredate" type="date" column="expireDate" nullable="false"/>
+        <field name="contractright" type="integer" column="contractRight" nullable="false"/>
+        <field name="isweekly" type="boolean" column="isWeekly" nullable="false"/>
+        <field name="ismini" type="boolean" column="isMini" nullable="false"/>
+    </entity>
+</doctrine-mapping>

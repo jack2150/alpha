@@ -3,7 +3,6 @@ parameters:
     database_driver: pdo_mysql
     database_host: 127.0.0.1
     database_port: null
-    database_name: alpha
     database_user: root
     database_password: null
     mailer_transport: smtp
@@ -12,3 +11,6 @@ parameters:
     mailer_password: null
     locale: en
     secret: ThisTokenIsNotSoSecretChangeIt
+
+    database_system: system
+    database_symbol: monkey
