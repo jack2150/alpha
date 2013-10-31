@@ -141,34 +141,34 @@ class Chain
     private $id;
 
     /**
-     * @var \Jack\ImportBundle\Entity\Contract
+     * @var \Jack\ImportBundle\Entity\Cycle
      *
-     * @ORM\ManyToOne(targetEntity="Jack\ImportBundle\Entity\Contract")
+     * @ORM\ManyToOne(targetEntity="Jack\ImportBundle\Entity\Cycle")
      * @ORM\JoinColumns({
-     * @ORM\JoinColumn(name="contractId", referencedColumnName="id")
+     * @ORM\JoinColumn(name="cycleId", referencedColumnName="id", onDelete="CASCADE")
      * })
      */
-    private $contractid;
+    private $cycleid;
 
     /**
      * @var \Jack\ImportBundle\Entity\Underlying
      *
      * @ORM\ManyToOne(targetEntity="Jack\ImportBundle\Entity\Underlying")
      * @ORM\JoinColumns({
-     * @ORM\JoinColumn(name="underlyingId", referencedColumnName="id")
+     * @ORM\JoinColumn(name="underlyingId", referencedColumnName="id", onDelete="CASCADE")
      * })
      */
     private $underlyingid;
 
     /**
-     * @var \Jack\ImportBundle\Entity\Cycle
+     * @var \Jack\ImportBundle\Entity\Strike
      *
-     * @ORM\ManyToOne(targetEntity="Jack\ImportBundle\Entity\Cycle")
+     * @ORM\ManyToOne(targetEntity="Jack\ImportBundle\Entity\Strike")
      * @ORM\JoinColumns({
-     * @ORM\JoinColumn(name="cycleId", referencedColumnName="id")
+     * @ORM\JoinColumn(name="strikeId", referencedColumnName="id", onDelete="CASCADE")
      * })
      */
-    private $cycleid;
+    private $strikeid;
 
 
     /**
@@ -573,26 +573,26 @@ class Chain
     }
 
     /**
-     * Set contractid
+     * Set cycleid
      *
-     * @param \Jack\ImportBundle\Entity\Contract $contractid
+     * @param \Jack\ImportBundle\Entity\Cycle $cycleid
      * @return Chain
      */
-    public function setContractid(\Jack\ImportBundle\Entity\Contract $contractid = null)
+    public function setCycleid(\Jack\ImportBundle\Entity\Cycle $cycleid = null)
     {
-        $this->contractid = $contractid;
+        $this->cycleid = $cycleid;
 
         return $this;
     }
 
     /**
-     * Get contractid
+     * Get cycleid
      *
-     * @return \Jack\ImportBundle\Entity\Contract
+     * @return \Jack\ImportBundle\Entity\Cycle
      */
-    public function getContractid()
+    public function getCycleid()
     {
-        return $this->contractid;
+        return $this->cycleid;
     }
 
     /**
@@ -619,25 +619,25 @@ class Chain
     }
 
     /**
-     * Set cycleid
+     * Set strikeid
      *
-     * @param \Jack\ImportBundle\Entity\Cycle $cycleid
+     * @param \Jack\ImportBundle\Entity\Strike $strikeid
      * @return Chain
      */
-    public function setCycleid(\Jack\ImportBundle\Entity\Cycle $cycleid = null)
+    public function setStrikeid(\Jack\ImportBundle\Entity\Strike $strikeid = null)
     {
-        $this->cycleid = $cycleid;
+        $this->strikeid = $strikeid;
 
         return $this;
     }
 
     /**
-     * Get cycleid
+     * Get strikeid
      *
-     * @return \Jack\ImportBundle\Entity\Cycle
+     * @return \Jack\ImportBundle\Entity\Strike
      */
-    public function getCycleid()
+    public function getStrikeid()
     {
-        return $this->cycleid;
+        return $this->strikeid;
     }
 }

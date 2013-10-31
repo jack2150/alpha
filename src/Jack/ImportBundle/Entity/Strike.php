@@ -5,12 +5,12 @@ namespace Jack\ImportBundle\Entity;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * Contract
+ * Strike
  *
- * @ORM\Table(name="contract")
+ * @ORM\Table(name="strike")
  * @ORM\Entity
  */
-class Contract
+class Strike
 {
     /**
      * @var string
@@ -40,7 +40,7 @@ class Contract
      * Set category
      *
      * @param string $category
-     * @return Contract
+     * @return Strike
      */
     public function setCategory($category)
     {
@@ -63,7 +63,7 @@ class Contract
      * Set strike
      *
      * @param float $strike
-     * @return Contract
+     * @return Strike
      */
     public function setStrike($strike)
     {

@@ -40,10 +40,10 @@ class Event
      *
      * @ORM\ManyToOne(targetEntity="Jack\ImportBundle\Entity\Underlying")
      * @ORM\JoinColumns({
-     * @ORM\JoinColumn(name="underlying_id", referencedColumnName="id")
+     * @ORM\JoinColumn(name="underlyingId", referencedColumnName="id", onDelete="CASCADE")
      * })
      */
-    private $underlying;
+    private $underlyingid;
 
 
     /**
@@ -103,25 +103,25 @@ class Event
     }
 
     /**
-     * Set underlying
+     * Set underlyingid
      *
-     * @param \Jack\ImportBundle\Entity\Underlying $underlying
+     * @param \Jack\ImportBundle\Entity\Underlying $underlyingid
      * @return Event
      */
-    public function setUnderlying(\Jack\ImportBundle\Entity\Underlying $underlying = null)
+    public function setUnderlyingid(\Jack\ImportBundle\Entity\Underlying $underlyingid = null)
     {
-        $this->underlying = $underlying;
+        $this->underlyingid = $underlyingid;
 
         return $this;
     }
 
     /**
-     * Get underlying
+     * Get underlyingid
      *
      * @return \Jack\ImportBundle\Entity\Underlying
      */
-    public function getUnderlying()
+    public function getUnderlyingid()
     {
-        return $this->underlying;
+        return $this->underlyingid;
     }
 }

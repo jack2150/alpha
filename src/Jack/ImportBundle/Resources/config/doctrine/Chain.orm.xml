@@ -23,9 +23,9 @@
         <field name="openinterest" type="integer" column="openInterest" nullable="false"/>
         <field name="intrinsic" type="float" column="intrinsic" nullable="false"/>
         <field name="extrinsic" type="float" column="extrinsic" nullable="false"/>
-        <many-to-one field="contractid" target-entity="Contract">
+        <many-to-one field="cycleid" target-entity="Cycle">
             <join-columns>
-                <join-column name="contractId" referenced-column-name="id"/>
+                <join-column name="cycleId" referenced-column-name="id"/>
             </join-columns>
         </many-to-one>
         <many-to-one field="underlyingid" target-entity="Underlying">
@@ -33,9 +33,9 @@
                 <join-column name="underlyingId" referenced-column-name="id"/>
             </join-columns>
         </many-to-one>
-        <many-to-one field="cycleid" target-entity="Cycle">
+        <many-to-one field="strikeid" target-entity="Strike">
             <join-columns>
-                <join-column name="cycleId" referenced-column-name="id"/>
+                <join-column name="strikeId" referenced-column-name="id"/>
             </join-columns>
         </many-to-one>
     </entity>

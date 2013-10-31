@@ -8,9 +8,9 @@
         </id>
         <field name="name" type="string" column="name" length="100" nullable="false"/>
         <field name="context" type="string" column="context" length="200" nullable="false"/>
-        <many-to-one field="underlying" target-entity="Underlying">
+        <many-to-one field="underlyingid" target-entity="Underlying">
             <join-columns>
-                <join-column name="underlying_id" referenced-column-name="id"/>
+                <join-column name="underlyingId" referenced-column-name="id"/>
             </join-columns>
         </many-to-one>
     </entity>
