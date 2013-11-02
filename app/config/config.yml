@@ -52,7 +52,7 @@ doctrine:
                 user:     "%database_user%"
                 password: "%database_password%"
                 charset:  UTF8
-                #persistent: TRUE
+                persistent: TRUE
             symbol:
                 driver:   "%database_driver%"
                 host:     "%database_host%"
@@ -61,10 +61,11 @@ doctrine:
                 user:     "%database_user%"
                 password: "%database_password%"
                 charset:  UTF8
-                #persistent: FALSE
+                persistent: FALSE
     orm:
         #auto_generate_proxy_classes: %kernel.debug%
         #auto_mapping: true
+
         default_entity_manager: system
         entity_managers:
             system:

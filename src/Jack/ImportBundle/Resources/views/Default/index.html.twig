@@ -1,1 +1,31 @@
+{% extends "AcmeDemoBundle::layout.html.twig" %}
+
+{% block head %}
+    {% if import_url %}
+        <meta http-equiv="refresh" content="1; url={{ import_url }}">
+    {% endif %}
+
+    <link rel="icon" sizes="16x16" href="{{ asset('favicon.ico') }}"/>
+    <link rel="stylesheet" href="{{ asset('bundles/acmedemo/css/demo.css') }}"/>
+{% endblock %}
+
+{% block title "Import Single Underlying (Multiple Files) Quotes" %}
+
+{% block content %}
+    <h1 class="title">Successful imported: {{ current_symbol }}</h1>
+    <p>Remaining symbols: <b>{{ remaining_symbols }}</b></p>
+
+    <p>
+    <ul>
+        <h2>Imported Paths:</h2>
+        {% for path in imported_paths %}
+            <li>{{ path }}</li>
+        {% endfor %}
+    </ul>
+    </p>
+
+    {% if import_url %}
+        <p><a href="{{ import_url }}">Continue next underlying. Redirecting...</a></p>
+    {% endif %}
+{% endblock %}
 

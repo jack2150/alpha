@@ -2,17 +2,25 @@
 
 namespace Jack\ImportBundle\Controller;
 
+// Doctrine
 use Doctrine\Common\Collections\ArrayCollection;
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Doctrine\ORM\Tools\SchemaTool;
+use Doctrine\ORM\EntityManager;
+use Doctrine\DBAL\Driver\PDOMySql\Driver;
+use Doctrine\DBAL\Connection;
 
+// Symfony
+use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Finder\SplFileInfo;
+use Symfony\Component\Filesystem\Filesystem;
 
+// Entity
 use Jack\ImportBundle\Entity\Underlying;
 use Jack\ImportBundle\Entity\Cycle;
 use Jack\ImportBundle\Entity\Strike;
 use Jack\ImportBundle\Entity\Chain;
-
+use Jack\ImportBundle\Entity\Symbol;
 
 /**
  * Class DefaultController
@@ -25,23 +33,143 @@ class DefaultController extends Controller
      */
     public function indexAction()
     {
-        $files = $this->formatFiles(
-            $this->getFiles("../web/import")
-        );
+        $import_directory = '..\web\import';
 
+        $result = $this->getFiles($import_directory);
+
+        $files = $result[0];
+        $currentSymbol = $result[1];
+        $remainSymbols = $result[2];
+        $importedPaths = $result[3];
+
+        // format each files
+        $files = $this->formatFiles($files);
+
+        // format each line
         $files = $this->formatLines($files);
 
+        // convert files into object
         $object = $this->filesToObject($files);
 
-        //$this->interpretFiles($files);
+        // insert object into database
+        $this->insertObjectToDb($object);
+
+        // remove files from folder
+        $this->removeImportedFiles($importedPaths);
 
 
-        return $this->render(
-            'JackImportBundle:Default:index.html.twig',
-            array(
-                'name' => 'jack ong'
-            )
-        );
+        // check still have other remaining underlying
+        if (count($remainSymbols)) {
+            // repeating until no more files in import folder
+            return $this->render(
+                'JackImportBundle:Default:index.html.twig',
+                array(
+                    'current_symbol' => $currentSymbol,
+                    'remaining_symbols' => count($remainSymbols) ?
+                        implode(", ", $remainSymbols) : '...',
+                    'imported_paths' => $importedPaths,
+                    'import_url' => $this->generateUrl('jack_import_default'),
+                )
+            );
+        } else {
+            // finally no remaining
+            return $this->render(
+                'JackImportBundle:Default:index.html.twig',
+                array(
+                    'current_symbol' => $currentSymbol,
+                    'remaining_symbols' => count($remainSymbols) ?
+                        implode(", ", $remainSymbols) : '...',
+                    'imported_paths' => $importedPaths,
+                    'import_url' => 0,
+                )
+            );
+        }
+    }
+
+    // TODO: update system symbol table for lastupdate, firstdate, lastdate
+
+    /**
+     * @param $importedFiles
+     */
+    private function removeImportedFiles($importedFiles)
+    {
+        // remove the files
+        $fileSystem = new Filesystem();
+        foreach ($importedFiles as $importedFile) {
+            $fileSystem->remove($importedFile);
+        }
+    }
+
+    /**
+     * @param string $folder
+     * import quote files directory
+     * @return array of (array $files, array $remainSymbol)
+     * return an array of files list and remaining symbols
+     * @throws \Symfony\Component\HttpKernel\Exception\NotFoundHttpException
+     * folder not exist, no csv files, no file size > 1KB, empty folder
+     * no unreadable dir, must contains world 'thinkBack'
+     */
+    private function getFiles($folder)
+    {
+        $finder = new Finder();
+
+        /** @noinspection PhpUndefinedMethodInspection */
+        $finder = $finder->files()
+            ->in($folder)
+            ->name('*.csv')
+            ->size('> 1K')
+            ->contains('thinkBack')
+            ->sortByName()
+            ->ignoreUnreadableDirs();
+
+        if (count($finder) == 0) {
+            throw $this->createNotFoundException(
+                'Folder is empty or does not have correct csv files!'
+            );
+        }
+
+        $files = Array();
+
+
+        // check similar underlying symbol using file name
+        $countFiles = 0;
+        $firstSymbol = "";
+        $remainSymbols = Array();
+
+        foreach ($finder as $file) {
+            if (!($file instanceof SplFileInfo)) {
+                throw $this->createNotFoundException(
+                    "Passing invalid object (not SplFileInf) type!"
+                );
+            }
+
+            // only get similar underlying symbol
+            $fileSymbol = substr(
+                $file->getFilename(), 33,
+                strpos($file->getFilename(), '.') - 33
+            );
+
+            if ($countFiles == 0) {
+                $firstSymbol = substr(
+                    $file->getFilename(), 33,
+                    strpos($file->getFilename(), '.') - 33
+                );
+            }
+
+            $countFiles++;
+
+            // if same symbol then add content into files array
+            // then delete the files in the import folder
+            if ($fileSymbol == $firstSymbol) {
+                $files[] = $file->getContents();
+
+                $fileLinks[] = $file;
+            } else {
+                $remainSymbols[] = $fileSymbol;
+            }
+        }
+
+        return array($files, $firstSymbol, array_unique($remainSymbols), $fileLinks);
     }
 
     /**
@@ -52,7 +180,7 @@ class DefaultController extends Controller
      * @throws \Symfony\Component\HttpKernel\Exception\NotFoundHttpException
      * error if files do not set
      */
-    public function formatFiles($files)
+    private function formatFiles($files)
     {
         $formatFiles = Array();
 
@@ -103,49 +231,6 @@ class DefaultController extends Controller
     }
 
     /**
-     * @param string $folder
-     * import quote files directory
-     * @return array $files
-     * return an array of files list
-     * @throws \Symfony\Component\HttpKernel\Exception\NotFoundHttpException
-     * folder not exist, no csv files, no file size > 1KB, empty folder
-     * no unreadable dir, must contains world 'thinkBack'
-     */
-    public function getFiles($folder)
-    {
-        $finder = new Finder();
-
-        /** @noinspection PhpUndefinedMethodInspection */
-        $finder = $finder->files()
-            ->in($folder)
-            ->name('*.csv')
-            ->size('> 1K')
-            ->contains('thinkBack')
-            ->sortByName()
-            ->ignoreUnreadableDirs();
-
-        if (count($finder) == 0) {
-            throw $this->createNotFoundException(
-                'Folder is empty or does not have correct csv files!'
-            );
-        }
-
-        $files = Array();
-
-        foreach ($finder as $file) {
-            if (!($file instanceof SplFileInfo)) {
-                throw $this->createNotFoundException(
-                    "Passing invalid object (not SplFileInf) type!"
-                );
-            }
-
-            $files[] = $file->getContents();
-        }
-
-        return $files;
-    }
-
-    /**
      * @param $files
      * input array of usable formatted files
      * @return array
@@ -153,7 +238,7 @@ class DefaultController extends Controller
      * @throws \Symfony\Component\HttpKernel\Exception\NotFoundHttpException
      * error if cvs lines is not valid
      */
-    public function formatLines($files)
+    private function formatLines($files)
     {
         $_monthArray = array(
             'JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'
@@ -304,8 +389,9 @@ class DefaultController extends Controller
      * strike array object, and chain array object with foreign key connected
      * @throws \Symfony\Component\HttpKernel\Exception\NotFoundHttpException
      * error found if invalid object type, invalid array count
+     * important note, only single underlying per import
      */
-    public function filesToObject($files)
+    private function filesToObject($files)
     {
         // contain all underlying, cycle, strike and chain
         $quoteArray = new ArrayCollection();
@@ -338,8 +424,13 @@ class DefaultController extends Controller
                         // underlying data line
                         $underlyingObject = new Underlying();
 
+                        $abc = new \DateTime($underlyingArray[1]);
+
+
                         $underlyingObject->setName($underlyingArray[0]);
-                        $underlyingObject->setDate($underlyingArray[1]);
+                        $underlyingObject->setDate(
+                            new \DateTime($underlyingArray[1])
+                        );
                         $underlyingObject->setLast($underlyingArray[2]);
                         $underlyingObject->setNetchange($underlyingArray[3]);
                         $underlyingObject->setVolume($underlyingArray[4]);
@@ -370,7 +461,8 @@ class DefaultController extends Controller
                         $cycleObject->setExpiremonth($cycleArray[0]);
                         $cycleObject->setExpireyear($cycleArray[1]);
                         $cycleObject->setExpiredate(new \DateTime(
-                            $currentDate . "+ " . $cycleArray[2] . " days"));
+                            date("Y-m-d", $currentDate->getTimestamp())
+                            . "+ " . $cycleArray[2] . " days"));
                         $cycleObject->setContractright($cycleArray[3]);
                         $cycleObject->setIsweekly(
                             trim($cycleArray[4]) == 'Weeklys' ? 1 : 0);
@@ -378,7 +470,7 @@ class DefaultController extends Controller
                             trim($cycleArray[4]) == 'Mini' ? 1 : 0);
 
                         // set it into strike object array
-                        $cycleObjectArray[] = clone $cycleObject;
+                        $cycleObjectArray[] = $cycleObject;
                     } else {
                         // error underlying data row
                         throw $this->createNotFoundException(
@@ -417,7 +509,7 @@ class DefaultController extends Controller
                             $strikeObject->setStrike($fileLineArray[1]);
 
                             // set it into strike object array
-                            $strikeObjectArray[] = clone $strikeObject;
+                            $strikeObjectArray[] = $strikeObject;
                         }
                     } else {
                         // error strike and chain data row
@@ -468,7 +560,7 @@ class DefaultController extends Controller
                         $chainObject->setStrikeid($strikeObject);
 
                         // set it into chain object array
-                        $chainObjectArray[] = clone $chainObject;
+                        $chainObjectArray[] = $chainObject;
                     } else {
                         // error strike and chain data row
                         throw $this->createNotFoundException(
@@ -491,5 +583,320 @@ class DefaultController extends Controller
         }
 
         return $quoteArray;
+    }
+
+    /**
+     * @param $quoteObjectArray
+     * a set of multi-dimension array contain
+     * first dimension is array for each files (no)
+     * then it have 4 different array inside it
+     * 1. underlying object
+     * 2. array of cycle object
+     * 3. array of strike object
+     * 4. array of chain object
+     * @return int
+     * return 1 if everything is complete
+     * @throws \Symfony\Component\HttpKernel\Exception\NotFoundHttpException
+     * error when any data object, insertion, entitymanager
+     * or anything else related to insert will trigger this
+     */
+    private function insertObjectToDb($quoteObjectArray)
+    {
+        // check object not blank
+        $entityManager = $this->getDoctrine()->getManager('symbol');
+
+        // loop for each files object that contain 4 objects
+        foreach ($quoteObjectArray as $quoteKey => $quoteObject) {
+            // reset underlying object
+            $underlyingObject = "";
+
+            // loop quoteObject into each 1 => object, 2,3,4 => array objects
+            // 1 underlying object, 2 array of cycle object
+            // 3 array of strike object, 4 array of chain object
+            foreach ($quoteObject as $objectKey => $objectArray) {
+                if ($objectKey == 0) {
+                    // underlying object is here
+                    // check database exist
+
+                    // open symbol table in system em
+                    $underlyingObject = $objectArray;
+                    if ($underlyingObject instanceof Underlying) {
+                        /** @noinspection PhpUndefinedMethodInspection */
+                        $symbol = $this->getDoctrine()
+                            ->getRepository('JackImportBundle:Symbol', 'system')
+                            ->findOneByName(strtoupper($underlyingObject->getName()));
+
+                        if (!$symbol) {
+                            // symbol not found in tables
+                            // insert new row into symbol table in system db
+                            $this->insertSymbol($underlyingObject->getName());
+
+                            // create new database
+                            $this->createNewDb($underlyingObject->getName());
+                        } else {
+                            // use the new connection with old db name
+                            $this->switchDatabase(
+                                $underlyingObject->getName(),
+                                $this->container->getParameter('database_user'),
+                                $this->container->getParameter('database_password')
+                            );
+                        }
+
+                        // TODO: check underlying date is exist! if yes, exit and notice
+
+                        // insert into database for underlying
+                        $entityManager->persist($underlyingObject);
+                        $entityManager->flush();
+                    } else {
+                        // error if first item is not underlying object
+                        throw $this->createNotFoundException(
+                            "Invalid Underlying object (Key $objectKey)"
+                        );
+                    }
+                } elseif ($objectKey == 1) {
+                    // cycle object is here
+                    // loop all the cycle object
+                    foreach ($objectArray as &$cycleObject) {
+                        // check if it exist
+                        if ($cycleObject instanceof Cycle) {
+                            // find exact same cycle
+                            $existCycle = $this->findOneByArray(
+                                array(
+                                    'expiredate' => $cycleObject->getExpiredate(),
+                                    'expiremonth' => $cycleObject->getExpiremonth(),
+                                    'expireyear' => $cycleObject->getExpireyear(),
+                                    'contractright' => $cycleObject->getContractright(),
+                                    'ismini' => $cycleObject->getIsmini(),
+                                    'isweekly' => $cycleObject->getIsweekly()
+                                ),
+                                'Cycle'
+                            );
+
+                            if (!$existCycle) {
+                                // if not exist add into persist query
+                                $entityManager->persist($cycleObject);
+                            }
+                        } else {
+                            // error if first item is not cycle object
+                            throw $this->createNotFoundException(
+                                "Invalid Cycle object (Key $objectKey)"
+                            );
+                        }
+
+                        // insert into database for cycle
+                        $entityManager->flush();
+                    }
+                } elseif ($objectKey == 2) {
+                    // strike object is here
+                    // loop all the strike object
+                    foreach ($objectArray as &$strikeObject) {
+                        // check if it exist
+                        if ($strikeObject instanceof Strike) {
+                            // find exact same strike
+                            $existStrike = $this->findOneByArray(
+                                array(
+                                    'category' => $strikeObject->getCategory(),
+                                    'strike' => $strikeObject->getStrike(),
+                                ),
+                                'Strike'
+                            );
+
+                            if (!$existStrike) {
+                                // if not exist add into persist query
+                                $entityManager->persist($strikeObject);
+                            }
+                        } else {
+                            throw $this->createNotFoundException(
+                                "Invalid Strike object (Key $objectKey)"
+                            );
+                        }
+                    }
+
+                    // insert into database for strike
+                    $entityManager->flush();
+                } elseif ($objectKey == 3) {
+                    // chain object with other foreign key
+                    $countUnderlying = 0;
+                    $existUnderlying = "";
+                    foreach ($objectArray as $chainObject) {
+                        if ($chainObject instanceof Chain) {
+                            // use inserted strike id
+                            $existStrike = $this->findOneByArray(
+                                array(
+                                    'category' => $chainObject->getStrikeid()->getCategory(),
+                                    'strike' => $chainObject->getStrikeid()->getStrike(),
+                                ),
+                                'Strike'
+                            );
+
+                            if ($existStrike instanceof Strike) {
+                                $strike = $entityManager->getReference(
+                                    'Jack\ImportBundle\Entity\Strike',
+                                    $existStrike->getId()
+                                );
+
+                                $chainObject->setStrikeid($strike);
+                            }
+
+                            // use inserted cycle id
+                            $existCycle = $this->findOneByArray(
+                                array(
+                                    'expiredate' => $chainObject->getCycleid()->getExpiredate(),
+                                    'expiremonth' => $chainObject->getCycleid()->getExpiremonth(),
+                                    'expireyear' => $chainObject->getCycleid()->getExpireyear(),
+                                    'contractright' => $chainObject->getCycleid()->getContractright(),
+                                    'ismini' => $chainObject->getCycleid()->getIsmini(),
+                                    'isweekly' => $chainObject->getCycleid()->getIsweekly()
+                                ),
+                                'Cycle'
+                            );
+
+                            if ($existCycle instanceof Cycle) {
+                                $chainObject->setCycleid($existCycle);
+                            }
+
+                            // use inserted underlying id
+                            if (!$countUnderlying) {
+                                $existUnderlying = $this->findOneByArray(
+                                    array('date' => $chainObject->getUnderlyingid()->getDate()),
+                                    'Underlying'
+                                );
+
+                                $countUnderlying++;
+                            }
+
+                            if ($underlyingObject instanceof Underlying) {
+                                $chainObject->setUnderlyingid($existUnderlying);
+                            }
+
+                            // add into persist query
+                            $entityManager->persist($chainObject);
+                        } else {
+                            throw $this->createNotFoundException(
+                                "Invalid Chain object (Key $objectKey)"
+                            );
+                        }
+                    }
+
+                    // insert into database for chain
+                    $entityManager->flush();
+                }
+
+                $entityManager->clear();
+
+            }
+        }
+
+        return 1;
+    }
+
+    /**
+     * @param $searchArray
+     * array of search field names and values
+     * @param $table
+     * what table use for searching
+     * @return object
+     * return any of underlying, cycle, strike object
+     */
+    private function findOneByArray($searchArray, $table)
+    {
+        /** @noinspection PhpUndefinedMethodInspection */
+        return $this->getDoctrine()
+            ->getRepository('JackImportBundle:' . $table, 'symbol')
+            ->findOneBy($searchArray);
+    }
+
+    /**
+     * @param $dbName
+     * input new db name to create new db and
+     * switch the current 'symbol' connection
+     * into new db
+     */
+    private function createNewDb($dbName)
+    {
+        // create new drive, connection object then create new db
+        $driver = new Driver;
+        $conn = new Connection(array(
+            'driver' => $this->container->getParameter('database_driver'),
+            'host' => $this->container->getParameter('database_host'),
+            'port' => $this->container->getParameter('database_port'),
+            'user' => $this->container->getParameter('database_user'),
+            'password' => $this->container->getParameter('database_password'),
+            'charset' => 'UTF8',
+            'persistent' => 'FALSE'
+        ), $driver);
+
+        $schemaManager = $conn->getSchemaManager();
+        $schemaManager->createDatabase($dbName);
+
+        // use the new connection with new db name
+        $this->switchDatabase(
+            $dbName,
+            $this->container->getParameter('database_user'),
+            $this->container->getParameter('database_password')
+        );
+
+        // use the new db entity manager
+        $entityManager = $this->getDoctrine()->getManager('symbol');
+
+        // create new schema object
+        /** @var $entityManager \Doctrine\ORM\EntityManager */
+        $tool = new SchemaTool($entityManager);
+
+        $tool->createSchema(array(
+            $entityManager->getClassMetadata('Jack\ImportBundle\Entity\Underlying'),
+            $entityManager->getClassMetadata('Jack\ImportBundle\Entity\Cycle'),
+            $entityManager->getClassMetadata('Jack\ImportBundle\Entity\Strike'),
+            $entityManager->getClassMetadata('Jack\ImportBundle\Entity\Chain'),
+            $entityManager->getClassMetadata('Jack\ImportBundle\Entity\Event'),
+        ));
+    }
+
+    /**
+     * @param $symbolName
+     * input the symbol name to be insert into table
+     * @return int
+     * retrieve the last insert symbol table id
+     */
+    private function insertSymbol($symbolName)
+    {
+        // create new symbol object
+        $symbol = new Symbol();
+
+        // set require column
+        $symbol->setName($symbolName);
+        $symbol->setLastupdate(new \DateTime('now'));
+
+        // create em and insert row
+        $entityManager = $this->getDoctrine()->getManager();
+        $entityManager->persist($symbol);
+        $entityManager->flush();
+
+        return $symbol->getId();
+    }
+
+    /**
+     * @param $dbName
+     * db name you want to use
+     * @param $dbUser
+     * db user that use for connect
+     * @param $dbPass
+     * db password that use for connect
+     */
+    private function switchDatabase($dbName, $dbUser, $dbPass)
+    {
+        $connection = $this->container->get(sprintf('doctrine.dbal.%s_connection', 'symbol'));
+
+        $refConn = new \ReflectionObject($connection);
+        $refParams = $refConn->getProperty('_params');
+        $refParams->setAccessible('public'); //we have to change it for a moment
+
+        $params = $refParams->getValue($connection);
+        $params['dbname'] = $dbName;
+        $params['user'] = $dbUser;
+        $params['password'] = $dbPass;
+
+        $refParams->setAccessible('private');
+        $refParams->setValue($connection, $params);
     }
 }

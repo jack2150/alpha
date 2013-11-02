@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doctrine-mapping xmlns="http://doctrine-project.org/schemas/orm/doctrine-mapping"
+                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                  xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping http://doctrine-project.org/schemas/orm/doctrine-mapping.xsd">
+    <entity name="Jack\ImportBundle\Entity\Symbol" table="symbol">
+        <id name="id" type="integer" column="id">
+            <generator strategy="IDENTITY"/>
+        </id>
+        <field name="name" type="string" column="name" length="100" nullable="false"/>
+        <field name="lastupdate" type="date" column="lastUpdate" nullable="false"/>
+        <field name="startdate" type="date" column="startDate" nullable="true"/>
+        <field name="lastdate" type="date" column="lastDate" nullable="true"/>
+        <field name="type" type="string" column="type" length="100" nullable="true"/>
+        <field name="industry" type="string" column="industry" length="100" nullable="true"/>
+        <field name="sector" type="string" column="sector" length="100" nullable="true"/>
+        <field name="country" type="string" column="country" length="100" nullable="false"/>
+        <field name="marketcap" type="string" column="marketCap" length="100" nullable="false"/>
+        <field name="shortable" type="boolean" column="shortable" nullable="false"/>
+    </entity>
+</doctrine-mapping>
