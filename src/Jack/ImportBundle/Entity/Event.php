@@ -38,9 +38,9 @@ class Event
     /**
      * @var \Jack\ImportBundle\Entity\Underlying
      *
-     * @ORM\ManyToOne(targetEntity="Jack\ImportBundle\Entity\Underlying")
+     * @ORM\ManyToOne(targetEntity="Jack\ImportBundle\Entity\Underlying", cascade={"persist", "remove"})
      * @ORM\JoinColumns({
-     * @ORM\JoinColumn(name="underlyingId", referencedColumnName="id", onDelete="CASCADE")
+     * @ORM\JoinColumn(name="underlyingId", referencedColumnName="id")
      * })
      */
     private $underlyingid;

@@ -141,11 +141,21 @@ class Chain
     private $id;
 
     /**
+     * @var \Jack\ImportBundle\Entity\Strike
+     *
+     * @ORM\ManyToOne(targetEntity="Jack\ImportBundle\Entity\Strike", cascade={"persist", "remove"})
+     * @ORM\JoinColumns({
+     * @ORM\JoinColumn(name="strikeId", referencedColumnName="id")
+     * })
+     */
+    private $strikeid;
+
+    /**
      * @var \Jack\ImportBundle\Entity\Cycle
      *
-     * @ORM\ManyToOne(targetEntity="Jack\ImportBundle\Entity\Cycle")
+     * @ORM\ManyToOne(targetEntity="Jack\ImportBundle\Entity\Cycle", cascade={"persist", "remove"})
      * @ORM\JoinColumns({
-     * @ORM\JoinColumn(name="cycleId", referencedColumnName="id", onDelete="CASCADE")
+     * @ORM\JoinColumn(name="cycleId", referencedColumnName="id")
      * })
      */
     private $cycleid;
@@ -153,22 +163,12 @@ class Chain
     /**
      * @var \Jack\ImportBundle\Entity\Underlying
      *
-     * @ORM\ManyToOne(targetEntity="Jack\ImportBundle\Entity\Underlying")
+     * @ORM\ManyToOne(targetEntity="Jack\ImportBundle\Entity\Underlying", cascade={"persist", "remove"})
      * @ORM\JoinColumns({
-     * @ORM\JoinColumn(name="underlyingId", referencedColumnName="id", onDelete="CASCADE")
+     * @ORM\JoinColumn(name="underlyingId", referencedColumnName="id")
      * })
      */
     private $underlyingid;
-
-    /**
-     * @var \Jack\ImportBundle\Entity\Strike
-     *
-     * @ORM\ManyToOne(targetEntity="Jack\ImportBundle\Entity\Strike")
-     * @ORM\JoinColumns({
-     * @ORM\JoinColumn(name="strikeId", referencedColumnName="id", onDelete="CASCADE")
-     * })
-     */
-    private $strikeid;
 
 
     /**
@@ -573,6 +573,29 @@ class Chain
     }
 
     /**
+     * Set strikeid
+     *
+     * @param \Jack\ImportBundle\Entity\Strike $strikeid
+     * @return Chain
+     */
+    public function setStrikeid(\Jack\ImportBundle\Entity\Strike $strikeid = null)
+    {
+        $this->strikeid = $strikeid;
+
+        return $this;
+    }
+
+    /**
+     * Get strikeid
+     *
+     * @return \Jack\ImportBundle\Entity\Strike
+     */
+    public function getStrikeid()
+    {
+        return $this->strikeid;
+    }
+
+    /**
      * Set cycleid
      *
      * @param \Jack\ImportBundle\Entity\Cycle $cycleid
@@ -616,28 +639,5 @@ class Chain
     public function getUnderlyingid()
     {
         return $this->underlyingid;
-    }
-
-    /**
-     * Set strikeid
-     *
-     * @param \Jack\ImportBundle\Entity\Strike $strikeid
-     * @return Chain
-     */
-    public function setStrikeid(\Jack\ImportBundle\Entity\Strike $strikeid = null)
-    {
-        $this->strikeid = $strikeid;
-
-        return $this;
-    }
-
-    /**
-     * Get strikeid
-     *
-     * @return \Jack\ImportBundle\Entity\Strike
-     */
-    public function getStrikeid()
-    {
-        return $this->strikeid;
     }
 }

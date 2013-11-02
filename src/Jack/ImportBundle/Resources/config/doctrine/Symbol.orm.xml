@@ -7,8 +7,8 @@
             <generator strategy="IDENTITY"/>
         </id>
         <field name="name" type="string" column="name" length="100" nullable="false"/>
-        <field name="lastupdate" type="date" column="lastUpdate" nullable="false"/>
-        <field name="startdate" type="date" column="startDate" nullable="true"/>
+        <field name="importdate" type="date" column="importDate" nullable="false"/>
+        <field name="firstdate" type="date" column="firstDate" nullable="true"/>
         <field name="lastdate" type="date" column="lastDate" nullable="true"/>
         <field name="type" type="string" column="type" length="100" nullable="true"/>
         <field name="industry" type="string" column="industry" length="100" nullable="true"/>

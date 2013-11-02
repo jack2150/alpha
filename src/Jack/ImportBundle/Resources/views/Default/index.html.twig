@@ -2,7 +2,7 @@
 
 {% block head %}
     {% if import_url %}
-        <meta http-equiv="refresh" content="1; url={{ import_url }}">
+        <meta http-equiv="refresh" content="2; url={{ import_url }}">
     {% endif %}
 
     <link rel="icon" sizes="16x16" href="{{ asset('favicon.ico') }}"/>
@@ -13,7 +13,18 @@
 
 {% block content %}
     <h1 class="title">Successful imported: {{ current_symbol }}</h1>
-    <p>Remaining symbols: <b>{{ remaining_symbols }}</b></p>
+    {% if remaining_symbols %}
+        <p>Remaining symbols: <b>{{ remaining_symbols }}</b></p>
+    {% else %}
+        <p>No more remaining symbols and files...</p>
+    {% endif %}
+    <ul>
+        {% if warning %}
+            {% for notice in warning %}
+                <li><b style="color: red">Warning:</b> Duplicate underlying date found on {{ notice }}</li>
+            {% endfor %}
+        {% endif %}
+    </ul>
 
     <p>
     <ul>

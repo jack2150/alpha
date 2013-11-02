@@ -22,16 +22,16 @@ class Symbol
     /**
      * @var \DateTime
      *
-     * @ORM\Column(name="lastUpdate", type="date", nullable=false)
+     * @ORM\Column(name="importDate", type="date", nullable=false)
      */
-    private $lastupdate;
+    private $importdate;
 
     /**
      * @var \DateTime
      *
-     * @ORM\Column(name="startDate", type="date", nullable=true)
+     * @ORM\Column(name="firstDate", type="date", nullable=true)
      */
-    private $startdate;
+    private $firstdate;
 
     /**
      * @var \DateTime
@@ -116,49 +116,49 @@ class Symbol
     }
 
     /**
-     * Set lastupdate
+     * Set importdate
      *
-     * @param \DateTime $lastupdate
+     * @param \DateTime $importdate
      * @return Symbol
      */
-    public function setLastupdate($lastupdate)
+    public function setImportdate($importdate)
     {
-        $this->lastupdate = $lastupdate;
+        $this->importdate = $importdate;
 
         return $this;
     }
 
     /**
-     * Get lastupdate
+     * Get importdate
      *
      * @return \DateTime
      */
-    public function getLastupdate()
+    public function getImportdate()
     {
-        return $this->lastupdate;
+        return $this->importdate;
     }
 
     /**
-     * Set startdate
+     * Set firstdate
      *
-     * @param \DateTime $startdate
+     * @param \DateTime $firstdate
      * @return Symbol
      */
-    public function setStartdate($startdate)
+    public function setFirstdate($firstdate)
     {
-        $this->startdate = $startdate;
+        $this->firstdate = $firstdate;
 
         return $this;
     }
 
     /**
-     * Get startdate
+     * Get firstdate
      *
      * @return \DateTime
      */
-    public function getStartdate()
+    public function getFirstdate()
     {
-        return $this->startdate;
+        return $this->firstdate;
     }
 
     /**

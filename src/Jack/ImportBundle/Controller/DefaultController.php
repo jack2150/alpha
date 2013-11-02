@@ -33,72 +33,111 @@ class DefaultController extends Controller
      */
     public function indexAction()
     {
-        $import_directory = '..\web\import';
+        $importDirectory = '..\web\import';
 
-        $result = $this->getFiles($import_directory);
+        $result = $this->getFiles($importDirectory);
 
         $files = $result[0];
         $currentSymbol = $result[1];
         $remainSymbols = $result[2];
         $importedPaths = $result[3];
 
-        // format each files
-        $files = $this->formatFiles($files);
-
         // format each line
-        $files = $this->formatLines($files);
+        $files = $this->formatLines(
+            $this->formatFiles($files)
+        );
 
         // convert files into object
         $object = $this->filesToObject($files);
 
         // insert object into database
-        $this->insertObjectToDb($object);
+        $warning = $this->insertObjectToDb($object);
 
         // remove files from folder
         $this->removeImportedFiles($importedPaths);
 
+        // update symbol table in system
+        $this->updateSymbolTable($currentSymbol, $importedPaths);
 
         // check still have other remaining underlying
         if (count($remainSymbols)) {
             // repeating until no more files in import folder
-            return $this->render(
-                'JackImportBundle:Default:index.html.twig',
-                array(
-                    'current_symbol' => $currentSymbol,
-                    'remaining_symbols' => count($remainSymbols) ?
-                        implode(", ", $remainSymbols) : '...',
-                    'imported_paths' => $importedPaths,
-                    'import_url' => $this->generateUrl('jack_import_default'),
-                )
+            $templateArray = array(
+                'current_symbol' => $currentSymbol,
+                'remaining_symbols' => count($remainSymbols) ?
+                    implode(", ", $remainSymbols) : 0,
+                'imported_paths' => $importedPaths,
+                'import_url' => $this->generateUrl('jack_import_default'),
+                'warning' => $warning,
             );
         } else {
             // finally no remaining
-            return $this->render(
-                'JackImportBundle:Default:index.html.twig',
-                array(
-                    'current_symbol' => $currentSymbol,
-                    'remaining_symbols' => count($remainSymbols) ?
-                        implode(", ", $remainSymbols) : '...',
-                    'imported_paths' => $importedPaths,
-                    'import_url' => 0,
-                )
+            $templateArray = array(
+                'current_symbol' => $currentSymbol,
+                'remaining_symbols' => count($remainSymbols) ?
+                    implode(", ", $remainSymbols) : 0,
+                'imported_paths' => $importedPaths,
+                'import_url' => 0,
+                'warning' => $warning,
             );
         }
+
+        return $this->render(
+            'JackImportBundle:Default:index.html.twig',
+            $templateArray
+        );
     }
 
-    // TODO: update system symbol table for lastupdate, firstdate, lastdate
 
     /**
-     * @param $importedFiles
+     * @param $currentSymbol
+     * input the current symbol for search table
+     * @param $pathArray
+     * input the path array to get max/min date
+     * compare it with table then insert
      */
-    private function removeImportedFiles($importedFiles)
+    private function updateSymbolTable($currentSymbol, $pathArray)
     {
-        // remove the files
-        $fileSystem = new Filesystem();
-        foreach ($importedFiles as $importedFile) {
-            $fileSystem->remove($importedFile);
+        $entityManager = $this->getDoctrine()->getManager('system');
+        /** @noinspection PhpUndefinedMethodInspection */
+        $symbol = $entityManager
+            ->getRepository('JackImportBundle:Symbol'
+            )->findOneByName($currentSymbol);
+
+        // extract date from file name
+        $dateArray = Array();
+
+        foreach ($pathArray as $filePath) {
+            $dateArray[] = substr(basename($filePath), 0, 10);
+        }
+
+        $maxDate = strtotime(max($dateArray));
+        $minDate = strtotime(min($dateArray));
+
+        if ($symbol instanceof Symbol) {
+            // set start date if start date is null
+            // or start date is bigger than min date
+            if (is_null($symbol->getFirstdate()) ||
+                $symbol->getFirstdate()->getTimestamp() > $minDate
+            ) {
+                $symbol->setFirstdate(
+                    new \DateTime(date("Y-M-d", $minDate))
+                );
+            }
+
+            // or last date is bigger than max date
+            if (is_null($symbol->getLastdate()) ||
+                $symbol->getLastdate()->getTimestamp() < $maxDate
+            ) {
+                $symbol->setLastdate(
+                    new \DateTime(date("Y-M-d", $maxDate))
+                );
+            }
+
+            $entityManager->flush();
         }
     }
+
 
     /**
      * @param string $folder
@@ -132,9 +171,12 @@ class DefaultController extends Controller
 
 
         // check similar underlying symbol using file name
-        $countFiles = 0;
+        //
+        $notFirstFile = 0;
         $firstSymbol = "";
         $remainSymbols = Array();
+        $fileLinks = Array();
+        $maxFilesInsert = 5;
 
         foreach ($finder as $file) {
             if (!($file instanceof SplFileInfo)) {
@@ -149,27 +191,46 @@ class DefaultController extends Controller
                 strpos($file->getFilename(), '.') - 33
             );
 
-            if ($countFiles == 0) {
+            if ($notFirstFile == 0) {
                 $firstSymbol = substr(
                     $file->getFilename(), 33,
                     strpos($file->getFilename(), '.') - 33
                 );
-            }
 
-            $countFiles++;
+                // only run once for first files
+                $notFirstFile++;
+            }
 
             // if same symbol then add content into files array
             // then delete the files in the import folder
-            if ($fileSymbol == $firstSymbol) {
+            if ($fileSymbol == $firstSymbol && $maxFilesInsert) {
+                // set content into files
                 $files[] = $file->getContents();
 
+                // get link path for display
                 $fileLinks[] = $file;
+
+                // max 10 files each insert
+                $maxFilesInsert--;
             } else {
                 $remainSymbols[] = $fileSymbol;
             }
         }
 
         return array($files, $firstSymbol, array_unique($remainSymbols), $fileLinks);
+    }
+
+    /**
+     * @param $importedFiles
+     * input the imported files path to be remove
+     */
+    private function removeImportedFiles($importedFiles)
+    {
+        // remove the files
+        $fileSystem = new Filesystem();
+        foreach ($importedFiles as $importedFile) {
+            $fileSystem->remove($importedFile);
+        }
     }
 
     /**
@@ -424,9 +485,6 @@ class DefaultController extends Controller
                         // underlying data line
                         $underlyingObject = new Underlying();
 
-                        $abc = new \DateTime($underlyingArray[1]);
-
-
                         $underlyingObject->setName($underlyingArray[0]);
                         $underlyingObject->setDate(
                             new \DateTime($underlyingArray[1])
@@ -460,6 +518,7 @@ class DefaultController extends Controller
                         // set data into cycle object
                         $cycleObject->setExpiremonth($cycleArray[0]);
                         $cycleObject->setExpireyear($cycleArray[1]);
+                        /** @noinspection PhpUndefinedMethodInspection */
                         $cycleObject->setExpiredate(new \DateTime(
                             date("Y-m-d", $currentDate->getTimestamp())
                             . "+ " . $cycleArray[2] . " days"));
@@ -594,21 +653,23 @@ class DefaultController extends Controller
      * 2. array of cycle object
      * 3. array of strike object
      * 4. array of chain object
-     * @return int
-     * return 1 if everything is complete
+     * @return array
+     * return warning if duplicate underlying date found
      * @throws \Symfony\Component\HttpKernel\Exception\NotFoundHttpException
      * error when any data object, insertion, entitymanager
      * or anything else related to insert will trigger this
      */
+
     private function insertObjectToDb($quoteObjectArray)
     {
-        // check object not blank
+        //set warning empty
+        $warning = Array();
+
         $entityManager = $this->getDoctrine()->getManager('symbol');
 
         // loop for each files object that contain 4 objects
-        foreach ($quoteObjectArray as $quoteKey => $quoteObject) {
-            // reset underlying object
-            $underlyingObject = "";
+        foreach ($quoteObjectArray as $quoteObject) {
+            $doInsert = 1;
 
             // loop quoteObject into each 1 => object, 2,3,4 => array objects
             // 1 underlying object, 2 array of cycle object
@@ -642,18 +703,34 @@ class DefaultController extends Controller
                             );
                         }
 
-                        // TODO: check underlying date is exist! if yes, exit and notice
+                        // if exist, then skip this insert and other object, to next file
+                        $existUnderlying = $this->findOneByArray(
+                            array('date' => $underlyingObject->getDate()),
+                            'Underlying'
+                        );
 
-                        // insert into database for underlying
-                        $entityManager->persist($underlyingObject);
-                        $entityManager->flush();
+                        if ($existUnderlying) {
+                            // skip all object insert including underlying
+                            $doInsert = 0;
+
+                            if ($existUnderlying instanceof Underlying) {
+                                $warning[] = $existUnderlying->getName()
+                                    . ": " . $existUnderlying->getDate()->format("Y-m-d");
+                            }
+                        } else {
+                            // insert into database for underlying
+                            $entityManager->persist($underlyingObject);
+                            $entityManager->flush();
+                        }
+
+
                     } else {
                         // error if first item is not underlying object
                         throw $this->createNotFoundException(
                             "Invalid Underlying object (Key $objectKey)"
                         );
                     }
-                } elseif ($objectKey == 1) {
+                } elseif ($objectKey == 1 && $doInsert) {
                     // cycle object is here
                     // loop all the cycle object
                     foreach ($objectArray as &$cycleObject) {
@@ -686,7 +763,7 @@ class DefaultController extends Controller
                         // insert into database for cycle
                         $entityManager->flush();
                     }
-                } elseif ($objectKey == 2) {
+                } elseif ($objectKey == 2 && $doInsert) {
                     // strike object is here
                     // loop all the strike object
                     foreach ($objectArray as &$strikeObject) {
@@ -714,7 +791,7 @@ class DefaultController extends Controller
 
                     // insert into database for strike
                     $entityManager->flush();
-                } elseif ($objectKey == 3) {
+                } elseif ($objectKey == 3 && $doInsert) {
                     // chain object with other foreign key
                     $countUnderlying = 0;
                     $existUnderlying = "";
@@ -765,7 +842,7 @@ class DefaultController extends Controller
                                 $countUnderlying++;
                             }
 
-                            if ($underlyingObject instanceof Underlying) {
+                            if ($existUnderlying instanceof Underlying) {
                                 $chainObject->setUnderlyingid($existUnderlying);
                             }
 
@@ -783,11 +860,10 @@ class DefaultController extends Controller
                 }
 
                 $entityManager->clear();
-
             }
         }
 
-        return 1;
+        return $warning;
     }
 
     /**
@@ -865,7 +941,7 @@ class DefaultController extends Controller
 
         // set require column
         $symbol->setName($symbolName);
-        $symbol->setLastupdate(new \DateTime('now'));
+        $symbol->setImportdate(new \DateTime('now'));
 
         // create em and insert row
         $entityManager = $this->getDoctrine()->getManager();

@@ -1,3 +1,8 @@
+pass all checklist in windows
+=============================
+1. copy the php_apc.ini into php ext folder
+
+
 generate entity from existing database
 ======================================
 
@@ -26,8 +31,9 @@ s doctrine:mapping:convert --em=system annotation ./src
 
 3.  generate getter and setter in php files
 
-s doctrine:generate:entities JackImportBundles
+s doctrine:generate:entities JackImportBundle
 
+remember to set default value at symbol (country, marketcap, shortable)
 
 
 
