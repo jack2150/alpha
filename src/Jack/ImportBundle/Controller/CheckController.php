@@ -194,6 +194,7 @@ class CheckController extends Controller
         $dayBetween = ($lastDate - $firstDate) / $everyDay;
         $businessDays = 0;
 
+        $totalMissing = 0;
         $missingDates = Array();
         $missingDate = "";
         for ($dateNow = $firstDate; $dateNow <= $lastDate; $dateNow += $everyDay) {
@@ -220,6 +221,7 @@ class CheckController extends Controller
                 if (!$foundMatch) {
                     // if not found in table
                     // add it into missing array
+                    $totalMissing++;
                     $missingDate[] = date("Y-m-d (l)", $dateNow);
                     if ($weekday == 'Friday') {
                         $missingDates[] = implode(" , ", $missingDate);
@@ -262,7 +264,7 @@ class CheckController extends Controller
                 'lastDate' => date("Y-m-d", $lastDate),
                 'dayBetween' => $dayBetween,
                 'workingDays' => $businessDays,
-                'totalMissingDays' => count($missingDates),
+                'totalMissingDays' => $totalMissing,
                 'missingDates' => $missingDates,
                 'cycleCount' => $cycleCount,
                 'strikeCount' => $strikeCount,

@@ -1,8 +1,8 @@
-{% extends "AcmeDemoBundle::layout.html.twig" %}
+{% extends "JackImportBundle::layout.html.twig" %}
 
 {% block head %}
     {% if import_url %}
-        <meta http-equiv="refresh" content="2; url={{ import_url }}">
+        <meta http-equiv="refresh" content="1; url={{ import_url }}">
     {% endif %}
 
     <link rel="icon" sizes="16x16" href="{{ asset('favicon.ico') }}"/>
@@ -12,11 +12,14 @@
 {% block title "Import Single Underlying (Multiple Files) Quotes" %}
 
 {% block content %}
-    <h1 class="title">Successful imported: {{ current_symbol }}</h1>
+    <h2 style="background-color: darkcyan">
+        Successful imported: {{ current_symbol }}
+    </h2>
     {% if remaining_symbols %}
         <p>Remaining symbols: <b>{{ remaining_symbols }}</b></p>
     {% else %}
-        <p>No more remaining symbols and files...</p>
+        <p>No more remaining files in folder...</p>
+        <p><a href="{{ path('jack_import_check_form') }}">Check imported files now!</a></p>
     {% endif %}
     <ul>
         {% if warning %}

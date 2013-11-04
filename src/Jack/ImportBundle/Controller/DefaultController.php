@@ -28,6 +28,8 @@ use Jack\ImportBundle\Entity\Symbol;
  */
 class DefaultController extends Controller
 {
+    public static $maxFilesInsert = 5;
+
     /**
      * @return \Symfony\Component\HttpFoundation\Response
      */
@@ -176,7 +178,7 @@ class DefaultController extends Controller
         $firstSymbol = "";
         $remainSymbols = Array();
         $fileLinks = Array();
-        $maxFilesInsert = 5;
+        $maxFilesInsert = self::$maxFilesInsert;
 
         foreach ($finder as $file) {
             if (!($file instanceof SplFileInfo)) {
