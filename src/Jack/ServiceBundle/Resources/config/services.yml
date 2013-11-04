@@ -1,0 +1,7 @@
+parameters:
+    jack_service.fastdb.class: Jack\ServiceBundle\Controller\DefaultController
+
+services:
+    jack_service.fastdb:
+        class: %jack_service.fastdb.class%
+        arguments: ['@service_container']

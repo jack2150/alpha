@@ -7,5 +7,5 @@ jack_import_check_form:
     defaults: { _controller: JackImportBundle:Check:form }
 
 jack_import_check_report:
-    pattern: /check/report/{symbol}
+    pattern: /check/report/{name}
     defaults: { _controller: JackImportBundle:Check:report }

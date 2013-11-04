@@ -1,3 +1,5 @@
+# remember only use 2 spaces at the beginning
+# if you use more spaces, it will generate errors
 Jack\ImportBundle\Entity\Symbol:
   properties:
     name:
