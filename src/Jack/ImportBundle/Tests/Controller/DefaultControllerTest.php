@@ -17,16 +17,4 @@ class DefaultControllerTest extends WebTestCase
         //$this->assertTrue($crawler->filter('html:contains("Hello Fabien")')->count() > 0);
     }
 
-    public function testGetFiles()
-    {
-        $testDefault = new DefaultController();
-
-        $files = $testDefault->formatFiles(
-            $testDefault->getFiles('C:\Users\trader\PhpstormProjects\alpha\web\import')
-        );
-
-
-        $this->assertTrue(count($files) > 0);
-
-    }
 }

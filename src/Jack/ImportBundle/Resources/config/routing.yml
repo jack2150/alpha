@@ -1,3 +1,11 @@
 jack_import_default:
-    pattern:  /default/
+    pattern:  /default
     defaults: { _controller: JackImportBundle:Default:index }
+
+jack_import_check_form:
+    pattern: /check/form
+    defaults: { _controller: JackImportBundle:Check:form }
+
+jack_import_check_report:
+    pattern: /check/report/{symbol}
+    defaults: { _controller: JackImportBundle:Check:report }
