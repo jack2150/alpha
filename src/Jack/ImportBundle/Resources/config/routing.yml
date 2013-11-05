@@ -9,3 +9,24 @@ jack_import_check_form:
 jack_import_check_report:
     pattern: /check/report/{name}
     defaults: { _controller: JackImportBundle:Check:report }
+
+jack_import_event_symbol:
+    pattern: /event/select/symbol
+    defaults: { _controller: JackImportBundle:Event:selectSymbol }
+
+
+jack_import_event_add:
+    pattern: /event/add/{symbol}
+    defaults: { _controller: JackImportBundle:Event:addEvent }
+
+jack_import_event_show:
+    pattern: /event/show
+    defaults: { _controller: JackImportBundle:Event:showEvent }
+
+jack_import_event_remove:
+    pattern: /event/remove/{symbol}
+    defaults: { _controller: JackImportBundle:Event:removeEvent }
+
+jack_import_event_update:
+    pattern: /event/update/{symbol}
+    defaults: { _controller: JackImportBundle:Event:updateEvent }

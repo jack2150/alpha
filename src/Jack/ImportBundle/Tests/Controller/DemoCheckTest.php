@@ -18,15 +18,6 @@ class CheckControllerTest extends WebTestCase
         $client->submit($form, array('form[name]' => 'SNDK'));
         //$crawler = $client->followRedirect();
 
-        // TODO: wrong page after submit done
-        /*
-        $this->assertGreaterThan(
-            0, $crawler->filter('html:contains("You currently generate report for")')->count()
-        );
-        */
         $this->assertRegExp('/generate/', $client->getResponse()->getContent());
-        //$this->assertTrue($crawler->filter('h1')->count() > 0);
-
-
     }
 }

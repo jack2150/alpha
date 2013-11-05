@@ -112,18 +112,6 @@ class CheckController extends Controller
      */
     public function reportAction($name)
     {
-        // TODO check date range
-
-        // switch the symbol database into ebay
-        //$this->get('jack_service.fastdb')->switchSymbolDb('ebay');
-        //$service = $this->get('jack_service.fastdb')->switchSymbolDb($symbol);
-        //$entityManager = $this->getDoctrine()->getManager('symbol');
-        /** @noinspection PhpUndefinedMethodInspection */
-        //$underlying = $entityManager
-        //    ->getRepository('JackImportBundle:Underlying')
-        //    ->findOneBy(array('name'=>'EBAY'));
-
-
         // 1. check symbol exist in system symbol table
         $systemEM = $this->getDoctrine()->getManager('system');
         $symbol = $systemEM->getRepository('JackImportBundle:Symbol')
