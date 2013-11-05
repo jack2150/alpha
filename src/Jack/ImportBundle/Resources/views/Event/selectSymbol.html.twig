@@ -1,0 +1,29 @@
+{% extends "JackImportBundle::layout.html.twig" %}
+
+{% block title %}Import Bundle: Event: Select Symbol{% endblock %}
+
+{% block content %}
+    <h2 style="background-color: darkcyan">Manage Event:</h2>
+
+    {{ form_start(form) }}
+    {{ form_errors(form) }}
+
+    <div>
+        {{ form_label(form.symbol, 'Symbol: ') }}
+        {{ form_errors(form.symbol) }}
+        {{ form_widget(form.symbol) }}
+
+        {{ form_label(form.action, 'For: ') }}
+        {{ form_errors(form.action) }}
+        {{ form_widget(form.action) }}
+
+        {{ form_widget(form.continue) }}
+    </div>
+
+    <span style="font-size: 0.8em; color: darkorange">
+        ** Latest import into database.
+    </span>
+
+    {{ form_end(form) }}
+
+{% endblock %}
