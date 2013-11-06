@@ -2,15 +2,17 @@
 <doctrine-mapping xmlns="http://doctrine-project.org/schemas/orm/doctrine-mapping"
                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                   xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping http://doctrine-project.org/schemas/orm/doctrine-mapping.xsd">
-    <entity name="Jack\ImportBundle\Entity\Event" table="event">
+    <entity name="Jack\ImportBundle\Entity\Analyst" table="analyst">
         <id name="id" type="integer" column="id">
             <generator strategy="IDENTITY"/>
         </id>
-        <field name="name" type="string" column="name" length="100" nullable="false"/>
-        <field name="context" type="string" column="context" length="200" nullable="true"/>
-        <many-to-one field="underlyingid" target-entity="Underlying">
+        <field name="firm" type="string" column="firm" length="200" nullable="true"/>
+        <field name="opinion" type="integer" column="opinion" nullable="false"/>
+        <field name="rating" type="integer" column="rating" nullable="false"/>
+        <field name="target" type="float" column="target" nullable="false"/>
+        <many-to-one field="eventid" target-entity="Event">
             <join-columns>
-                <join-column name="underlyingId" referenced-column-name="id"/>
+                <join-column name="eventId" referenced-column-name="id"/>
             </join-columns>
         </many-to-one>
     </entity>

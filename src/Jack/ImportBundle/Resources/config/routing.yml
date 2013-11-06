@@ -19,6 +19,15 @@ jack_import_event_add:
     pattern: /event/add/{symbol}
     defaults: { _controller: JackImportBundle:Event:addEvent }
 
+jack_import_event_add_earning:
+    pattern: /event/add/earning/{symbol}
+    defaults: { _controller: JackImportBundle:Event:addEarning }
+
+jack_import_event_add_analyst:
+    pattern: /event/add/analyst/{symbol}
+    defaults: { _controller: JackImportBundle:Event:addAnalyst }
+
+
 jack_import_event_show:
     pattern: /event/show
     defaults: { _controller: JackImportBundle:Event:showEvent }

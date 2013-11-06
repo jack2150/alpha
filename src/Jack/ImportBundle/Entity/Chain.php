@@ -143,7 +143,7 @@ class Chain
     /**
      * @var \Jack\ImportBundle\Entity\Strike
      *
-     * @ORM\ManyToOne(targetEntity="Jack\ImportBundle\Entity\Strike", cascade={"persist", "remove"})
+     * @ORM\ManyToOne(targetEntity="Jack\ImportBundle\Entity\Strike")
      * @ORM\JoinColumns({
      * @ORM\JoinColumn(name="strikeId", referencedColumnName="id")
      * })
@@ -153,7 +153,7 @@ class Chain
     /**
      * @var \Jack\ImportBundle\Entity\Cycle
      *
-     * @ORM\ManyToOne(targetEntity="Jack\ImportBundle\Entity\Cycle", cascade={"persist", "remove"})
+     * @ORM\ManyToOne(targetEntity="Jack\ImportBundle\Entity\Cycle")
      * @ORM\JoinColumns({
      * @ORM\JoinColumn(name="cycleId", referencedColumnName="id")
      * })
@@ -163,7 +163,7 @@ class Chain
     /**
      * @var \Jack\ImportBundle\Entity\Underlying
      *
-     * @ORM\ManyToOne(targetEntity="Jack\ImportBundle\Entity\Underlying", cascade={"persist", "remove"})
+     * @ORM\ManyToOne(targetEntity="Jack\ImportBundle\Entity\Underlying")
      * @ORM\JoinColumns({
      * @ORM\JoinColumn(name="underlyingId", referencedColumnName="id")
      * })

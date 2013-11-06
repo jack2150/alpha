@@ -33,7 +33,7 @@ s doctrine:mapping:convert --em=system annotation ./src
 
 s doctrine:generate:entities JackImportBundle
 
-remember to set default value at symbol (country, marketcap, shortable)
+remember to set default value at symbol (country = usa, marketcap = mega, shortable = 1)
 
 
 

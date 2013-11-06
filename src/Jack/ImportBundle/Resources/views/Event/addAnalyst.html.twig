@@ -1,6 +1,6 @@
 {% extends "JackImportBundle::layout.html.twig" %}
 
-{% block title %}Import Bundle: Event: Add Event{% endblock %}
+{% block title %}Import Bundle: Event: Add Event: Earning{% endblock %}
 
 {% block head %}
     <link rel="icon" sizes="16x16" href="{{ asset('favicon.ico') }}"/>
@@ -15,11 +15,11 @@
         }
 
         .event .first {
-            width: 70px;
+            width: 100px;
         }
 
         .event .money {
-            width: 200px;
+            width: 160px;
         }
 
         .notice {
@@ -33,11 +33,20 @@
             line-break:;
             line-height: 2em;
         }
+
+        .field_error {
+            color: red;
+        }
+
+        .firm {
+            width: 300px;
+        }
+
     </style>
 {% endblock %}
 
 {% block content %}
-    <h2 style="background-color: darkcyan">Add Event:</h2>
+    <h2 style="background-color: darkcyan">Add Event [Earning]:</h2>
 
     {% if notice %}
         <div class="notice" style="padding-left: 4px;">
@@ -65,26 +74,46 @@
                 {{ form_errors(form.date) }}
                 {{ form_widget(form.date) }}
             </td>
+        </tr>
+        <tr>
+            <td>
+                {{ form_label(form.firm, 'Firm Name: ') }}
+            </td>
+            <td>
+                {{ form_errors(form.firm) }}
+                {{ form_widget(form.firm, {'attr': {'class': 'firm' }}) }}
+            </td>
+        </tr>
+        <tr>
+            <td>
+                {{ form_label(form.opinion, 'Opinion: ') }}
+            </td>
+            <td>
+                {{ form_errors(form.opinion) }}
+                {{ form_widget(form.opinion) }}
+            </td>
+        </tr>
+        <tr>
+            <td>
+                {{ form_label(form.rating, 'New Rating: ') }}
+            </td>
+
+            <td>
+                {{ form_errors(form.rating) }}
+                {{ form_widget(form.rating) }}
+            </td>
 
         </tr>
         <tr>
             <td>
-                {{ form_label(form.name, 'Event Type: ') }}
-            </td>
-            <td>
-                {{ form_errors(form.name) }}
-                {{ form_widget(form.name) }}
-            </td>
-        </tr>
-        <tr>
-            <td>
-                {{ form_label(form.context, 'Description: ') }}
+                {{ form_label(form.target, 'Target Price: ') }}
             </td>
 
             <td>
-                {{ form_errors(form.context) }}
-                {{ form_widget(form.context, {'attr': {'class': 'context' }}) }}
+                {{ form_errors(form.target) }}
+                {{ form_widget(form.target, {'attr': {'class': 'money' }}) }}
             </td>
+
         </tr>
         <tr>
             <td>

@@ -8,6 +8,8 @@ use Symfony\Component\HttpFoundation\Request;
 use Jack\ImportBundle\Entity\Symbol;
 use Jack\ImportBundle\Entity\Underlying;
 use Jack\ImportBundle\Entity\Event;
+use Jack\ImportBundle\Entity\Earning;
+use Jack\ImportBundle\Entity\Analyst;
 
 // TODO: finish event model
 /**
@@ -75,7 +77,7 @@ class EventController extends Controller
 
         // create new symbol object
         // for form usage and select
-        $select = array('symbol' => null, 'action' => 'addEvent');
+        $select = array('symbol' => null, 'action' => 'addEarning');
         $form = $this->createFormBuilder($select)
             ->add('symbol', 'choice', array(
                 'choices' => $symbolNames,
@@ -84,9 +86,11 @@ class EventController extends Controller
             ))
             ->add('action', 'choice', array(
                 'choices' => array(
-                    'addEvent' => 'Add event',
-                    'updateEvent' => 'Update event',
-                    'removeEvent' => 'Remove event',
+                    'addEarning' => 'Add Earning',
+                    'addEvent' => 'Add Event',
+                    'addAnalyst' => 'Add Analyst',
+                    'updateEvent' => 'Update Event',
+                    'removeEvent' => 'Remove Event',
                 ),
                 'required' => true,
                 'multiple' => false,
@@ -114,6 +118,12 @@ class EventController extends Controller
 
             // select action url and error checking
             switch ($action) {
+                case 'addEarning':
+                    $actionURL = 'jack_import_event_add_earning';
+                    break;
+                case 'addAnalyst':
+                    $actionURL = 'jack_import_event_add_analyst';
+                    break;
                 case 'addEvent':
                     $actionURL = 'jack_import_event_add';
                     break;
@@ -147,12 +157,15 @@ class EventController extends Controller
         );
     }
 
-
     /**
      * @param $symbol
+     * underlying db use for insert data
      * @param Request $request
+     * event data from use input
      * @return \Symfony\Component\HttpFoundation\Response
+     * event from for user input data
      * @throws \Symfony\Component\HttpKernel\Exception\NotFoundHttpException
+     * error happen
      */
     public function addEventAction($symbol, Request $request)
     {
@@ -163,7 +176,7 @@ class EventController extends Controller
         //$event = new Event();
         $event = array(
             //'date' => new \DateTime("today"),
-            'date' => new \DateTime("2013-10-30"),
+            'date' => new \DateTime("today"),
             'name' => '',
             'context' => '',
             'symbol' => $symbol
@@ -195,11 +208,6 @@ class EventController extends Controller
             ))
             ->add('save', 'submit')
             ->getForm();
-
-        // TODO: earning form, analyst form,
-        // create new page to handle both, new url too
-        // earning, analyst table validate
-
 
         // switch the symbol db before it run valid
         $this->get('jack_service.fastdb')->switchSymbolDb($symbol);
@@ -270,7 +278,7 @@ class EventController extends Controller
 
                 // set notice
                 $notice = "Event " . $date->format('m-d-Y') .
-                    " [$name - $context] have been added into databases!";
+                    " [ $name - $context ] have been added!";
             }
 
             // everything fine, insert into database
@@ -288,19 +296,304 @@ class EventController extends Controller
     }
 
 
-    public function showEventAction($symbol = 'fb')
+    /**
+     * @param $symbol
+     * underlying symbol for insert data
+     * @param Request $request
+     * form input data from user
+     * @return \Symfony\Component\HttpFoundation\Response
+     * template for input data
+     * @throws \Symfony\Component\HttpKernel\Exception\NotFoundHttpException
+     * error happen
+     */
+    public function addEarningAction($symbol, Request $request)
     {
-        $this->get('jack_service.fastdb')->switchSymbolDb('fb');
+        // ready for notice and error warning
+        $notice = "";
+        $error = "";
 
-        // then get data from tables
+        // create a new object for form
+        $earning = array(
+            'date' => new \DateTime("today"),
+            'name' => 'earning',
+            'symbol' => $symbol,
+            'marketHour' => '',
+            'periodEnding' => new \DateTime("today"),
+            'estimate' => 0,
+            'actual' => 0,
+        );
+
+        // create form now
+        $earningForm = $this->createFormBuilder($earning)
+            ->add('date', 'date', array(
+                'widget' => 'choice',
+                'format' => 'MMM/dd/yyyy',
+                'required' => true,
+            ))
+            ->add('name', 'hidden', array('required' => true))
+            ->add('symbol', 'hidden', array('required' => true))
+            ->add('marketHour', 'choice', array(
+                'choices' => array(
+                    '' => '---',
+                    'before' => 'Before Market',
+                    'during' => 'During Market',
+                    'after' => 'After Market',
+                ),
+                'required' => true,
+                'multiple' => false,
+            ))
+            ->add('periodEnding', 'date', array(
+                    'input' => 'datetime',
+                    'widget' => 'choice',
+                    'format' => 'MMM/dd/yyyy',
+                    'days' => range(1, 1),
+                )
+            )
+            ->add('estimate', 'number', array(
+                'required' => true,
+                'precision' => 2,
+                'invalid_message' => 'Warning: Invalid format 0.00',
+            ))
+            ->add('actual', 'number', array(
+                'required' => true,
+                'precision' => 2,
+                'invalid_message' => 'Warning: Invalid format 0.00',
+            ))
+            ->add('save', 'submit')
+            ->getForm();
+
+        // switch the symbol db before it run valid
+        $this->get('jack_service.fastdb')->switchSymbolDb($symbol);
         $symbolEM = $this->getDoctrine()->getManager('symbol');
-        $underlying = $symbolEM
-            ->getRepository('JackImportBundle:Underlying')
-            ->findAll();
 
-        print_r($underlying);
+        $earningForm->handleRequest($request);
 
-        return $this->render('JackImportBundle:Event:showEvent.html.twig');
+        if ($earningForm->isValid()) {
+            // validation already done
+            $earning = $earningForm->getData();
+
+            list($date, $name, $symbol, $marketHour, $periodEnding,
+                $estimate, $actual) = array(
+                $earning['date'], $earning['name'],
+                $earning['symbol'], $earning['marketHour'],
+                $earning['periodEnding'], $earning['estimate'],
+                $earning['actual']
+            );
+
+            // validate all symbol date
+            if (!($date instanceof \DateTime)) {
+                throw $this->createNotFoundException(
+                    'DateTime object error on form submit!'
+                );
+            }
+
+            // get date from table
+            $underlying = $symbolEM
+                ->getRepository('JackImportBundle:Underlying')
+                ->findOneBy(array('date' => $date));
+
+            // date not found because not import
+            if (!$underlying) {
+                $error = 'Date [ ' . $date->format("m-d-Y") . ' ] ' .
+                    'does not exist in ' . strtoupper($symbol)
+                    . ' table, please import...';
+            } else {
+                // insert into table
+                $event = new Event();
+
+                // set data into object
+                $event->setName($name);
+                /** @var $underlying Underlying */
+                $event->setUnderlyingid($underlying);
+
+                $earning = new Earning();
+
+                $earning->setMarkethour($marketHour);
+                $earning->setPeriodending($periodEnding);
+                $earning->setEstimate($estimate);
+                $earning->setActual($actual);
+                $earning->setEventid($event);
+
+
+                // insert into db
+                $symbolEM->persist($event);
+                $symbolEM->persist($earning);
+                $symbolEM->flush();
+
+                // set notice
+                $notice = "Event " . $date->format('m-d-Y') .
+                    " [ $name - $marketHour - $actual ] have been added into databases!";
+
+            }
+        }
+
+        return $this->render(
+            'JackImportBundle:Event:addEarning.html.twig',
+            array(
+                'symbol' => strtoupper($symbol),
+                'form' => $earningForm->createView(),
+                'notice' => $notice,
+                'error' => $error,
+            )
+        );
+    }
+
+    /**
+     * @param $symbol
+     * underlying symbol for insert analyst
+     * @param Request $request
+     * form data that need validate and insert
+     * @return \Symfony\Component\HttpFoundation\Response
+     * template form for input data
+     * @throws \Symfony\Component\HttpKernel\Exception\NotFoundHttpException
+     * error happen
+     */
+    public function addAnalystAction($symbol, Request $request)
+    {
+        // TODO: next
+        // ready for notice and error warning
+        $notice = "";
+        $error = "";
+
+        // create a new object for form
+        $analyst = array(
+            'date' => new \DateTime("today"),
+            'name' => 'analyst',
+            'symbol' => $symbol,
+            'firm' => '',
+            'opinion' => '',
+            'rating' => '',
+            'target' => 0.00,
+        );
+
+        $analystForm = $this->createFormBuilder($analyst)
+            ->add('date', 'date', array(
+                'widget' => 'choice',
+                'format' => 'MMM/dd/yyyy',
+                'required' => true,
+            ))
+            ->add('name', 'hidden', array('required' => true))
+            ->add('symbol', 'hidden', array('required' => true))
+            ->add('firm', 'text', array(
+                'max_length' => 200,
+                'required' => true,
+                'invalid_message' => 'Firm cannot be empty!',
+            ))
+            ->add('opinion', 'choice', array(
+                'choices' => array(
+                    '' => '---',
+                    '-1' => 'Downgrade',
+                    '0' => 'Initial',
+                    '1' => 'Upgrade',
+                ),
+                'multiple' => false,
+                'required' => true,
+            ))
+            ->add('rating', 'choice', array(
+                'choices' => array(
+                    '' => '---',
+                    '0' => 'Strong Sell',
+                    '1' => 'Sell',
+                    '2' => 'Hold',
+                    '3' => 'Buy',
+                    '4' => 'Strong Buy',
+                ),
+                'multiple' => false,
+                'required' => true,
+            ))
+            ->add('target', 'number', array(
+                'required' => true,
+                'precision' => 2,
+                'invalid_message' => 'Warning: Invalid format 0.00',
+            ))
+            ->add('save', 'submit')
+            ->getForm();
+
+
+        // switch the symbol db before it run valid
+        $this->get('jack_service.fastdb')->switchSymbolDb($symbol);
+        $symbolEM = $this->getDoctrine()->getManager('symbol');
+
+        $analystForm->handleRequest($request);
+
+        if ($analystForm->isValid()) {
+
+            $analyst = $analystForm->getData();
+            list($date, $name, $symbol, $firm, $opinion, $rating, $target)
+                = array($analyst['date'], $analyst['name'],
+                $analyst['symbol'], $analyst['firm'],
+                $analyst['opinion'], $analyst['rating'],
+                $analyst['target']
+            );
+
+            // validate all symbol date
+            if (!($date instanceof \DateTime)) {
+                throw $this->createNotFoundException(
+                    'DateTime object error on form submit!'
+                );
+            }
+
+            // get date from table
+            $underlying = $symbolEM
+                ->getRepository('JackImportBundle:Underlying')
+                ->findOneBy(array('date' => $date));
+
+            // date not found because not import
+            if (!$underlying) {
+                $error = 'Date [ ' . $date->format("m-d-Y") . ' ] ' .
+                    'does not exist in ' . strtoupper($symbol)
+                    . ' table, please import...';
+            } else {
+                // insert into table
+                $event = new Event();
+
+                // set data into object
+                $event->setName($name);
+                /** @var $underlying Underlying */
+                $event->setUnderlyingid($underlying);
+
+                $analyst = new Analyst();
+
+                $analyst->setFirm($firm);
+                $analyst->setOpinion($opinion);
+                $analyst->setRating($rating);
+                $analyst->setTarget($target);
+                $analyst->setEventid($event);
+
+                // insert into db
+                $symbolEM->persist($event);
+                $symbolEM->persist($analyst);
+                $symbolEM->flush();
+
+                $notice = "Event " . $date->format('m-d-Y') .
+                    " [ $name ] with target price [ $target ] have been added!";
+            }
+        }
+
+        return $this->render(
+            'JackImportBundle:Event:addAnalyst.html.twig',
+            array(
+                'symbol' => strtoupper($symbol),
+                'form' => $analystForm->createView(),
+                'notice' => $notice,
+                'error' => $error,
+            )
+        );
+    }
+
+    // TODO: private display earning, event, analyst table
+    // addition to private add delete button
+    private function getEarningData($symbol, $delete)
+    {
+        /*
+         * 1. switch db
+         * 2. get data from earning (format)
+         * 3. put it into array
+         * 4. return array
+         */
+
+
+        return 0;
     }
 
     public function removeEventAction()

@@ -22,7 +22,7 @@ class Event
     /**
      * @var string
      *
-     * @ORM\Column(name="context", type="string", length=200, nullable=false)
+     * @ORM\Column(name="context", type="string", length=200, nullable=true)
      */
     private $context;
 
@@ -38,7 +38,7 @@ class Event
     /**
      * @var \Jack\ImportBundle\Entity\Underlying
      *
-     * @ORM\ManyToOne(targetEntity="Jack\ImportBundle\Entity\Underlying", cascade={"persist", "remove"})
+     * @ORM\ManyToOne(targetEntity="Jack\ImportBundle\Entity\Underlying")
      * @ORM\JoinColumns({
      * @ORM\JoinColumn(name="underlyingId", referencedColumnName="id")
      * })

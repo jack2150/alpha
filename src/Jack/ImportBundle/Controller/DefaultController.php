@@ -927,6 +927,8 @@ class DefaultController extends Controller
             $entityManager->getClassMetadata('Jack\ImportBundle\Entity\Strike'),
             $entityManager->getClassMetadata('Jack\ImportBundle\Entity\Chain'),
             $entityManager->getClassMetadata('Jack\ImportBundle\Entity\Event'),
+            $entityManager->getClassMetadata('Jack\ImportBundle\Entity\Earning'),
+            $entityManager->getClassMetadata('Jack\ImportBundle\Entity\Analyst'),
         ));
     }
 
