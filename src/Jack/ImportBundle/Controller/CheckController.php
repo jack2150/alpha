@@ -112,6 +112,8 @@ class CheckController extends Controller
      */
     public function reportAction($name)
     {
+        date_default_timezone_set('UTC');
+
         // 1. check symbol exist in system symbol table
         $systemEM = $this->getDoctrine()->getManager('system');
         $symbol = $systemEM->getRepository('JackImportBundle:Symbol')
@@ -154,6 +156,7 @@ class CheckController extends Controller
 
         $firstDate = 0;
         $lastDate = 0;
+
         foreach ($underlyings as $underlying) {
             if (!$underlying instanceof Underlying) {
                 throw $this->createNotFoundException(
@@ -166,10 +169,12 @@ class CheckController extends Controller
             if ($firstDate >= $underlyingDate || !$firstDate) {
                 // set first date
                 $firstDate = $underlyingDate;
+                $firstDateObject = $underlying->getDate();
             }
             // if last date is smaller than current date
             if ($lastDate <= $underlyingDate || !$lastDate) {
                 $lastDate = $underlyingDate;
+                $lastDateObject = $underlying->getDate();
             }
         }
 
@@ -177,30 +182,43 @@ class CheckController extends Controller
         // check empty date in that range
         // first you generate require date from loop
 
+
         // 24 hours, 60 minutes, 60 seconds
         $everyDay = 24 * 60 * 60;
         $dayBetween = ($lastDate - $firstDate) / $everyDay;
+        /** @var $lastDateObject \DateTime */
+        /** @var $firstDateObject \DateTime */
+        $diff = $lastDateObject->diff($firstDateObject);
+        $dayBetween = $diff->format('%a');
         $businessDays = 0;
+
+
+        $date = '2009-12-06';
+        // End date
+        $end_date = '2020-12-31';
 
         $totalMissing = 0;
         $missingDates = Array();
         $missingDate = "";
-        for ($dateNow = $firstDate; $dateNow <= $lastDate; $dateNow += $everyDay) {
-            // loop underlying object for exist
 
-            $weekday = date('l', $dateNow);
+
+        // End date
+        $current_date = $firstDateObject->format('Y-m-d');
+        $end_date = $lastDateObject->format('Y-m-d');;
+
+        while (strtotime($current_date) <= strtotime($end_date)) {
+
+            $weekday = date('l', strtotime($current_date));
             if ($weekday != 'Saturday' && $weekday != 'Sunday') {
                 // working days only
                 $businessDays++;
-
-                // if not saturday or sunday
-                // check the result
 
                 $foundMatch = 0;
                 foreach ($underlyings as $underlying) {
                     if ($underlying instanceof Underlying) {
                         // compare the date
-                        if ($dateNow == $underlying->getDate()->getTimestamp()) {
+                        $compareDate = $underlying->getDate()->format('Y-m-d');
+                        if ($current_date == $compareDate) {
                             $foundMatch = 1;
                         }
                     }
@@ -210,14 +228,17 @@ class CheckController extends Controller
                     // if not found in table
                     // add it into missing array
                     $totalMissing++;
-                    $missingDate[] = date("Y-m-d (l)", $dateNow);
+                    $missingDate[] = date("Y-m-d (l)", strtotime($current_date));
                     if ($weekday == 'Friday') {
                         $missingDates[] = implode(" , ", $missingDate);
                         $missingDate = null;
                     }
                 }
             }
+
+            $current_date = date("Y-m-d", strtotime("+1 day", strtotime($current_date)));
         }
+        $missingDates[] = implode(" , ", $missingDate);
 
 
         // TODO: what if holiday exist? use the event object

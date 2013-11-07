@@ -15,6 +15,8 @@ change realpath_cache_size = 4096k in php.ini
 
 5. the main reason is xdebug enabled
 
+6. set: date.timezone = UTC
+
 pass all checklist in windows
 =============================
 1. copy the php_apc.ini into php ext folder

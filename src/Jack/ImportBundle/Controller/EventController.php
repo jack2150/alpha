@@ -11,7 +11,6 @@ use Jack\ImportBundle\Entity\Event;
 use Jack\ImportBundle\Entity\Earning;
 use Jack\ImportBundle\Entity\Analyst;
 
-// TODO: finish event model
 /**
  * Class EventController
  * @package Jack\ImportBundle\Controller
@@ -448,7 +447,6 @@ class EventController extends Controller
      */
     public function addAnalystAction($symbol, Request $request)
     {
-        // TODO: next
         // ready for notice and error warning
         $notice = "";
         $error = "";
@@ -601,10 +599,6 @@ class EventController extends Controller
             )
         );
     }
-
-    // TODO: private display earning, event, analyst table
-    // addition to private add delete button
-
 
     /**
      * @param $symbol
