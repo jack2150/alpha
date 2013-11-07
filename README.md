@@ -1,3 +1,20 @@
+symfony2 in apache
+==================
+1. always point to web directory
+
+2. put this 2 line in production mode
+parameters:
+    router.options.matcher.cache_class: ~ # disable router cache
+    router.options.matcher_class: Symfony\Component\Routing\Matcher\ApacheUrlMatcher
+
+3. dev mode use localhost/app_dev.php/...
+
+4. enable apc,
+disable profiler toolbar if necessary,
+change realpath_cache_size = 4096k in php.ini
+
+5. the main reason is xdebug enabled
+
 pass all checklist in windows
 =============================
 1. copy the php_apc.ini into php ext folder

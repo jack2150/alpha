@@ -1,0 +1,42 @@
+{% if earnings %}
+    <h2 style="background-color: darkcyan">
+        EVENT (EARNING)
+    </h2>
+    <table>
+        <tr>
+            <th style="width: 70px; font-weight: bold;">ID</th>
+            <th style="width: 120px; font-weight: bold;">Date</th>
+            <th style="width: 100px; font-weight: bold;">Name</th>
+            <th style="width: 160px; font-weight: bold;">Hour</th>
+            <th style="width: 100px; font-weight: bold;">Season</th>
+            <th style="width: 70px; font-weight: bold;">Estimate</th>
+            <th style="width: 70px; font-weight: bold;">Actual</th>
+            <th></th>
+        </tr>
+        {% for earning in earnings %}
+            <tr>
+                <td>{{ earning.event_id }}({{ earning.id }})</td>
+                <td>{{ earning.date }}</td>
+                <td>{{ earning.name }}</td>
+                {% if earning.marketHour == 'before' %}
+                    <td>Before Market Open</td>
+                {% endif %}
+                {% if earning.marketHour == 'during' %}
+                    <td>During Market Hour</td>
+                {% endif %}
+                {% if earning.marketHour == 'after' %}
+                    <td>After Market Close</td>
+                {% endif %}
+                <td>{{ earning.periodEnding }}</td>
+                <td>${{ earning.estimate|number_format(2, '.', ',') }}</td>
+                <td>${{ earning.actual|number_format(2, '.', ',') }}</td>
+                <td><a href="{{ earning.delete }}">Remove Earning</a></td>
+            </tr>
+        {% endfor %}
+    </table>
+{% else %}
+    <h2 style="background-color: darkcyan">
+        EVENT (EARNING)
+    </h2>
+    <p>This underlying have no earning inserted yet.</p>
+{% endif %}

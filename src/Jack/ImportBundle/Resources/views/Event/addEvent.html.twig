@@ -37,7 +37,7 @@
 {% endblock %}
 
 {% block content %}
-    <h2 style="background-color: darkcyan">Add Event:</h2>
+    <h2 style="background-color: darkcyan">ADD NEW EVENT</h2>
 
     {% if notice %}
         <div class="notice" style="padding-left: 4px;">
@@ -95,5 +95,12 @@
     </table>
 
     {{ form_end(form) }}
+
+    <br/>
+
+    {{ include(
+    'JackImportBundle:Event:showEvent.html.twig',
+    { 'events': events }
+    ) }}
 
 {% endblock %}

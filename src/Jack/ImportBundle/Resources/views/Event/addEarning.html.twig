@@ -121,4 +121,11 @@
 
     {{ form_end(form) }}
 
+    <br/>
+
+    {{ include(
+    'JackImportBundle:Event:showEarning.html.twig',
+    { 'earnings': earnings }
+    ) }}
+
 {% endblock %}

@@ -1,7 +1,28 @@
-{% extends "::base.html.twig" %}
-
-{% block title %}JackImportBundle:Event:showEvent{% endblock %}
-
-{% block body %}
-    <h1>Welcome to the Event:showEvent page</h1>
-{% endblock %}
+{% if events %}
+    <h2 style="background-color: darkcyan">
+        EVENTS (DIVIDEND, CONFERENCE, SPLIT, SPECIAL)
+    </h2>
+    <table>
+        <tr>
+            <th style="width: 70px; font-weight: bold;">ID</th>
+            <th style="width: 120px; font-weight: bold;">Date</th>
+            <th style="width: 100px; font-weight: bold;">Name</th>
+            <th style="width: 300px; font-weight: bold;">Content</th>
+            <th></th>
+        </tr>
+        {% for event in events %}
+            <tr>
+                <td>{{ event.id }}</td>
+                <td>{{ event.date }}</td>
+                <td>{{ event.name }}</td>
+                <td>{{ event.context }}</td>
+                <td><a href="{{ event.delete }}">Remove Event</a></td>
+            </tr>
+        {% endfor %}
+    </table>
+{% else %}
+    <h2 style="background-color: darkcyan">
+        EVENTS (DIVIDEND, CONFERENCE, SPLIT, SPECIAL)
+    </h2>
+    <p>This underlying have no event inserted yet.</p>
+{% endif %}

@@ -89,8 +89,7 @@ class EventController extends Controller
                     'addEarning' => 'Add Earning',
                     'addEvent' => 'Add Event',
                     'addAnalyst' => 'Add Analyst',
-                    'updateEvent' => 'Update Event',
-                    'removeEvent' => 'Remove Event',
+                    'manageEvent' => 'Manage Event',
                 ),
                 'required' => true,
                 'multiple' => false,
@@ -127,11 +126,8 @@ class EventController extends Controller
                 case 'addEvent':
                     $actionURL = 'jack_import_event_add';
                     break;
-                case 'updateEvent':
-                    $actionURL = 'jack_import_event_update';
-                    break;
-                case 'removeEvent':
-                    $actionURL = 'jack_import_event_remove';
+                case 'manageEvent':
+                    $actionURL = 'jack_import_event_manage';
                     break;
                 default:
                     throw $this->createNotFoundException(
@@ -176,7 +172,7 @@ class EventController extends Controller
         //$event = new Event();
         $event = array(
             //'date' => new \DateTime("today"),
-            'date' => new \DateTime("today"),
+            'date' => new \DateTime("yesterday"),
             'name' => '',
             'context' => '',
             'symbol' => $symbol
@@ -291,6 +287,7 @@ class EventController extends Controller
                 'form' => $eventForm->createView(),
                 'notice' => $notice,
                 'error' => $error,
+                'events' => $this->getEventData($symbol, 'jack_import_event_add'),
             )
         );
     }
@@ -314,11 +311,11 @@ class EventController extends Controller
 
         // create a new object for form
         $earning = array(
-            'date' => new \DateTime("today"),
+            'date' => new \DateTime("yesterday"),
             'name' => 'earning',
             'symbol' => $symbol,
             'marketHour' => '',
-            'periodEnding' => new \DateTime("today"),
+            'periodEnding' => new \DateTime("yesterday"),
             'estimate' => 0,
             'actual' => 0,
         );
@@ -434,6 +431,7 @@ class EventController extends Controller
                 'form' => $earningForm->createView(),
                 'notice' => $notice,
                 'error' => $error,
+                'earnings' => $this->getEarningData($symbol, 'jack_import_event_add_earning'),
             )
         );
     }
@@ -457,7 +455,7 @@ class EventController extends Controller
 
         // create a new object for form
         $analyst = array(
-            'date' => new \DateTime("today"),
+            'date' => new \DateTime("yesterday"),
             'name' => 'analyst',
             'symbol' => $symbol,
             'firm' => '',
@@ -577,33 +575,318 @@ class EventController extends Controller
                 'form' => $analystForm->createView(),
                 'notice' => $notice,
                 'error' => $error,
+                'analysts' => $this->getAnalystData($symbol,
+                    'jack_import_event_add_analyst'),
+            )
+        );
+    }
+
+    public function manageEventAction($symbol)
+    {
+        $this->get('jack_service.fastdb')->switchSymbolDb($symbol);
+
+
+        $events = $this->getEventData($symbol, 'jack_import_event_manage');
+
+        $earnings = $this->getEarningData($symbol, 'jack_import_event_manage');
+
+        $analysts = $this->getAnalystData($symbol, 'jack_import_event_manage');
+
+        return $this->render(
+            'JackImportBundle:Event:manageEvent.html.twig',
+            array(
+                'events' => $events,
+                'earnings' => $earnings,
+                'analysts' => $analysts,
             )
         );
     }
 
     // TODO: private display earning, event, analyst table
     // addition to private add delete button
-    private function getEarningData($symbol, $delete)
+
+
+    /**
+     * @param $symbol
+     * @param $redirect
+     * @return array|int
+     * @throws \Symfony\Component\HttpKernel\Exception\NotFoundHttpException
+     */
+    private function getEventData($symbol, $redirect)
     {
-        /*
-         * 1. switch db
-         * 2. get data from earning (format)
-         * 3. put it into array
-         * 4. return array
-         */
+        // only for dividend, conference, split, special
+        $symbolEM = $this->getDoctrine()->getManager('symbol');
+
+        // get date from table
+        $events = $symbolEM
+            ->getRepository('JackImportBundle:Event')
+            ->findBy(array(), array('id' => 'desc'));
+
+        if (!$events) {
+            // no event data
+            return 0;
+        }
+
+        $eventArray = Array();
+
+        foreach ($events as $event) {
+            // make an formatted array
+            if (!($event instanceof Event)) {
+                throw $this->createNotFoundException(
+                    'Error [ event ] data object from database!'
+                );
+            }
+
+            // format data
+            $formatEvent = "";
+
+            // generate delete url
+            $formatEvent['delete'] = '#';
+            $formatEvent['delete'] = $this->generateUrl(
+                'jack_import_event_remove',
+                array(
+                    'symbol' => $symbol,
+                    'id' => $event->getId(),
+                    'redirect' => $redirect
+                )
+            );
+
+            switch ($event->getName()) {
+                case 'dividend':
+
+                    $formatEvent['id'] = $event->getId();
+                    $formatEvent['name'] = "DIVIDEND";
+                    $formatEvent['context'] = "Pay ( $"
+                        . number_format($event->getContext(), 2, '.', ',')
+                        . " ) Per Share";
+                    $formatEvent['date'] = $event->getUnderlyingid()->getDate()->format("M-d-Y");
+
+                    $eventArray[] = $formatEvent;
+                    break;
+                case 'conference':
+                    $formatEvent['id'] = $event->getId();
+                    $formatEvent['name'] = "CONFERENCE";
+                    $formatEvent['context'] = "Report: " . $event->getContext();
+                    $formatEvent['date'] = $event->getUnderlyingid()
+                        ->getDate()->format("M-d-Y");
+
+                    $eventArray[] = $formatEvent;
+                    break;
+                case 'split':
+                    list($new_shares, $old_shares) = explode(":", $event->getContext());
+
+                    $formatEvent['id'] = $event->getId();
+                    $formatEvent['name'] = "SHARE SPLIT";
+                    $formatEvent['context'] = "Split " . $new_shares .
+                        " new share for " . $old_shares . " old shares";
+                    $formatEvent['date'] = $event->getUnderlyingid()->getDate()->format("M-d-Y");
+
+                    $eventArray[] = $formatEvent;
+                    break;
+                case 'special':
+                    //$event->setName("SPECIAL NEWS");
+                    $formatEvent['id'] = $event->getId();
+                    $formatEvent['name'] = "SPECIAL";
+                    $formatEvent['context'] = "NEWS: " . $event->getContext();
+                    $formatEvent['date'] = $event->getUnderlyingid()->getDate()->format("M-d-Y");
+
+                    $eventArray[] = $formatEvent;
+                    break;
+            }
+        }
 
 
-        return 0;
+        return $eventArray;
     }
 
-    public function removeEventAction()
+    /**
+     * @param $symbol
+     * @param $redirect
+     * @return array|int
+     * @throws \Symfony\Component\HttpKernel\Exception\NotFoundHttpException
+     */
+    private function getEarningData($symbol, $redirect)
     {
-        return $this->render('JackImportBundle:Event:removeEvent.html.twig');
+        // only for earning event
+        $symbolEM = $this->getDoctrine()->getManager('symbol');
+
+        // get date from table
+        $earnings = $symbolEM
+            ->getRepository('JackImportBundle:Earning')
+            ->findBy(array(), array('id' => 'desc'));
+
+        if (!$earnings) {
+            // no event data
+            return 0;
+        }
+
+        $eventArray = Array();
+
+        foreach ($earnings as $earning) {
+            if (!($earning instanceof Earning)) {
+                throw $this->createNotFoundException(
+                    'Error [ event ] data object from database!'
+                );
+            }
+
+            // format data
+            $formatEarning = "";
+
+            // generate delete url
+            $formatEarning['delete'] = '#';
+            $formatEarning['delete'] = $this->generateUrl(
+                'jack_import_event_remove',
+                array(
+                    'symbol' => $symbol,
+                    'id' => $earning->getEventid()->getId(),
+                    'redirect' => $redirect,
+                )
+            );
+
+            $formatEarning['id'] = $earning->getId();
+            $formatEarning['event_id'] = $earning->getEventid()->getId();
+            $formatEarning['date'] = $earning->getEventid()
+                ->getUnderlyingid()->getDate()->format("M-d-Y");
+            $formatEarning['name'] = "EARNING";
+
+            $formatEarning['marketHour'] = $earning->getMarkethour();
+            $formatEarning['periodEnding'] = $earning->getPeriodending()->format("M Y");
+            $formatEarning['estimate'] = $earning->getEstimate();
+            $formatEarning['actual'] = $earning->getActual();
+
+
+            $eventArray[] = $formatEarning;
+
+
+        }
+
+        return $eventArray;
     }
 
-    public function updateEventAction()
+    private function getAnalystData($symbol, $redirect)
     {
-        return $this->render('JackImportBundle:Event:updateEvent.html.twig');
+        // only for earning event
+        $symbolEM = $this->getDoctrine()->getManager('symbol');
+
+        // get date from table
+        $analysts = $symbolEM
+            ->getRepository('JackImportBundle:Analyst')
+            ->findBy(array(), array('id' => 'desc'));
+
+        if (!$analysts) {
+            // no event data
+            return 0;
+        }
+
+        $analystArray = Array();
+
+        foreach ($analysts as $analyst) {
+            if (!($analyst instanceof Analyst)) {
+                throw $this->createNotFoundException(
+                    'Error [ analyst ] data object from database!'
+                );
+            }
+
+            // format data
+            $formatAnalysts = "";
+
+            // generate delete url
+            $formatAnalysts['delete'] = '#';
+            $formatAnalysts['delete'] = $this->generateUrl(
+                'jack_import_event_remove',
+                array(
+                    'symbol' => $symbol,
+                    'id' => $analyst->getEventid()->getId(),
+                    'redirect' => $redirect,
+                )
+            );
+
+            $formatAnalysts['id'] = $analyst->getId();
+            $formatAnalysts['event_id'] = $analyst->getEventid()->getId();
+            $formatAnalysts['date'] = $analyst->getEventid()
+                ->getUnderlyingid()->getDate()->format('Y-m-d');
+            $formatAnalysts['name'] = 'Analyst';
+            $formatAnalysts['firm'] = $analyst->getFirm();
+            $formatAnalysts['opinion'] = $analyst->getOpinion();
+            $formatAnalysts['rating'] = $analyst->getRating();
+            $formatAnalysts['target'] = $analyst->getTarget();
+
+            $analystArray[] = $formatAnalysts;
+
+        }
+
+        return $analystArray;
     }
 
+
+    /**
+     * @param $symbol
+     * @param $id
+     * @param $redirect
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse
+     * @throws \Symfony\Component\HttpKernel\Exception\NotFoundHttpException
+     */
+    public function removeEventAction($symbol, $id, $redirect)
+    {
+        // delete event object and redirect
+        $this->get('jack_service.fastdb')->switchSymbolDb($symbol);
+
+        // event part
+        $symbolEM = $this->getDoctrine()->getManager('symbol');
+        $event = $symbolEM
+            ->getRepository('JackImportBundle:Event')
+            ->findOneBy(array('id' => $id));
+
+        if (!$event) {
+            throw $this->createNotFoundException(
+                "Event id [ $id ]  do not found on database!"
+            );
+        }
+
+        if (!($event instanceof Event)) {
+            throw $this->createNotFoundException(
+                "Database return invalid [ Event ] object!"
+            );
+        }
+
+        // earning part
+        $earning = $symbolEM
+            ->getRepository('JackImportBundle:Earning')
+            ->findOneBy(array('eventid' => $event->getId()));
+
+        if ($earning) {
+            if (!($earning instanceof Earning)) {
+                throw $this->createNotFoundException(
+                    "Database return invalid [ Earning ] object!"
+                );
+            }
+
+            // found, delete earning too
+            $symbolEM->remove($earning);
+        }
+
+        // analyst part
+        $analyst = $symbolEM
+            ->getRepository('JackImportBundle:Analyst')
+            ->findOneBy(array('eventid' => $event->getId()));
+
+        if ($analyst) {
+            if (!($analyst instanceof Analyst)) {
+                throw $this->createNotFoundException(
+                    "Database return invalid [ Analyst ] object!"
+                );
+            }
+
+            // found, delete analyst too
+            $symbolEM->remove($analyst);
+        }
+
+        $symbolEM->remove($event);
+        $symbolEM->flush();
+
+        return $this->redirect($this->generateUrl(
+            $redirect,
+            array('symbol' => $symbol)
+        ));
+    }
 }

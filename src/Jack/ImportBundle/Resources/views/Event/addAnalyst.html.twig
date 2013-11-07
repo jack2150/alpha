@@ -125,4 +125,12 @@
 
     {{ form_end(form) }}
 
+    <br/>
+
+    {{ include(
+    'JackImportBundle:Event:showAnalyst.html.twig',
+    { 'analysts': analysts }
+    ) }}
+
+
 {% endblock %}

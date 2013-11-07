@@ -28,14 +28,10 @@ jack_import_event_add_analyst:
     defaults: { _controller: JackImportBundle:Event:addAnalyst }
 
 
-jack_import_event_show:
-    pattern: /event/show
-    defaults: { _controller: JackImportBundle:Event:showEvent }
+jack_import_event_manage:
+    pattern: /event/manage/{symbol}
+    defaults: { _controller: JackImportBundle:Event:manageEvent }
 
 jack_import_event_remove:
-    pattern: /event/remove/{symbol}
+    pattern: /event/remove/{symbol}/{id}/{redirect}
     defaults: { _controller: JackImportBundle:Event:removeEvent }
-
-jack_import_event_update:
-    pattern: /event/update/{symbol}
-    defaults: { _controller: JackImportBundle:Event:updateEvent }

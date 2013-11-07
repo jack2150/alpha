@@ -1,0 +1,48 @@
+{% extends "JackImportBundle::layout.html.twig" %}
+
+{% block title %}Import Bundle: Event: Manage{% endblock %}
+
+{% block head %}
+    <link rel="icon" sizes="16x16" href="{{ asset('favicon.ico') }}"/>
+    <link rel="stylesheet" href="{{ asset('bundles/acmedemo/css/demo.css') }}"/>
+
+    <style>
+        caption {
+            background-color: lightseagreen;
+            color: white;
+            padding: 2px 4px;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+
+    {{ include(
+    'JackImportBundle:Event:showEarning.html.twig',
+    { 'earnings': earnings }
+    ) }}
+
+    <br/>
+
+    {{ include(
+    'JackImportBundle:Event:showEvent.html.twig',
+    { 'events': events }
+    ) }}
+
+    <br/>
+
+    {{ include(
+    'JackImportBundle:Event:showAnalyst.html.twig',
+    { 'analysts': analysts }
+    ) }}
+
+    <br/>
+
+
+
+
+
+
+
+
+{% endblock %}
