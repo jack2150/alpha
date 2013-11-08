@@ -1,0 +1,95 @@
+{% extends "JackSystemBundle::layout.html.twig" %}
+
+{% block title %}Import Bundle: Event: Add Event: Earning{% endblock %}
+
+{% block head %}
+    <link rel="icon" sizes="16x16" href="{{ asset('favicon.ico') }}"/>
+    <link rel="stylesheet" href="{{ asset('bundles/acmedemo/css/demo.css') }}"/>
+    <style>
+        .event {
+            width: 80%;
+        }
+
+        .event td {
+            padding: 2px;
+        }
+
+        .event .first {
+            width: 100px;
+        }
+
+        .notice {
+            color: green;
+            line-break:;
+            line-height: 2em;
+        }
+
+        .error2 {
+            color: red;
+            line-break:;
+            line-height: 2em;
+        }
+
+        .text {
+            width: 220px;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <h2 style="background-color: darkcyan">Add Holiday:</h2>
+
+    {% if notice %}
+        <div class="notice" style="padding-left: 4px;">
+            <b>(SUCCESS) </b>
+            {{ notice }}
+        </div>
+    {% endif %}
+
+    {% if error %}
+        <div class="error2" style="padding-left: 4px;">
+            <b style="color: red">(WARNING) </b>
+            {{ error }}
+        </div>
+    {% endif %}
+
+
+    {{ form_start(form) }}
+    {{ form_errors(form) }}
+
+    <table class="event">
+        <tr>
+            <td class="first">
+                {{ form_label(form.date, 'Holiday Date: ') }}
+            </td>
+            <td>
+                {{ form_errors(form.date) }}
+                {{ form_widget(form.date) }}
+            </td>
+        </tr>
+        <tr>
+            <td>
+                {{ form_label(form.name, 'Holiday Name: ') }}
+            </td>
+            <td>
+                {{ form_errors(form.name) }}
+                {{ form_widget(form.name, {'attr': {'class': 'text' }}) }}
+            </td>
+        </tr>
+        <tr>
+            <td>
+                {{ form_widget(form.save) }}
+            </td>
+        </tr>
+    </table>
+
+    {{ form_end(form) }}
+
+    <br/>
+
+    {{ include(
+    'JackSystemBundle:Holiday:showHoliday.html.twig',
+    { 'holidays': holidays }
+    ) }}
+
+{% endblock %}

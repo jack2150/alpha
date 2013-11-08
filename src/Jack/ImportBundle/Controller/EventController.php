@@ -635,7 +635,6 @@ class EventController extends Controller
             $formatEvent = "";
 
             // generate delete url
-            $formatEvent['delete'] = '#';
             $formatEvent['delete'] = $this->generateUrl(
                 'jack_import_event_remove',
                 array(
@@ -727,7 +726,6 @@ class EventController extends Controller
             $formatEarning = "";
 
             // generate delete url
-            $formatEarning['delete'] = '#';
             $formatEarning['delete'] = $this->generateUrl(
                 'jack_import_event_remove',
                 array(
@@ -785,7 +783,6 @@ class EventController extends Controller
             $formatAnalysts = "";
 
             // generate delete url
-            $formatAnalysts['delete'] = '#';
             $formatAnalysts['delete'] = $this->generateUrl(
                 'jack_import_event_remove',
                 array(

@@ -1,0 +1,26 @@
+{% if holidays %}
+    <h2 style="background-color: darkcyan">
+        MARKET OFF, HOLIDAYS
+    </h2>
+    <table>
+        <tr>
+            <th style="width: 70px; font-weight: bold;">ID</th>
+            <th style="width: 120px; font-weight: bold;">Date</th>
+            <th style="width: 300px; font-weight: bold;">Name</th>
+            <th></th>
+        </tr>
+        {% for holiday in holidays %}
+            <tr>
+                <td>{{ holiday.id }}</td>
+                <td>{{ holiday.date }}</td>
+                <td>{{ holiday.name }}</td>
+                <td><a href="{{ holiday.delete }}">Remove Holiday</a></td>
+            </tr>
+        {% endfor %}
+    </table>
+{% else %}
+    <h2 style="background-color: darkcyan">
+        MARKET OFF, HOLIDAYS
+    </h2>
+    <p>You do not add any holiday yet.</p>
+{% endif %}

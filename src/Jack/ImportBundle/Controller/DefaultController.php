@@ -28,7 +28,7 @@ use Jack\ImportBundle\Entity\Symbol;
  */
 class DefaultController extends Controller
 {
-    public static $maxFilesInsert = 5;
+    public static $maxFilesInsert = 2;
 
     /**
      * @return \Symfony\Component\HttpFoundation\Response

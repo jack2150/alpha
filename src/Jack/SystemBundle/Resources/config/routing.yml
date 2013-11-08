@@ -1,0 +1,12 @@
+jack_system:
+    pattern:  /default/{name}
+    defaults: { _controller: JackSystemBundle:Default:index }
+
+jack_system_holiday:
+    pattern: /holiday
+    defaults: { _controller: JackSystemBundle:Holiday:index }
+
+jack_system_holiday_remove:
+    pattern: /holiday/remove/{id}
+    defaults: { _controller: JackSystemBundle:Holiday:remove }
+

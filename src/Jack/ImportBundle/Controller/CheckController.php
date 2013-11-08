@@ -2,12 +2,14 @@
 
 namespace Jack\ImportBundle\Controller;
 
+
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Doctrine\ORM\QueryBuilder;
 
 use Jack\ImportBundle\Entity\Symbol;
 use Jack\ImportBundle\Entity\Underlying;
+use Jack\ImportBundle\Entity\Holiday;
 
 /**
  * Class CheckController
@@ -42,6 +44,7 @@ class CheckController extends Controller
                 'Please import underlying to databases!'
             );
         }
+
 
         // loop all symbols list from table
         $latest = 1;
@@ -118,6 +121,23 @@ class CheckController extends Controller
         $systemEM = $this->getDoctrine()->getManager('system');
         $symbol = $systemEM->getRepository('JackImportBundle:Symbol')
             ->findOneBy(array('name' => $name));
+
+        // highlight holiday date from array
+        $holidays = $systemEM->getRepository('JackImportBundle:Holiday')
+            ->findAll();
+
+        if ($holidays) {
+            foreach ($holidays as $holiday) {
+                if (!$holiday instanceof Holiday) {
+                    throw $this->createNotFoundException(
+                        'Error [ Holiday ] object from entity manager!'
+                    );
+                }
+
+                $holidayDate[] = $holiday->getDate()->format('Y-m-d');
+            }
+            unset($holidays);
+        }
 
         if ($symbol) {
             // found on symbol table in system db
@@ -199,7 +219,7 @@ class CheckController extends Controller
 
         $totalMissing = 0;
         $missingDates = Array();
-        $missingDate = "";
+        $missingDate = null;
 
 
         // End date
@@ -226,10 +246,24 @@ class CheckController extends Controller
 
                 if (!$foundMatch) {
                     // if not found in table
-                    // add it into missing array
-                    $totalMissing++;
-                    $missingDate[] = date("Y-m-d (l)", strtotime($current_date));
-                    if ($weekday == 'Friday') {
+                    // check is holiday
+
+                    $notHoliday = 1;
+                    if (isset($holidayDate)) {
+                        foreach ($holidayDate as $holiday) {
+                            if ($current_date == $holiday) {
+                                $notHoliday = 0;
+                            }
+                        }
+                    }
+
+                    if ($notHoliday) {
+                        // add it into missing array
+                        $totalMissing++;
+                        $missingDate[] = date("Y-m-d (l)", strtotime($current_date));
+                    }
+
+                    if ($weekday == 'Friday' && isset($missingDate)) {
                         $missingDates[] = implode(" , ", $missingDate);
                         $missingDate = null;
                     }
@@ -238,11 +272,9 @@ class CheckController extends Controller
 
             $current_date = date("Y-m-d", strtotime("+1 day", strtotime($current_date)));
         }
-        $missingDates[] = implode(" , ", $missingDate);
-
-
-        // TODO: what if holiday exist? use the event object
-        // highlight holiday date from array
+        if (isset($missingDate)) {
+            $missingDates[] = implode(" , ", $missingDate);
+        }
 
 
         // count cycle, striek, and chain
