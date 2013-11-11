@@ -21,6 +21,7 @@ use Jack\ImportBundle\Entity\Cycle;
 use Jack\ImportBundle\Entity\Strike;
 use Jack\ImportBundle\Entity\Chain;
 use Jack\ImportBundle\Entity\Symbol;
+use Jack\ImportBundle\Entity\Holiday;
 
 /**
  * Class DefaultController
@@ -28,7 +29,7 @@ use Jack\ImportBundle\Entity\Symbol;
  */
 class DefaultController extends Controller
 {
-    public static $maxFilesInsert = 2;
+    public static $maxFilesInsert = 5;
 
     /**
      * @return \Symfony\Component\HttpFoundation\Response
@@ -43,8 +44,10 @@ class DefaultController extends Controller
         $currentSymbol = $result[1];
         $remainSymbols = $result[2];
         $importedPaths = $result[3];
+        $warning = "";
 
         // format each line
+        /*
         $files = $this->formatLines(
             $this->formatFiles($files)
         );
@@ -60,84 +63,28 @@ class DefaultController extends Controller
 
         // update symbol table in system
         $this->updateSymbolTable($currentSymbol, $importedPaths);
+        */
 
         // check still have other remaining underlying
+        $importURL = "";
         if (count($remainSymbols)) {
             // repeating until no more files in import folder
-            $templateArray = array(
-                'current_symbol' => $currentSymbol,
-                'remaining_symbols' => count($remainSymbols) ?
-                    implode(", ", $remainSymbols) : 0,
-                'imported_paths' => $importedPaths,
-                'import_url' => $this->generateUrl('jack_import_default'),
-                'warning' => $warning,
-            );
-        } else {
-            // finally no remaining
-            $templateArray = array(
-                'current_symbol' => $currentSymbol,
-                'remaining_symbols' => count($remainSymbols) ?
-                    implode(", ", $remainSymbols) : 0,
-                'imported_paths' => $importedPaths,
-                'import_url' => 0,
-                'warning' => $warning,
-            );
+            $importURL = $this->generateUrl('jack_import_default');
         }
+
+        $templateArray = array(
+            'current_symbol' => $currentSymbol,
+            'remaining_symbols' => count($remainSymbols) ?
+                implode(", ", $remainSymbols) : 0,
+            'imported_paths' => $importedPaths,
+            'import_url' => $importURL,
+            'warning' => $warning,
+        );
 
         return $this->render(
             'JackImportBundle:Default:index.html.twig',
             $templateArray
         );
-    }
-
-
-    /**
-     * @param $currentSymbol
-     * input the current symbol for search table
-     * @param $pathArray
-     * input the path array to get max/min date
-     * compare it with table then insert
-     */
-    private function updateSymbolTable($currentSymbol, $pathArray)
-    {
-        $entityManager = $this->getDoctrine()->getManager('system');
-        /** @noinspection PhpUndefinedMethodInspection */
-        $symbol = $entityManager
-            ->getRepository('JackImportBundle:Symbol'
-            )->findOneByName($currentSymbol);
-
-        // extract date from file name
-        $dateArray = Array();
-
-        foreach ($pathArray as $filePath) {
-            $dateArray[] = substr(basename($filePath), 0, 10);
-        }
-
-        $maxDate = strtotime(max($dateArray));
-        $minDate = strtotime(min($dateArray));
-
-        if ($symbol instanceof Symbol) {
-            // set start date if start date is null
-            // or start date is bigger than min date
-            if (is_null($symbol->getFirstdate()) ||
-                $symbol->getFirstdate()->getTimestamp() > $minDate
-            ) {
-                $symbol->setFirstdate(
-                    new \DateTime(date("Y-M-d", $minDate))
-                );
-            }
-
-            // or last date is bigger than max date
-            if (is_null($symbol->getLastdate()) ||
-                $symbol->getLastdate()->getTimestamp() < $maxDate
-            ) {
-                $symbol->setLastdate(
-                    new \DateTime(date("Y-M-d", $maxDate))
-                );
-            }
-
-            $entityManager->flush();
-        }
     }
 
 
@@ -169,11 +116,30 @@ class DefaultController extends Controller
             );
         }
 
-        $files = Array();
 
+        // get all holiday data
+        $systemEM = $this->getDoctrine()->getManager('system');
+
+        // highlight holiday date from array
+        $holidays = $systemEM->getRepository('JackImportBundle:Holiday')
+            ->findAll();
+
+        if ($holidays) {
+            foreach ($holidays as $holiday) {
+                if (!$holiday instanceof Holiday) {
+                    throw $this->createNotFoundException(
+                        'Error [ Holiday ] object from entity manager!'
+                    );
+                }
+
+                $holidayDate[] = $holiday->getDate()->format('Y-m-d');
+            }
+            unset($holidays);
+        }
 
         // check similar underlying symbol using file name
         //
+        $files = Array();
         $notFirstFile = 0;
         $firstSymbol = "";
         $remainSymbols = Array();
@@ -203,19 +169,40 @@ class DefaultController extends Controller
                 $notFirstFile++;
             }
 
+            $currentDate = substr(basename($file->getFilename()), 0, 10);
+            $weekday = date('l', strtotime($currentDate));
+
+            $notWeekend = 0;
+            if ($weekday != 'Saturday' && $weekday != 'Sunday') {
+                $notWeekend = 1;
+            }
+
+            // now check is not holiday
+            // open system table, get all holiday
+            $notHoliday = 1;
+            if (isset($holidayDate)) {
+                foreach ($holidayDate as $holiday) {
+                    if ($currentDate == $holiday) {
+                        $notHoliday = 0;
+                    }
+                }
+            }
+
             // if same symbol then add content into files array
             // then delete the files in the import folder
-            if ($fileSymbol == $firstSymbol && $maxFilesInsert) {
-                // set content into files
-                $files[] = $file->getContents();
+            if ($notWeekend && $notHoliday) {
+                if ($fileSymbol == $firstSymbol && $maxFilesInsert) {
+                    // set content into files
+                    $files[] = $file->getContents();
 
-                // get link path for display
-                $fileLinks[] = $file;
+                    // get link path for display
+                    $fileLinks[] = $file;
 
-                // max 10 files each insert
-                $maxFilesInsert--;
-            } else {
-                $remainSymbols[] = $fileSymbol;
+                    // max 10 files each insert
+                    $maxFilesInsert--;
+                } else {
+                    $remainSymbols[] = $fileSymbol;
+                }
             }
         }
 
@@ -866,6 +853,55 @@ class DefaultController extends Controller
         }
 
         return $warning;
+    }
+
+    /**
+     * @param $currentSymbol
+     * input the current symbol for search table
+     * @param $pathArray
+     * input the path array to get max/min date
+     * compare it with table then insert
+     */
+    private function updateSymbolTable($currentSymbol, $pathArray)
+    {
+        $entityManager = $this->getDoctrine()->getManager('system');
+        /** @noinspection PhpUndefinedMethodInspection */
+        $symbol = $entityManager
+            ->getRepository('JackImportBundle:Symbol'
+            )->findOneByName($currentSymbol);
+
+        // extract date from file name
+        $dateArray = Array();
+
+        foreach ($pathArray as $filePath) {
+            $dateArray[] = substr(basename($filePath), 0, 10);
+        }
+
+        $maxDate = strtotime(max($dateArray));
+        $minDate = strtotime(min($dateArray));
+
+        if ($symbol instanceof Symbol) {
+            // set start date if start date is null
+            // or start date is bigger than min date
+            if (is_null($symbol->getFirstdate()) ||
+                $symbol->getFirstdate()->getTimestamp() > $minDate
+            ) {
+                $symbol->setFirstdate(
+                    new \DateTime(date("Y-M-d", $minDate))
+                );
+            }
+
+            // or last date is bigger than max date
+            if (is_null($symbol->getLastdate()) ||
+                $symbol->getLastdate()->getTimestamp() < $maxDate
+            ) {
+                $symbol->setLastdate(
+                    new \DateTime(date("Y-M-d", $maxDate))
+                );
+            }
+
+            $entityManager->flush();
+        }
     }
 
     /**

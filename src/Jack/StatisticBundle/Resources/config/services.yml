@@ -1,0 +1,7 @@
+parameters:
+#    jack_statistic.example.class: Jack\StatisticBundle\Example
+
+services:
+#    jack_statistic.example:
+#        class: %jack_statistic.example.class%
+#        arguments: [@service_id, "plain_value", %parameter%]

@@ -1,0 +1,19 @@
+jack_statistic_homepage:
+    pattern:  /hello/{name}
+    defaults: { _controller: JackStatisticBundle:Default:index }
+
+get_data:
+    pattern: /getData
+    defaults: { _controller: JackStatisticBundle:ImpVol:getData }
+
+cal_data:
+    pattern: /calData
+    defaults: { _controller: JackStatisticBundle:ImpVol:calData }
+
+format_data:
+    pattern: /formatData
+    defaults: { _controller: JackStatisticBundle:ImpVol:formatData }
+
+save_data:
+    pattern: /saveData
+    defaults: { _controller: JackStatisticBundle:ImpVol:saveData }
