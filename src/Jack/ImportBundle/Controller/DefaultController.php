@@ -47,7 +47,6 @@ class DefaultController extends Controller
         $warning = "";
 
         // format each line
-        /*
         $files = $this->formatLines(
             $this->formatFiles($files)
         );
@@ -63,7 +62,7 @@ class DefaultController extends Controller
 
         // update symbol table in system
         $this->updateSymbolTable($currentSymbol, $importedPaths);
-        */
+
 
         // check still have other remaining underlying
         $importURL = "";

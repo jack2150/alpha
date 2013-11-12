@@ -1,0 +1,24 @@
+<table>
+    <tr>
+        <td>
+            <b style="float: left; width: 100px; height:40px;">More Years:</b>
+            {% for searchLink in searchLinks %}
+                {% if searchLink.url == '#' %}
+                    <div style="float: left; width: 60px;">
+                        [{{ searchLink.year }}]
+                    </div>
+                {% else %}
+                    <a style="float: left;" href="{{ path('jack_find_underlying_result_findbyyear',
+                    {'action': searchLink.url, 'symbol': symbol, 'year': searchLink.year }) }}">
+                        <div style="width: 60px;">
+                            {{ searchLink.year }}
+                        </div>
+                    </a>
+                {% endif %}
+            {% endfor %}
+        </td>
+    </tr>
+</table>
+<br/>
+
+

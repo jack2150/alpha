@@ -1,10 +1,10 @@
 jack_statistic_homepage:
-    pattern:  /hello/{name}
+    pattern:  /hello/
     defaults: { _controller: JackStatisticBundle:Default:index }
 
-get_data:
-    pattern: /getData
-    defaults: { _controller: JackStatisticBundle:ImpVol:getData }
+jack_statistic_impvol:
+    pattern: /index/{symbol}
+    defaults: { _controller: JackStatisticBundle:ImpVol:index }
 
 cal_data:
     pattern: /calData

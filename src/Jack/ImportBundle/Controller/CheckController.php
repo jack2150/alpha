@@ -225,6 +225,7 @@ class CheckController extends Controller
         // End date
         $current_date = $firstDateObject->format('Y-m-d');
         $end_date = $lastDateObject->format('Y-m-d');;
+        $holidayCount = 0;
 
         while (strtotime($current_date) <= strtotime($end_date)) {
 
@@ -261,6 +262,9 @@ class CheckController extends Controller
                         // add it into missing array
                         $totalMissing++;
                         $missingDate[] = date("Y-m-d (l)", strtotime($current_date));
+                    } else {
+                        // is holiday
+                        $holidayCount++;
                     }
 
                     if ($weekday == 'Friday' && isset($missingDate)) {
@@ -304,7 +308,7 @@ class CheckController extends Controller
                 'firstDate' => date("Y-m-d", $firstDate),
                 'lastDate' => date("Y-m-d", $lastDate),
                 'dayBetween' => $dayBetween,
-                'workingDays' => $businessDays,
+                'workingDays' => $businessDays - $holidayCount,
                 'totalMissingDays' => $totalMissing,
                 'missingDates' => $missingDates,
                 'cycleCount' => $cycleCount,

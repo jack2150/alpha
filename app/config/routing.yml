@@ -1,6 +1,10 @@
+jack_find:
+    resource: "@JackFindBundle/Resources/config/routing.yml"
+    prefix:   /jack/find
+
 jack_statistic:
     resource: "@JackStatisticBundle/Resources/config/routing.yml"
-    prefix:   /
+    prefix:   /jack/statistic
 
 jack_import:
     resource: "@JackImportBundle/Resources/config/routing.yml"

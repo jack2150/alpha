@@ -1,0 +1,19 @@
+jack_find_underlying_index:
+    pattern:  /underlying
+    defaults: { _controller: JackFindBundle:Underlying:index }
+
+jack_find_underlying_result:
+    pattern:  /underlying/result/{action}/{symbol}
+    defaults: { _controller: JackFindBundle:Underlying:result }
+
+jack_find_underlying_result_findbyday:
+    pattern:  /underlying/result/findbyday/{day}/{symbol}
+    defaults: { _controller: JackFindBundle:Underlying:result, action: findbyday }
+
+jack_find_underlying_result_findbymonth:
+    pattern:  /underlying/result/findbymonth/{month}/{symbol}
+    defaults: { _controller: JackFindBundle:Underlying:result, action: findbymonth }
+
+jack_find_underlying_result_findbyyear:
+    pattern:  /underlying/result/findbyyear/{year}/{symbol}
+    defaults: { _controller: JackFindBundle:Underlying:result, action: findbyyear }

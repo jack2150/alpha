@@ -1,0 +1,29 @@
+{% extends "JackFindBundle::layout.html.twig" %}
+
+{% block title %}Find Bundle: Underlying{% endblock %}
+
+{% block content %}
+    <h2 style="background-color: darkcyan">Find Underlying</h2>
+
+
+    {{ form_start(form) }}
+    {{ form_errors(form) }}
+
+    <div>
+        {{ form_label(form.symbol, 'Symbol Name:') }}
+        {{ form_errors(form.symbol) }}
+        {{ form_widget(form.symbol) }}
+        {{ form_label(form.action, 'Action:') }}
+        {{ form_errors(form.action) }}
+        {{ form_widget(form.action) }}
+        {{ form_widget(form.find) }}
+    </div>
+
+    <span style="font-size: 0.8em; color: darkorange">
+        ** Latest import into database.
+    </span>
+
+    {{ form_end(form) }}
+
+
+{% endblock %}

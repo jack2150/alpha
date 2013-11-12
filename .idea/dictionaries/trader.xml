@@ -2,6 +2,7 @@
   <dictionary name="trader">
     <words>
       <w>contractright</w>
+      <w>cycleid</w>
       <w>dbal</w>
       <w>eventid</w>
       <w>expiredate</w>
@@ -12,7 +13,9 @@
       <w>inputbox</w>
       <w>ismini</w>
       <w>isweekly</w>
+      <w>strikeid</w>
       <w>symfony</w>
+      <w>underlyingid</w>
       <w>underlyings</w>
     </words>
   </dictionary>
