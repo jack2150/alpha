@@ -37,6 +37,11 @@
         'JackFindBundle:Underlying:calendarLink.html.twig',
         { 'searchLinks': searchLinks }
         ) }}
+    {% elseif linkType == 'daterange' %}
+        {{ include(
+        'JackFindBundle:Underlying:dateRangeLink.html.twig',
+        { 'searchLinks': searchLinks }
+        ) }}
     {% endif %}
 
 

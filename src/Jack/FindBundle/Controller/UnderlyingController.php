@@ -33,6 +33,7 @@ class UnderlyingController extends Controller
             ))
             ->add('action', 'choice', array(
                 'choices' => array(
+                    'findByDateRange' => 'Find By Date Range',
                     'findByCalendar' => 'Find By Calendar',
                     'findByWeek' => 'Find By Week',
                     'findByWeekday' => 'Find By Weekday',
@@ -40,10 +41,13 @@ class UnderlyingController extends Controller
                     'findByMonth' => 'Find By Month',
                     'findAll' => 'Find All',
                     'findByDay' => 'Find By Day',
+
+                    // next for underlying
+
+
+                    // TODO: remain find underlying type
                     //'findByDTE' => 'Find By DTE',
                     '1' => 'Find By Earnings',
-
-
                     '5' => 'Find By Date Range',
                     '6' => 'Find By IV',
                     '7' => 'Find By HV',
@@ -118,9 +122,27 @@ class UnderlyingController extends Controller
                         'week' => 0,
                     );
                     break;
+                case 'findByDateRange':
+                    $returnUrl = 'jack_find_underlying_result_findbydaterange';
+
+                    $this->getSymbolObject($symbol);
+
+                    if (!($this->symbolObject instanceof Symbol)) {
+                        throw $this->createNotFoundException(
+                            'Error [ Symbol ] object from entity manager'
+                        );
+                    }
+
+                    $params = array(
+                        'symbol' => strtolower($symbol),
+                        'action' => strtolower($action),
+                        'firstDate' => $this->symbolObject->getFirstdate()->format('Y-m-d'),
+                        'lastDate' => $this->symbolObject->getLastdate()->format('Y-m-d'),
+                    );
+                    break;
                 case 'findAll':
                 default:
-                    $returnUrl = 'jack_find_underlying_result';
+                    $returnUrl = 'jack_find_underlying_result_findbyall';
                     $params = array(
                         'symbol' => strtolower($symbol),
                         'action' => strtolower($action),
@@ -147,7 +169,8 @@ class UnderlyingController extends Controller
 
 
     public function resultAction
-    ($symbol, $action, $day = 0, $month = 0, $year = 0, $weekday = 0, $week = 0)
+    ($symbol, $action, $day = 0, $month = 0, $year = 0, $weekday = 0, $week = 0,
+     $firstDate = 0, $lastDate = 0)
     {
         // set core symbol
         $this->symbol = $symbol;
@@ -221,6 +244,12 @@ class UnderlyingController extends Controller
                     'week' => $weekLinks,
                 );
                 break;
+            case 'findbydaterange':
+                $searchName = "Find By Date Range ";
+                $underlyings = $this->findUnderlyingByDateRange($firstDate, $lastDate, 'desc');
+                $linkType = 'daterange';
+                $searchLinks = $this->getDateRangeForm($firstDate, $lastDate, 'desc');
+                break;
         }
 
         // count underlying
@@ -264,6 +293,7 @@ class UnderlyingController extends Controller
             ->getRepository('JackImportBundle:Underlying')
             ->findBy(array(), array('date' => $sort));
     }
+
 
     /**
      * @param string $type
@@ -359,6 +389,16 @@ class UnderlyingController extends Controller
     }
 
 
+    /**
+     * @param array $find
+     * an array include (day, month, year, weekday, week)
+     * to correct search underlying
+     * @param string $sort
+     * sort is either 'asc' or 'desc'
+     * @return array|int
+     * return a list of underlyings data
+     * or 0 if nothing is found
+     */
     public function findUnderlyingByMixCalendar(
         $find = array('day' => 0, 'month' => 0, 'year' => 0, 'weekday' => 0, 'week' => 0),
         $sort = 'asc')
@@ -442,6 +482,167 @@ class UnderlyingController extends Controller
 
     }
 
+    public function findUnderlyingByDateRange($firstDate, $lastDate, $sort = 'asc')
+    {
+        $symbolEM = $this->getDoctrine()->getManager('symbol');
+
+        $repository = $symbolEM->getRepository('JackImportBundle:Underlying');
+
+        $query = $repository->createQueryBuilder('u')
+            ->where('u.date >= :firstDate and u.date <= :lastDate')
+            ->setParameter('firstDate', $firstDate)
+            ->setParameter('lastDate', $lastDate)
+            ->orderBy('u.date', $sort)
+            ->getQuery();
+
+        return $query->getResult();
+    }
+
+
+    /**
+     * @param $firstDate
+     * first date use in form for last search
+     * @param $lastDate
+     * last date use in form for last search
+     * @param $returnURL
+     * return url for redirect in page
+     * @return \Symfony\Component\Form\FormView
+     * @throws \Symfony\Component\HttpKernel\Exception\NotFoundHttpException
+     */
+    private function getDateRangeForm($firstDate, $lastDate, $returnURL)
+    {
+        // put used first and last date into form
+        $findForm = array(
+            'startDate' => new \DateTime($firstDate),
+            'endDate' => new \DateTime($lastDate),
+        );
+
+        // use the symbol first and last date in form
+        if (!($this->symbolObject instanceof Symbol)) {
+            throw $this->createNotFoundException(
+                'Symbol Object in [ Underlying Class ] do not set!'
+            );
+        }
+
+        // set the first and last year in underlying
+        $firstYear = $this->symbolObject->getFirstdate()->format('Y');
+        $lastYear = $this->symbolObject->getLastdate()->format('Y');
+
+        // create form
+        $form = $this->createFormBuilder($findForm)
+            ->setAction($this->generateUrl(
+                'jack_find_underlying_result_daterange_redirect', array(
+                'firstDate' => $firstDate,
+                'lastDate' => $lastDate,
+                'symbol' => $this->symbol,
+                'action' => 'findbydaterange'
+            )))
+            ->add('startDate', 'date', array(
+                'input' => 'datetime',
+                'widget' => 'choice',
+                'years' => range($firstYear, $lastYear),
+                'required' => true,
+            ))
+            ->add('endDate', 'date', array(
+                'input' => 'datetime',
+                'widget' => 'choice',
+                'years' => range($firstYear, $lastYear),
+                'required' => true,
+            ))
+            ->add('find', 'submit')
+            ->getForm();
+
+        // return as a form view
+        return $form->createView();
+    }
+
+    /**
+     * @param $symbol
+     * symbol use to generate data
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse
+     * redirect back into the page
+     * @throws \Symfony\Component\HttpKernel\Exception\NotFoundHttpException
+     * error object from db
+     */
+    public function dateRangeRedirectAction($symbol)
+    {
+        // work now, redirect to same page with usable date
+        $errorFound = 0;
+
+        $formData = $this->getRequest()->get('form');
+
+        $firstYear = $formData['startDate']['year'];
+        $firstMonth = $formData['startDate']['month'];
+        $firstDay = $formData['startDate']['day'];
+
+        $lastYear = $formData['endDate']['year'];
+        $lastMonth = $formData['endDate']['month'];
+        $lastDay = $formData['endDate']['day'];
+
+
+        // validate is all numeric
+        if (!is_numeric($firstYear) || !is_numeric($firstMonth) ||
+            !is_numeric($firstDay) || !is_numeric($lastYear) ||
+            !is_numeric($lastMonth) || !is_numeric($lastDay)
+        ) {
+            $errorFound = 1;
+        }
+
+        // check is reverse
+        // if year is bigger
+        $reverse = 0;
+        if ($firstYear > $lastYear) {
+            $reverse = 1;
+        }
+
+        // if month is bigger
+        if (($firstYear == $lastYear) && ($firstMonth > $lastMonth)) {
+            $reverse = 1;
+        }
+
+        // if date is bigger
+        if (($firstYear == $lastYear) && ($firstMonth == $lastMonth) && ($firstDay > $lastDay)) {
+            $reverse = 1;
+        }
+
+        // error checking
+        if ($errorFound) {
+            $this->getSymbolObject($symbol);
+
+            if (!($this->symbolObject instanceof Symbol)) {
+                throw $this->createNotFoundException(
+                    'Error [ Symbol ] object from entity manager'
+                );
+            }
+
+            $firstDate = $this->symbolObject->getFirstdate()->format('Y-m-d');
+            $lastDate = $this->symbolObject->getLastdate()->format('Y-m-d');
+        } else {
+            if ($reverse) {
+                $firstYear = $lastYear;
+                $firstMonth = $lastMonth;
+                $firstDay = $lastDay;
+
+                $lastYear = $formData['startDate']['year'];
+                $lastMonth = $formData['startDate']['month'];
+                $lastDay = $formData['startDate']['day'];
+            }
+
+            $firstDate = "$firstYear-$firstMonth-$firstDay";
+            $lastDate = "$lastYear-$lastMonth-$lastDay";
+        }
+
+
+        return $this->redirect($this->generateUrl('jack_find_underlying_result_findbydaterange',
+            array(
+                'firstDate' => $firstDate,
+                'lastDate' => $lastDate,
+                'symbol' => $symbol,
+                'action' => 'findbydaterange'
+            )
+        ));
+
+    }
 
     /**
      * @param $currentWeek
@@ -693,12 +894,12 @@ class UnderlyingController extends Controller
         $symbol = $this->getDoctrine('system')
             ->getRepository('JackImportBundle:Symbol')
             ->findOneBy(
-                array('name' => $this->symbol)
+                array('name' => $symbol)
             );
 
         if (!$symbol) {
             throw $this->createNotFoundException(
-                'No such symbol [' . $this->symbol . '] exist in db!'
+                'No such symbol [' . $symbol . '] exist in db!'
             );
         }
 

@@ -3,6 +3,7 @@
     <words>
       <w>contractright</w>
       <w>cycleid</w>
+      <w>daterange</w>
       <w>dbal</w>
       <w>eventid</w>
       <w>expiredate</w>
@@ -10,6 +11,7 @@
       <w>expireyear</w>
       <w>fastdb</w>
       <w>findbycalendar</w>
+      <w>findbydaterange</w>
       <w>findbyday</w>
       <w>findbymonth</w>
       <w>findbyweek</w>

@@ -2,9 +2,9 @@ jack_find_underlying_index:
     pattern:  /underlying
     defaults: { _controller: JackFindBundle:Underlying:index }
 
-jack_find_underlying_result:
-    pattern:  /underlying/result/{action}/{symbol}
-    defaults: { _controller: JackFindBundle:Underlying:result }
+jack_find_underlying_result_findbyall:
+    pattern:  /underlying/result/findbyall/{symbol}
+    defaults: { _controller: JackFindBundle:Underlying:result, action: findbyall }
 
 jack_find_underlying_result_findbyday:
     pattern:  /underlying/result/findbyday/{day}/{symbol}
@@ -30,10 +30,22 @@ jack_find_underlying_result_findbycalendar:
     pattern:  /underlying/result/findbycalendar/{year}/{month}/{day}/{weekday}/{week}/{symbol}
     defaults: { _controller: JackFindBundle:Underlying:result, action: findbycalendar }
 
+jack_find_underlying_result_findbydaterange:
+    pattern:  /underlying/result/findbydaterange/{firstDate}/{lastDate}/{symbol}
+    defaults: { _controller: JackFindBundle:Underlying:result, action: findbydaterange }
+
+jack_find_underlying_result_daterange_redirect:
+    pattern:  /underlying/result/findbydaterange/redirect/{symbol}
+    defaults: { _controller: JackFindBundle:Underlying:dateRangeRedirect, action: findbydaterange }
 
 
 
 
 
+index:
+    pattern: /index
+    defaults: { _controller: JackFindBundle:Cycle:index }
 
-
+result:
+    pattern: /result
+    defaults: { _controller: JackFindBundle:Cycle:result }
