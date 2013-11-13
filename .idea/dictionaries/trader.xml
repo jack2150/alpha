@@ -9,6 +9,12 @@
       <w>expiremonth</w>
       <w>expireyear</w>
       <w>fastdb</w>
+      <w>findbycalendar</w>
+      <w>findbyday</w>
+      <w>findbymonth</w>
+      <w>findbyweek</w>
+      <w>findbyweekday</w>
+      <w>findbyyear</w>
       <w>importdate</w>
       <w>inputbox</w>
       <w>ismini</w>

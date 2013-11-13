@@ -33,6 +33,8 @@ class UnderlyingController extends Controller
             ))
             ->add('action', 'choice', array(
                 'choices' => array(
+                    'findByCalendar' => 'Find By Calendar',
+                    'findByWeek' => 'Find By Week',
                     'findByWeekday' => 'Find By Weekday',
                     'findByYear' => 'Find By Year',
                     'findByMonth' => 'Find By Month',
@@ -85,7 +87,7 @@ class UnderlyingController extends Controller
                     $params = array(
                         'symbol' => strtolower($symbol),
                         'action' => strtolower($action),
-                        'year' => 2013,
+                        'year' => date('Y'), // this year
                     );
                     break;
                 case 'findByWeekday':
@@ -93,7 +95,27 @@ class UnderlyingController extends Controller
                     $params = array(
                         'symbol' => strtolower($symbol),
                         'action' => strtolower($action),
-                        'weekday' => 2009,
+                        'weekday' => strtolower(date("l")),
+                    );
+                    break;
+                case 'findByWeek':
+                    $returnUrl = 'jack_find_underlying_result_findbyweek';
+                    $params = array(
+                        'symbol' => strtolower($symbol),
+                        'action' => strtolower($action),
+                        'week' => strtolower(date("W")),
+                    );
+                    break;
+                case 'findByCalendar':
+                    $returnUrl = 'jack_find_underlying_result_findbycalendar';
+                    $params = array(
+                        'symbol' => strtolower($symbol),
+                        'action' => strtolower($action),
+                        'day' => 0,
+                        'month' => date('m'),
+                        'year' => 0,
+                        'weekday' => 0,
+                        'week' => 0,
                     );
                     break;
                 case 'findAll':
@@ -125,7 +147,7 @@ class UnderlyingController extends Controller
 
 
     public function resultAction
-    ($symbol, $action, $day = 1, $month = 1, $year = 2013, $weekday = 1)
+    ($symbol, $action, $day = 0, $month = 0, $year = 0, $weekday = 0, $week = 0)
     {
         // set core symbol
         $this->symbol = $symbol;
@@ -136,37 +158,93 @@ class UnderlyingController extends Controller
 
         // select action to call function
         $linkType = 1;
+        $searchName = "";
         $searchLinks = 0;
-        $underlyings = array();
+        $underlyings = Array();
         switch ($action) {
             case 'findall':
+                $searchName = "Find All";
                 $underlyings = $this->findUnderlyingAll('desc');
                 break;
             case 'findbyday':
+                $searchName = "Find By Day $day";
                 $underlyings = $this->findUnderlyingByCalendar('day', $day, 'desc');
                 $linkType = 'days';
                 $searchLinks = $this->getListOfDay($day, 'findbyday');
                 break;
             case 'findbymonth':
+                $searchName = "Find By Month $month";
                 $underlyings = $this->findUnderlyingByCalendar('month', $month, 'desc');
                 $linkType = 'months';
                 $searchLinks = $this->getListOfMonth($month, 'findbymonth');
                 break;
             case 'findbyyear':
+                $searchName = "Find By Year $year";
                 $underlyings = $this->findUnderlyingByCalendar('year', $year, 'desc');
                 $linkType = 'years';
                 $searchLinks = $this->getListOfYear($year, 'findbyyear');
                 break;
+            case 'findbyweekday':
+                $searchName = "Find By Weekday $weekday";
+                $underlyings = $this->findUnderlyingByCalendar('weekday', $weekday, 'desc');
+                $linkType = 'weekday';
+                $searchLinks = $this->getListOfWeekday($weekday, 'findbyweekday');
+                break;
+            case 'findbyweek':
+                $searchName = "Find By Week No. $week";
+                $underlyings = $this->findUnderlyingByCalendar('week', $week, 'desc');
+                $linkType = 'week';
+                $searchLinks = $this->getListOfWeek($week, 'findbyweek');
+                break;
+            case 'findbycalendar':
+                $searchName = "Find By Calendar";
+
+                $underlyings = $this->findUnderlyingByMixCalendar(array(
+                    'day' => $day,
+                    'month' => $month,
+                    'year' => $year,
+                    'weekday' => $weekday,
+                    'week' => $week,
+                ), 'desc');
+                $linkType = 'calendar';
+
+                $dayLinks = $this->getListOfDay($day, 'findbyday');
+                $monthLinks = $this->getListOfMonth($month, 'findbymonth');
+                $yearLinks = $this->getListOfYear($year, 'findbyyear');
+                $weekdayLinks = $this->getListOfWeekday($weekday, 'findbyweekday');
+                $weekLinks = $this->getListOfWeek($week, 'findbyweek');
+                $searchLinks = array(
+                    'day' => $dayLinks,
+                    'month' => $monthLinks,
+                    'year' => $yearLinks,
+                    'weekday' => $weekdayLinks,
+                    'week' => $weekLinks,
+                );
+                break;
+        }
+
+        // count underlying
+        $resultCount = 0;
+        if (!empty($underlyings)) {
+            $resultCount = count($underlyings);
         }
 
         return $this->render(
             'JackFindBundle:Underlying:result.html.twig',
             array(
                 'symbol' => $symbol,
+                'searchName' => $searchName,
                 'underlyings' => $underlyings,
-                'resultCount' => count($underlyings),
+                'resultCount' => $resultCount,
                 'linkType' => $linkType,
                 'searchLinks' => $searchLinks,
+                'date' => array(
+                    'day' => $day,
+                    'month' => $month,
+                    'year' => $year,
+                    'weekday' => $weekday,
+                    'week' => $week,
+                )
             )
         );
     }
@@ -235,8 +313,25 @@ class UnderlyingController extends Controller
                     break;
                     break;
                 case 'weekday':
+                    $currentWeekday = strtolower(
+                        Date("l", strtotime($currentDate . " +" . $day . " Day"))
+                    );
+
+                    if ($currentWeekday != 'sunday' && $currentWeekday != 'saturday') {
+                        if ($currentWeekday == $find) {
+                            $dayArray[] = Date("Y-m-d", strtotime($currentDate . " +" . $day . " Day"));
+                        }
+                    }
                     break;
                 case 'week':
+                    $currentWeek = strtolower(
+                        Date("W", strtotime($currentDate . " +" . $day . " Day"))
+                    );
+
+                    if ($currentWeek == $find) {
+                        $dayArray[] = Date("Y-m-d", strtotime($currentDate . " +" . $day . " Day"));
+                    }
+
                     break;
                 case 'day':
                 default:
@@ -264,13 +359,164 @@ class UnderlyingController extends Controller
     }
 
 
-    public function findUnderlyingByMonth($findDay = 1, $sort = 'asc')
+    public function findUnderlyingByMixCalendar(
+        $find = array('day' => 0, 'month' => 0, 'year' => 0, 'weekday' => 0, 'week' => 0),
+        $sort = 'asc')
     {
+        date_default_timezone_set('UTC');
 
+        // past the find data into use
+        $findDay = $find['day'];
+        $findMonth = $find['month'];
+        $findYear = $find['year'];
+        $findWeekday = strtolower($find['weekday']);
+        $findWeek = $find['week'];
+
+
+        // set the initial date for loop
+        $firstDate = $this->symbolObject->getFirstdate()->format('Y-m-d');
+        $lastDate = $this->symbolObject->getLastdate()->format('Y-m-d');
+
+        $firstDate = new \DateTime($firstDate);
+        $lastDate = new \DateTime($lastDate);
+
+        $dateDiff = intval($firstDate->diff($lastDate)->format("%R%a"));
+
+        // generate a list of day 1
+        $dayArray = array();
+        $startDate = $firstDate->format('Y-m-d');
+        for ($day = 0; $day <= $dateDiff; $day++) {
+            $currentDate = strtotime($startDate . " +" . $day . " Day");
+
+            $currentDay = Date("d", $currentDate);
+            $currentMonth = Date("m", $currentDate);
+            $currentYear = Date("Y", $currentDate);
+            $currentWeekday = strtolower(Date("l", $currentDate));
+            $currentWeek = Date("W", $currentDate);
+
+            // check day is same or any
+            $found = 1;
+
+            // compare day
+            if ($currentDay != $findDay && $findDay > 0) {
+                $found = 0;
+            }
+
+            // compare month
+            if ($currentMonth != $findMonth && $findMonth > 0) {
+                $found = 0;
+            }
+
+            // compare year
+            if ($currentYear != $findYear && $findYear > 0) {
+                $found = 0;
+            }
+
+            // compare weekday
+
+            if ($currentWeekday != $findWeekday && !is_numeric($findWeekday)) {
+                $found = 0;
+            }
+
+            // compare week
+            if ($currentWeek != $findWeek && $findWeek > 0) {
+                $found = 0;
+            }
+
+            // if all match then get date
+            if ($found) {
+                $dayArray[] = Date("Y-m-d", strtotime($startDate . " +" . $day . " Day"));
+            }
+        }
+
+        $symbolEM = $this->getDoctrine()->getManager('symbol');
+
+        if (count($dayArray)) {
+            $underlyings = $symbolEM->getRepository('JackImportBundle:Underlying')
+                ->findBy(array('date' => $dayArray), array('date' => $sort));
+        } else {
+            $underlyings = 0;
+        }
+
+        return $underlyings;
 
     }
 
 
+    /**
+     * @param $currentWeek
+     * current searched day, do not allow to reselect
+     * @param $returnURL
+     * return url for the search
+     * @return array
+     * return a list of day link for select
+     */
+    private function getListOfWeek($currentWeek, $returnURL)
+    {
+        $weekLinkArray = Array();
+
+        for ($week = 1; $week <= 53; $week++) {
+            $useWeek = $week;
+            $useUrl = $returnURL;
+
+            if ($week == $currentWeek) {
+                $useWeek = $week;
+                $useUrl = '#';
+            }
+
+            $weekLinkArray[] = array(
+                'week' => $useWeek,
+                'url' => $useUrl,
+            );
+        }
+
+        return $weekLinkArray;
+    }
+
+    /**
+     * @param $currentWeekday
+     * @param $returnURL
+     * @return array
+     */
+    private function getListOfWeekday($currentWeekday, $returnURL)
+    {
+        $weekdayArray = array(
+            '1' => 'Monday',
+            '2' => 'Tuesday',
+            '3' => 'Wednesday',
+            '4' => 'Thursday',
+            '5' => 'Friday',
+        );
+
+        $weekdayLinkArray = Array();
+
+        for ($weekday = 1; $weekday <= 5; $weekday++) {
+            $useDisplay = $weekdayArray[$weekday];
+            $useWeekday = strtolower($weekdayArray[$weekday]);
+            $useUrl = $returnURL;
+
+            if (strtolower($weekdayArray[$weekday]) == $currentWeekday) {
+                $useDisplay = $weekdayArray[$weekday];
+                $useWeekday = strtolower($weekdayArray[$weekday]);
+                $useUrl = '#';
+            }
+
+            $weekdayLinkArray[] = array(
+                'display' => $useDisplay,
+                'weekday' => $useWeekday,
+                'url' => $useUrl,
+            );
+        }
+
+        return $weekdayLinkArray;
+    }
+
+    /**
+     * @param $currentYear
+     * @param $returnURL
+     * @return array
+     * @throws \Symfony\Component\HttpKernel\Exception\NotFoundHttpException
+     */
     private function getListOfYear($currentYear, $returnURL)
     {
 
@@ -316,6 +562,11 @@ class UnderlyingController extends Controller
     }
 
 
+    /**
+     * @param $currentMonth
+     * @param $returnURL
+     * @return array
+     */
     private function getListOfMonth($currentMonth, $returnURL)
     {
         $monthArray = Array(

@@ -17,3 +17,23 @@ jack_find_underlying_result_findbymonth:
 jack_find_underlying_result_findbyyear:
     pattern:  /underlying/result/findbyyear/{year}/{symbol}
     defaults: { _controller: JackFindBundle:Underlying:result, action: findbyyear }
+
+jack_find_underlying_result_findbyweekday:
+    pattern:  /underlying/result/findbyweekday/{weekday}/{symbol}
+    defaults: { _controller: JackFindBundle:Underlying:result, action: findbyweekday }
+
+jack_find_underlying_result_findbyweek:
+    pattern:  /underlying/result/findbyweek/{week}/{symbol}
+    defaults: { _controller: JackFindBundle:Underlying:result, action: findbyweek }
+
+jack_find_underlying_result_findbycalendar:
+    pattern:  /underlying/result/findbycalendar/{year}/{month}/{day}/{weekday}/{week}/{symbol}
+    defaults: { _controller: JackFindBundle:Underlying:result, action: findbycalendar }
+
+
+
+
+
+
+
+
