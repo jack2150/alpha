@@ -17,13 +17,16 @@ class UnderlyingController extends Controller
      * @param Request $request
      * return the request data from form, symbol and action
      * @return \Symfony\Component\HttpFoundation\RedirectResponse|\Symfony\Component\HttpFoundation\Response
+     * request post data
+     * @throws \Symfony\Component\HttpKernel\Exception\NotFoundHttpException
      * error when form submit, validate data, and error object
      */
     public function indexAction(Request $request)
     {
         // create a form
         $findForm = array(
-            'action' => '-----'
+            'symbol' => '',
+            'action' => '------'
         );
         $form = $this->createFormBuilder($findForm)
             ->add('symbol', 'choice', array(
@@ -142,7 +145,7 @@ class UnderlyingController extends Controller
                     break;
                 case 'findAll':
                 default:
-                    $returnUrl = 'jack_find_underlying_result_findbyall';
+                    $returnUrl = 'jack_find_underlying_result_findall';
                     $params = array(
                         'symbol' => strtolower($symbol),
                         'action' => strtolower($action),
@@ -842,7 +845,7 @@ class UnderlyingController extends Controller
      * @throws \Symfony\Component\HttpKernel\Exception\NotFoundHttpException
      * not found or object error
      */
-    private function getSymbolArray()
+    public function getSymbolArray()
     {
         $symbols = $this->getDoctrine()
             ->getRepository('JackImportBundle:Symbol')
@@ -889,6 +892,10 @@ class UnderlyingController extends Controller
     }
 
 
+    /**
+     * @param $symbol
+     * @throws \Symfony\Component\HttpKernel\Exception\NotFoundHttpException
+     */
     private function getSymbolObject($symbol)
     {
         $symbol = $this->getDoctrine('system')

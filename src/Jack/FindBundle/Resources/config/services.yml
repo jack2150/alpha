@@ -1,7 +1,6 @@
 parameters:
-#    jack_find.example.class: Jack\FindBundle\Example
+    #jack_find.underlying.class: Jack\FindBundle\Controller\UnderlyingController
 
 services:
-#    jack_find.example:
-#        class: %jack_find.example.class%
-#        arguments: [@service_id, "plain_value", %parameter%]
+    #jack_find.underlying:
+    #    class: %jack_find.underlying.class%

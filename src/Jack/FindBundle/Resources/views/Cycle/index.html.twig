@@ -1,7 +1,30 @@
-{% extends "::base.html.twig" %}
+{% extends "JackFindBundle::layout.html.twig" %}
 
-{% block title %}JackFindBundle:Cycle:index{% endblock %}
+{% block title %}Find Bundle: Cycle{% endblock %}
 
-{% block body %}
-    <h1>Welcome to the Cycle:index page</h1>
+{% block content %}
+    <h2 style="background-color: darkcyan">Find Cycle</h2>
+
+    {{ form_start(findCycleForm) }}
+    {{ form_errors(findCycleForm) }}
+
+    <div>
+        {{ form_label(findCycleForm.symbol, 'Symbol Name:') }}
+        {{ form_errors(findCycleForm.symbol) }}
+        {{ form_widget(findCycleForm.symbol) }}
+
+        {{ form_label(findCycleForm.action, 'Action:') }}
+        {{ form_errors(findCycleForm.action) }}
+        {{ form_widget(findCycleForm.action) }}
+        {{ form_widget(findCycleForm.find) }}
+    </div>
+
+    <span style="font-size: 0.8em; color: darkorange">
+        ** Latest import into database.
+    </span>
+
+    {{ form_end(findCycleForm) }}
+
+
+
 {% endblock %}

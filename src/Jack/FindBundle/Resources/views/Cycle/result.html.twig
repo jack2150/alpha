@@ -1,7 +1,80 @@
-{% extends "::base.html.twig" %}
+{% extends "JackFindBundle::layout.html.twig" %}
 
-{% block title %}JackFindBundle:Cycle:result{% endblock %}
+{% block title %}Find Bundle: Cycle: Result{% endblock %}
 
-{% block body %}
-    <h1>Welcome to the Cycle:result page</h1>
+{% block content %}
+    <h2 style="background-color: darkcyan">Cycle: {{ searchName }}</h2>
+
+    <h2 style="background-color: darkcyan">
+        In {{ symbol }}:
+        {% if resultCount %}
+            {{ resultCount }} Results
+        {% else %}
+            Empty Result
+        {% endif %}
+    </h2>
+
+    {% if cycles %}
+        <table>
+            <tr>
+                <th style="width: 50px; font-weight: bold;">ID</th>
+                <th style="width: 120px; font-weight: bold;">Expire Cycle</th>
+                <th style="width: 120px; font-weight: bold;">Expire Date</th>
+                <th style="width: 120px; font-weight: bold;">Expire Week</th>
+                <th style="width: 70px; font-weight: bold;">Right</th>
+                <th style="width: 70px; font-weight: bold;">Weekly</th>
+                <th style="width: 70px; font-weight: bold;">Mini</th>
+            </tr>
+            {% for cycle in cycles %}
+                <tr>
+                    <td>{{ cycle.id }}</td>
+                    <td>{{ cycle.expireMonth }}-{{ cycle.expireYear }}</td>
+                    <td>{{ cycle.expireDate|date('Y-m-d') }}</td>
+                    <td>
+
+                        {% if cycle.isWeekly %}
+                            <b style="color: red">
+                                {% set week = cycle.expireMonth|slice(3, 4) %}
+                                {% if week == 1 %}
+                                    {{ week }}st
+                                {% elseif week == 2 %}
+                                    {{ week }}nd
+                                {% elseif week == 3 %}
+                                    {{ week }}rd
+                                {% else %}
+                                    {{ week }}th
+                                {% endif %}
+                                Week
+                            </b>
+                        {% else %}
+                            <span style="color: green">3rd Week</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if cycle.isMini %}
+                            <b style="color: blue">{{ cycle.contractRight }}</b>
+                        {% else %}
+                            {{ cycle.contractRight }}
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if cycle.isWeekly %}
+                            <b style="color: red">Yes</b>
+                        {% else %}
+                            No
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if cycle.isMini %}
+                            <b style="color: blue">Yes</b>
+                        {% else %}
+                            No
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+        </table>
+
+    {% endif %}
+
 {% endblock %}
