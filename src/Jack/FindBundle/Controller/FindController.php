@@ -4,13 +4,72 @@ namespace Jack\FindBundle\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\DependencyInjection\ContainerInterface as Container;
+use Symfony\Component\HttpFoundation\Request;
 
 use Jack\ImportBundle\Entity\Symbol;
 
-class FindController extends Controller
+/**
+ * Class FindController
+ * @package Jack\FindBundle\Controller
+ */
+abstract class FindController extends Controller
 {
     protected $symbol;
     protected $symbolObject;
+
+    // Force Extending class to define this method
+    /**
+     * @param Request $request
+     * @return mixed
+     */
+    //abstract public function indexAction(Request $request);
+
+
+    /**
+     * @param string $sort
+     * underlying data sort 'date' type 'asc' or 'desc' by date
+     * @return array
+     * return an array of underlying objects
+     */
+    public function findUnderlyingAll($sort = 'asc')
+    {
+        $symbolEM = $this->getDoctrine()->getManager('symbol');
+
+        return $symbolEM
+            ->getRepository('JackImportBundle:Underlying')
+            ->findBy(array(), array('date' => $sort));
+    }
+
+
+    /**
+     * @param string $sort
+     * cycles data sort 'expiredate' type 'asc' or 'desc' by date
+     * @return array
+     * return an array of cycle objects
+     */
+    public function findCycleAll($sort = 'asc')
+    {
+        $symbolEM = $this->getDoctrine()->getManager('symbol');
+
+        return $symbolEM
+            ->getRepository('JackImportBundle:Cycle')
+            ->findBy(array(), array('expiredate' => $sort));
+    }
+
+    /**
+     * @param string $sort
+     * strikes data sort 'strike' type 'asc' or 'desc' by date
+     * @return array
+     * return an array of strike objects
+     */
+    public function findStrikeAll($sort = 'asc')
+    {
+        $symbolEM = $this->getDoctrine()->getManager('symbol');
+
+        return $symbolEM
+            ->getRepository('JackImportBundle:Strike')
+            ->findBy(array(), array('strike' => $sort));
+    }
 
     /**
      * @return array

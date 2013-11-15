@@ -41,7 +41,7 @@ jack_find_underlying_result_daterange_redirect:
 
 
 
-
+# cycle
 jack_find_cycle_index:
     pattern: /cycle
     defaults: { _controller: JackFindBundle:Cycle:index }
@@ -49,3 +49,17 @@ jack_find_cycle_index:
 jack_find_cycle_result_findall:
     pattern: /cycle/result/findall/{symbol}
     defaults: { _controller: JackFindBundle:Cycle:result, action: findall }
+
+jack_find_cycle_result_findbyspecific:
+    pattern: /cycle/result/findbyspecific/{weekNo}/{month}/{year}/{leap}/{weekly}/{mini}/{symbol}
+    defaults: { _controller: JackFindBundle:Cycle:result, action: findbyspecific }
+
+
+# strike
+index:
+    pattern: /index
+    defaults: { _controller: JackFindBundle:Strike:index }
+
+result:
+    pattern: /result
+    defaults: { _controller: JackFindBundle:Strike:result }

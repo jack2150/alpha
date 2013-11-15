@@ -1,0 +1,41 @@
+<table>
+    <tr>
+        <td>
+            <b style="float: left; width: 120px; height:20px;">LEAP Option:</b>
+            {% for leapLink in leapLinks %}
+                {% if leapLink.url == '#' %}
+                    <div style="float: left; width: 80px;">
+                        {% if leapLink.leap == 1 %}
+                            <b>[YES]</b>
+                        {% elseif leapLink.leap == -1 %}
+                            <b>[NO]</b>
+                        {% else %}
+                            <b>[ANY]</b>
+                        {% endif %}
+                    </div>
+                {% else %}
+                    <a style="float: left;" href="{{ path('jack_find_cycle_result_findbyspecific',
+                    {
+                    'action': leapLink.url, 'symbol': symbol,
+                    'weekNo': parameters.weekNo, 'month': parameters.month,
+                    'leap': leapLink.leap, 'weekly': parameters.weekly,
+                    'mini': parameters.mini, 'year': parameters.year,
+                    }) }}">
+                        <div style="width: 80px;">
+                            {% if leapLink.leap == 1 %}
+                                YES
+                            {% elseif leapLink.leap == -1 %}
+                                NO
+                            {% else %}
+                                ANY
+                            {% endif %}
+                        </div>
+                    </a>
+                {% endif %}
+            {% endfor %}
+        </td>
+    </tr>
+</table>
+<br/>
+
+

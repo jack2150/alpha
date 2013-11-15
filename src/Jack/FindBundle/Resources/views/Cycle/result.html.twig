@@ -5,6 +5,41 @@
 {% block content %}
     <h2 style="background-color: darkcyan">Cycle: {{ searchName }}</h2>
 
+    {% if linkType == 'specific' %}
+        {{ include(
+        'JackFindBundle:Cycle:weekNoLink.html.twig',
+        { 'weekNoLinks': searchLinks.weekNo }
+        ) }}
+
+        {{ include(
+        'JackFindBundle:Cycle:monthLink.html.twig',
+        { 'monthLinks': searchLinks.month }
+        ) }}
+
+        {{ include(
+        'JackFindBundle:Cycle:yearLink.html.twig',
+        { 'yearLinks': searchLinks.year }
+        ) }}
+
+        {{ include(
+        'JackFindBundle:Cycle:leapLink.html.twig',
+        { 'leapLinks': searchLinks.leap }
+        ) }}
+
+        {{ include(
+        'JackFindBundle:Cycle:weeklyLink.html.twig',
+        { 'weeklyLinks': searchLinks.weekly }
+        ) }}
+
+        {{ include(
+        'JackFindBundle:Cycle:miniLink.html.twig',
+        { 'miniLinks': searchLinks.mini }
+        ) }}
+
+
+    {% else %}
+    {% endif %}
+
     <h2 style="background-color: darkcyan">
         In {{ symbol }}:
         {% if resultCount %}
@@ -28,19 +63,19 @@
             {% for cycle in cycles %}
                 <tr>
                     <td>{{ cycle.id }}</td>
-                    <td>{{ cycle.expireMonth }}-{{ cycle.expireYear }}</td>
+                    <td>{{ cycle.expireMonth }}-{{ "%02d"|format(cycle.expireYear) }}</td>
                     <td>{{ cycle.expireDate|date('Y-m-d') }}</td>
                     <td>
 
                         {% if cycle.isWeekly %}
                             <b style="color: red">
-                                {% set week = cycle.expireMonth|slice(3, 4) %}
+                                {% set week = cycle.expireMonth|slice(3, 1) %}
                                 {% if week == 1 %}
-                                    {{ week }}st
+                                    1st
                                 {% elseif week == 2 %}
-                                    {{ week }}nd
+                                    2nd
                                 {% elseif week == 3 %}
-                                    {{ week }}rd
+                                    3rd
                                 {% else %}
                                     {{ week }}th
                                 {% endif %}

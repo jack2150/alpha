@@ -1,0 +1,53 @@
+<table>
+    <tr>
+        <td>
+            <b style="float: left; width: 120px; height:20px;">Week No:</b>
+            {% for weekNoLink in weekNoLinks %}
+                {% if weekNoLink.url == '#' %}
+                    <div style="float: left; width: 100px;">
+                        {% if weekNoLink.weekNo == 1 %}
+                            <b>[1st Week]</b>
+                        {% elseif weekNoLink.weekNo == 2 %}
+                            <b>[2nd Week]</b>
+                        {% elseif weekNoLink.weekNo == 3 %}
+                            <b>[3rd Week]</b>
+                        {% elseif weekNoLink.weekNo == 4 %}
+                            <b>[4th Week]</b>
+                        {% elseif weekNoLink.weekNo == 5 %}
+                            <b>[5th Week]</b>
+                        {% else %}
+                            <b>[ANY]</b>
+                        {% endif %}
+                    </div>
+                {% else %}
+                    <a style="float: left;" href="{{ path('jack_find_cycle_result_findbyspecific',
+                    {
+                    'action': weekNoLink.url, 'symbol': symbol,
+                    'weekNo': weekNoLink.weekNo, 'month': parameters.month,
+                    'leap': parameters.leap, 'weekly': parameters.weekly,
+                    'mini': parameters.mini, 'year': parameters.year,
+                    }) }}">
+                        <div style="width: 100px;">
+                            {% if weekNoLink.weekNo == 1 %}
+                                1st Week
+                            {% elseif weekNoLink.weekNo == 2 %}
+                                2nd Week
+                            {% elseif weekNoLink.weekNo == 3 %}
+                                3rd Week
+                            {% elseif weekNoLink.weekNo == 4 %}
+                                4th Week
+                            {% elseif weekNoLink.weekNo == 5 %}
+                                5th Week
+                            {% else %}
+                                ANY
+                            {% endif %}
+                        </div>
+                    </a>
+                {% endif %}
+            {% endfor %}
+        </td>
+    </tr>
+</table>
+<br/>
+
+

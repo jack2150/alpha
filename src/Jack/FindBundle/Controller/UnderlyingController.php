@@ -2,17 +2,16 @@
 
 namespace Jack\FindBundle\Controller;
 
+use Jack\FindBundle\Controller\FindController;
+
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 
 use Jack\ImportBundle\Entity\Symbol;
 use Jack\ImportBundle\Entity\Underlying;
 
-class UnderlyingController extends Controller
+class UnderlyingController extends FindController
 {
-    protected $symbol;
-    protected $symbolObject;
-
     /**
      * @param Request $request
      * return the request data from form, symbol and action
@@ -279,22 +278,6 @@ class UnderlyingController extends Controller
                 )
             )
         );
-    }
-
-
-    /**
-     * @param string $sort
-     * underlying data sort type 'asc' or 'desc' by date
-     * @return array
-     * return an array of underlying objects
-     */
-    public function findUnderlyingAll($sort = 'asc')
-    {
-        $symbolEM = $this->getDoctrine()->getManager('symbol');
-
-        return $symbolEM
-            ->getRepository('JackImportBundle:Underlying')
-            ->findBy(array(), array('date' => $sort));
     }
 
 
@@ -838,86 +821,5 @@ class UnderlyingController extends Controller
 
         return $dayLinkArray;
     }
-
-    /**
-     * @return array
-     * generate a list of underlying symbol from system table
-     * @throws \Symfony\Component\HttpKernel\Exception\NotFoundHttpException
-     * not found or object error
-     */
-    public function getSymbolArray()
-    {
-        $symbols = $this->getDoctrine()
-            ->getRepository('JackImportBundle:Symbol')
-            ->findBy(
-                array(),
-                array('importdate' => 'DESC')
-            );
-
-        if (!$symbols) {
-            throw $this->createNotFoundException(
-                'No underlying import to check yet!' .
-                'Please import underlying to databases!'
-            );
-        }
-
-        // loop all symbols list from table
-        $latest = 1;
-        $nameArray = Array();
-        foreach ($symbols as $symbol) {
-
-            if ($symbol instanceof Symbol) {
-                if ($latest) {
-                    $markNew = ' **';
-                    $latest--;
-                } else {
-                    $markNew = '';
-                }
-
-                $formatName = $symbol->getName() . $markNew;
-
-                $nameArray = array_merge(
-                    $nameArray, array(
-                        $symbol->getName() => $formatName
-                    )
-                );
-            } else {
-                throw $this->createNotFoundException(
-                    'Error import symbols from database!'
-                );
-            }
-        }
-
-        return $nameArray;
-    }
-
-
-    /**
-     * @param $symbol
-     * @throws \Symfony\Component\HttpKernel\Exception\NotFoundHttpException
-     */
-    private function getSymbolObject($symbol)
-    {
-        $symbol = $this->getDoctrine('system')
-            ->getRepository('JackImportBundle:Symbol')
-            ->findOneBy(
-                array('name' => $symbol)
-            );
-
-        if (!$symbol) {
-            throw $this->createNotFoundException(
-                'No such symbol [' . $symbol . '] exist in db!'
-            );
-        }
-
-        if (!($symbol instanceof Symbol)) {
-            throw $this->createNotFoundException(
-                'Error [ Symbol ] object from entity manager'
-            );
-        }
-
-        $this->symbolObject = $symbol;
-    }
-
 
 }

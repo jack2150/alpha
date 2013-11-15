@@ -1,19 +1,7 @@
-jack_statistic_homepage:
-    pattern:  /hello/
-    defaults: { _controller: JackStatisticBundle:Default:index }
+jack_stat_daily_iv_index:
+    pattern: /daily/iv/index
+    defaults: { _controller: JackStatisticBundle:DailyIV:index }
 
-jack_statistic_impvol:
-    pattern: /index/{symbol}
-    defaults: { _controller: JackStatisticBundle:ImpVol:index }
-
-cal_data:
-    pattern: /calData
-    defaults: { _controller: JackStatisticBundle:ImpVol:calData }
-
-format_data:
-    pattern: /formatData
-    defaults: { _controller: JackStatisticBundle:ImpVol:formatData }
-
-save_data:
-    pattern: /saveData
-    defaults: { _controller: JackStatisticBundle:ImpVol:saveData }
+jack_stat_daily_iv_display:
+    pattern: /daily/iv/display/{action}/{symbol}
+    defaults: { _controller: JackStatisticBundle:DailyIV:display }

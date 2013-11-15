@@ -1,0 +1,37 @@
+<table>
+    <tr>
+        <td>
+            <b style="float: left; width: 120px; height:20px;">More Years:</b>
+            {% for yearLink in yearLinks %}
+                {% if yearLink.url == '#' %}
+                    <div style="float: left; width: 80px;">
+                        {% if yearLink.year %}
+                            <b>[{{ yearLink.year }}]</b>
+                        {% else %}
+                            <b>[ANY]</b>
+                        {% endif %}
+                    </div>
+                {% else %}
+                    <a style="float: left;" href="{{ path('jack_find_cycle_result_findbyspecific',
+                    {
+                    'action': yearLink.url, 'symbol': symbol,
+                    'weekNo': parameters.weekNo, 'month': parameters.month,
+                    'leap': parameters.leap, 'weekly': parameters.weekly,
+                    'mini': parameters.mini, 'year': yearLink.year,
+                    }) }}">
+                        <div style="width: 80px;">
+                            {% if yearLink.year %}
+                                {{ yearLink.year }}
+                            {% else %}
+                                ANY
+                            {% endif %}
+                        </div>
+                    </a>
+                {% endif %}
+            {% endfor %}
+        </td>
+    </tr>
+</table>
+<br/>
+
+

@@ -1,0 +1,29 @@
+{% extends "JackStatisticBundle::layout.html.twig" %}
+
+{% block title %}Statistic Bundle: Daily IV Generator: Select Form{% endblock %}
+
+{% block content %}
+    <h2 style="background-color: darkcyan">Statistic: Daily IV Generator</h2>
+
+    {{ form_start(selectForm) }}
+    {{ form_errors(selectForm) }}
+
+    <div>
+        {{ form_label(selectForm.symbol, 'Symbol Name:') }}
+        {{ form_errors(selectForm.symbol) }}
+        {{ form_widget(selectForm.symbol) }}
+
+        {{ form_label(selectForm.action, 'Action:') }}
+        {{ form_errors(selectForm.action) }}
+        {{ form_widget(selectForm.action) }}
+        {{ form_widget(selectForm.find) }}
+    </div>
+
+    <span style="font-size: 0.8em; color: darkorange">
+        ** Latest import into database.
+    </span>
+
+    {{ form_end(selectForm) }}
+
+
+{% endblock %}

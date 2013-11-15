@@ -10,10 +10,12 @@
       <w>expiremonth</w>
       <w>expireyear</w>
       <w>fastdb</w>
+      <w>findall</w>
       <w>findbycalendar</w>
       <w>findbydaterange</w>
       <w>findbyday</w>
       <w>findbymonth</w>
+      <w>findbyspecific</w>
       <w>findbyweek</w>
       <w>findbyweekday</w>
       <w>findbyyear</w>
