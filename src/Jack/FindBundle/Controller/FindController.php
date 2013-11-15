@@ -33,6 +33,8 @@ abstract class FindController extends Controller
      */
     public function findUnderlyingAll($sort = 'asc')
     {
+        //date_default_timezone_set('UTC');
+
         $symbolEM = $this->getDoctrine()->getManager('symbol');
 
         return $symbolEM
@@ -49,6 +51,8 @@ abstract class FindController extends Controller
      */
     public function findCycleAll($sort = 'asc')
     {
+        //date_default_timezone_set('UTC');
+
         $symbolEM = $this->getDoctrine()->getManager('symbol');
 
         return $symbolEM
@@ -64,6 +68,8 @@ abstract class FindController extends Controller
      */
     public function findStrikeAll($sort = 'asc')
     {
+        //date_default_timezone_set('UTC');
+
         $symbolEM = $this->getDoctrine()->getManager('symbol');
 
         return $symbolEM

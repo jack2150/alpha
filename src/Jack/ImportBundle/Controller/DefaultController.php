@@ -29,7 +29,7 @@ use Jack\ImportBundle\Entity\Holiday;
  */
 class DefaultController extends Controller
 {
-    public static $maxFilesInsert = 5;
+    public static $maxFilesInsert = 10;
 
     /**
      * @return \Symfony\Component\HttpFoundation\Response
@@ -650,6 +650,8 @@ class DefaultController extends Controller
 
     private function insertObjectToDb($quoteObjectArray)
     {
+        date_default_timezone_set('UTC');
+
         //set warning empty
         $warning = Array();
 
@@ -863,6 +865,8 @@ class DefaultController extends Controller
      */
     private function updateSymbolTable($currentSymbol, $pathArray)
     {
+        date_default_timezone_set('UTC');
+
         $entityManager = $this->getDoctrine()->getManager('system');
         /** @noinspection PhpUndefinedMethodInspection */
         $symbol = $entityManager
@@ -927,6 +931,8 @@ class DefaultController extends Controller
      */
     private function createNewDb($dbName)
     {
+        date_default_timezone_set('UTC');
+
         // create new drive, connection object then create new db
         $driver = new Driver;
         $conn = new Connection(array(
@@ -975,6 +981,8 @@ class DefaultController extends Controller
      */
     private function insertSymbol($symbolName)
     {
+        date_default_timezone_set('UTC');
+
         // create new symbol object
         $symbol = new Symbol();
 

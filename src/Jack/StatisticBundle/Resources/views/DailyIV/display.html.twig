@@ -1,7 +1,16 @@
-{% extends "::base.html.twig" %}
+{% extends "JackStatisticBundle::layout.html.twig" %}
 
-{% block title %}JackStatisticBundle:DailyIV:display{% endblock %}
+{% block title %}Statistic Bundle: Daily IV Generator: Display{% endblock %}
 
-{% block body %}
-    <h1>Welcome to the DailyIV:display page</h1>
+{% block content %}
+    <h2 style="background-color: darkcyan">Statistic: Daily IV Generator: Display</h2>
+
+    <div>
+        <ul>
+            {% for debugResult in debugResults %}
+                <li style="font-size: 0.85em;">{{ debugResult|nl2br }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+
 {% endblock %}
