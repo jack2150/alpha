@@ -1,7 +1,49 @@
-{% extends "::base.html.twig" %}
+{% extends "JackFindBundle::layout.html.twig" %}
 
-{% block title %}JackFindBundle:Strike:result{% endblock %}
+{% block title %}Find Bundle: Strike: Result{% endblock %}
 
-{% block body %}
-    <h1>Welcome to the Strike:result page</h1>
+{% block content %}
+    <h2 style="background-color: darkcyan">Strike: {{ searchName }} </h2>
+
+    {% if linkType == 'findbycategory' %}
+        {{ include(
+        'JackFindBundle:Strike:categoryLink.html.twig',
+        { 'categoryLinks': searchLinks }
+        ) }}
+    {% else %}
+    {% endif %}
+
+    <h2 style="background-color: darkcyan">
+        In {{ symbol }}:
+        {% if resultCount %}
+            {{ resultCount }} Results
+        {% else %}
+            Empty Result
+        {% endif %}
+    </h2>
+
+    {% if strikes %}
+        <table>
+            <tr>
+                <th style="width: 50px; font-weight: bold;">ID</th>
+                <th style="width: 100px; font-weight: bold;">Category</th>
+                <th style="width: 100px; font-weight: bold;">Strike Price</th>
+            </tr>
+            {% for strike in strikes %}
+            <tr>
+                <td>{{ strike.id }}</td>
+
+                <td>
+                    {% if strike.category == 'CALL' %}
+                        <b style="color: green">Call</b>
+                    {% else %}
+                        <b style="color: red">Put</b>
+                    {% endif %}
+                </td>
+                <td>{{ strike.strike|number_format(2) }}</td>
+                {% endfor %}
+
+        </table>
+    {% endif %}
+
 {% endblock %}

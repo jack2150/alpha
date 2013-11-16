@@ -42,6 +42,28 @@ abstract class FindController extends Controller
             ->findBy(array(), array('date' => $sort));
     }
 
+    /**
+     * @param $firstDate
+     * @param $lastDate
+     * @param string $sort
+     * @return mixed
+     */
+    public function findUnderlyingByDateRange($firstDate, $lastDate, $sort = 'asc')
+    {
+        $symbolEM = $this->getDoctrine()->getManager('symbol');
+
+        $repository = $symbolEM->getRepository('JackImportBundle:Underlying');
+
+        $query = $repository->createQueryBuilder('u')
+            ->where('u.date >= :firstDate and u.date <= :lastDate')
+            ->setParameter('firstDate', $firstDate)
+            ->setParameter('lastDate', $lastDate)
+            ->orderBy('u.date', $sort)
+            ->getQuery();
+
+        return $query->getResult();
+    }
+
 
     /**
      * @param string $sort
@@ -75,6 +97,26 @@ abstract class FindController extends Controller
         return $symbolEM
             ->getRepository('JackImportBundle:Strike')
             ->findBy(array(), array('strike' => $sort));
+    }
+
+    /**
+     * @param $category
+     * value either 'call' or 'put'
+     * @param string $sort
+     * sort type for the result
+     * @return array
+     * return a list of strike objects
+     */
+    public function findStrikeByCategory($category, $sort = 'asc')
+    {
+        $symbolEM = $this->getDoctrine()->getManager('symbol');
+
+        return $symbolEM
+            ->getRepository('JackImportBundle:Strike')
+            ->findBy(
+                array('category' => strtoupper($category)),
+                array('strike' => $sort)
+            );
     }
 
     /**

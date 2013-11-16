@@ -12,6 +12,7 @@
       <w>fastdb</w>
       <w>findall</w>
       <w>findbycalendar</w>
+      <w>findbycategory</w>
       <w>findbydaterange</w>
       <w>findbyday</w>
       <w>findbymonth</w>

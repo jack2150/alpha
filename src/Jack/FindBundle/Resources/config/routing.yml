@@ -1,5 +1,5 @@
 jack_find_underlying_index:
-    pattern:  /underlying
+    pattern:  /underlying/index
     defaults: { _controller: JackFindBundle:Underlying:index }
 
 jack_find_underlying_result_findall:
@@ -43,7 +43,7 @@ jack_find_underlying_result_daterange_redirect:
 
 # cycle
 jack_find_cycle_index:
-    pattern: /cycle
+    pattern: /cycle/index
     defaults: { _controller: JackFindBundle:Cycle:index }
 
 jack_find_cycle_result_findall:
@@ -56,10 +56,22 @@ jack_find_cycle_result_findbyspecific:
 
 
 # strike
+jack_find_strike_index:
+    pattern: /strike/index
+    defaults: { _controller: JackFindBundle:Strike:index }
+
+jack_find_strike_result_findall:
+    pattern: /strike/result/findall/{symbol}
+    defaults: { _controller: JackFindBundle:Strike:result, action: findall }
+
+jack_find_strike_result_findbycategory:
+    pattern: /strike/result/findbycategory/{category}/{symbol}
+    defaults: { _controller: JackFindBundle:Strike:result, action: findByCategory }
+
 index:
     pattern: /index
-    defaults: { _controller: JackFindBundle:Strike:index }
+    defaults: { _controller: JackFindBundle:Chain:index }
 
 result:
     pattern: /result
-    defaults: { _controller: JackFindBundle:Strike:result }
+    defaults: { _controller: JackFindBundle:Chain:result }

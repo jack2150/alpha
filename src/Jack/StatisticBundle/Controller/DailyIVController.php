@@ -31,6 +31,10 @@ class DailyIVController extends FindController
         'oneYear' => 252,
     );
 
+    /**
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse|\Symfony\Component\HttpFoundation\Response
+     */
     public function indexAction(Request $request)
     {
         $selectData = array(
@@ -107,7 +111,8 @@ class DailyIVController extends FindController
         $this->get('jack_service.fastdb')->switchSymbolDb($symbol);
 
         // get cycles data
-        $this->underlyings = $this->findUnderlyingAll();
+        //$this->underlyings = $this->findUnderlyingAll();
+        $this->underlyings = $this->findUnderlyingByDateRange('2012-1-3', '2012-1-31');
         $this->cycles = $this->findCycleAll();
         $this->strikes = $this->findStrikeAll();
 
@@ -146,6 +151,7 @@ class DailyIVController extends FindController
                 );
             }
 
+            /* original multiple calculation
             // get closest cycle to sample size
             $cycle = $this->findOneCycleByDTE(
                 $underlying->getId(), $underlying->getDate()->format('Y-m-d'), $sampleSize, 'closest'
@@ -173,17 +179,84 @@ class DailyIVController extends FindController
                 $chain->getImpl(), $chain->getDte(), $sampleSize,
                 $underlying->getLast(), $strike->getStrike()
             );
+            */
+
+            // 2 cycles mean calculation
+            $cycleRecursive0 = $this->findOneCycleByDTE(
+                $underlying->getId(), $underlying->getDate()->format('Y-m-d'), $sampleSize, 'closest', 0
+            );
+
+            $cycleRecursive1 = $this->findOneCycleByDTE(
+                $underlying->getId(), $underlying->getDate()->format('Y-m-d'), $sampleSize, 'closest', 1
+            );
+
+            // 2 strike using 2 difference cycles
+            $strikeCycle0 = $this->findOneStrikeByPrice(
+                $underlying->getId(), $cycleRecursive0->getId(), $underlying->getLast(), 'put', 'atm'
+            );
+
+            $strikeCycle1 = $this->findOneStrikeByPrice(
+                $underlying->getId(), $cycleRecursive1->getId(), $underlying->getLast(), 'put', 'atm'
+            );
+
+            if (!($strikeCycle0 instanceof Strike && $strikeCycle1 instanceof Strike)) {
+                throw $this->createNotFoundException(
+                    'Error [ Strike ] object from entity manager!'
+                );
+            }
+
+            // get 2 chain from using 1st and 2nd cycle, strike
+            $chainStrikeCycle0 = $this->findOneChainByIds(
+                $underlying->getId(), $cycleRecursive0->getId(), $strikeCycle0->getId()
+            );
+
+            $chainStrikeCycle1 = $this->findOneChainByIds(
+                $underlying->getId(), $cycleRecursive1->getId(), $strikeCycle1->getId()
+            );
+
+            if (!($chainStrikeCycle0 instanceof Chain && $chainStrikeCycle1 instanceof Chain)) {
+                throw $this->createNotFoundException(
+                    'Error [ Chain ] object from entity manager!'
+                );
+            }
+
+            // now calculate iv using all data
+            $iv = $this->ivBy2SampleMean(
+                $chainStrikeCycle0->getImpl(), $chainStrikeCycle1->getImpl(),
+                $chainStrikeCycle0->getDte(), $chainStrikeCycle1->getDte(), $sampleSize,
+                $strikeCycle0->getStrike(), $strikeCycle1->getStrike(), $underlying->getLast()
+            );
+
+            // format into 2 decimal
+            $iv = floatval(number_format($iv, 2));
+
+
+            // calculate, iv using mean of 2 cycles iv
+            // date difference is sample size / (mean of 2 expire date)
+            // example: (sample size) 30 / ((cycle date 1) 27 * (cycle date 2) 40)
+            // price difference is current price / (mean of 2 strike price)
+            // example: (price) 12.50 / ((strike price 1) 17 * (strike price 2) 18.5)
+
+
+            $a = 1;
+
 
             // debug use only
+
             $debugResults[] =
                 "Date: " . $underlying->getDate()->format('Y-m-d') .
-                " Cycle ExDate: " . $cycle->getExpiredate()->format('Y-m-d') .
-                ", Last Price: " . $underlying->getLast() .
-                " Strike Price: " . $strike->getStrike() .
-                ", Chain IV: " . $chain->getImpl() .
-                " Chain DTE: " . $chain->getDte() .
-                " Sample Size: " . $sampleSize .
-                " Exact IV: " . $iv . "\n";
+                " Cycle1 exDate: " . $cycleRecursive0->getExpiredate()->format('Y-m-d') .
+                " Cycle2 ExDate: " . $cycleRecursive1->getExpiredate()->format('Y-m-d') .
+                "\n Last Price: " . $underlying->getLast() .
+                " Strike1 Price: " . $strikeCycle0->getStrike() .
+                " Strike2 Price: " . $strikeCycle1->getStrike() .
+                "\n Chain1 IV: " . $chainStrikeCycle0->getImpl() .
+                " Chain2 IV: " . $chainStrikeCycle1->getImpl() .
+                " Chain1 DTE: " . $chainStrikeCycle0->getDte() .
+                " Chain2 DTE: " . $chainStrikeCycle1->getDte() .
+                "\n Sample Size: " . $sampleSize .
+                " Exact IV: " . $iv . "\n\n";
+
         }
 
 
@@ -198,9 +271,21 @@ class DailyIVController extends FindController
     }
 
 
-    // TODO: wrong calculate iv formula
+    // TODO: no calculation formula and example, wait
     // using before and after month to calculate mean iv
     // for example, ((jan iv + feb iv) / 2) * dayDiff * priceDiff
+    public function ivBy2SampleMean(
+        $iv1, $iv2, $exDate1, $exDate2, $sampleSize, $strike1, $strike2, $currentPrice
+    )
+    {
+        $meanIV = ($iv1 + $iv2) / 2;
+
+        $meanDTE = (($exDate1 + $exDate2) / 2) / $sampleSize;
+
+        $meanStrike = (($strike1 + $strike2) / 2) / $currentPrice;
+
+        return $meanIV * $meanDTE * $meanStrike;
+    }
 
 
     /**
@@ -261,11 +346,12 @@ class DailyIVController extends FindController
      * @param $findPrice
      * @param string $category
      * @param string $type
+     * @param int $recursive
      * @return null
      * @throws \Symfony\Component\HttpKernel\Exception\NotFoundHttpException
      */
     public function findOneStrikeByPrice
-    ($underlyingId, $cycleId, $findPrice, $category = 'call', $type = 'atm')
+    ($underlyingId, $cycleId, $findPrice, $category = 'call', $type = 'atm', $recursive = 0)
     {
         $chain = null;
 
@@ -350,11 +436,14 @@ class DailyIVController extends FindController
 
                 $priceDiffData[$strikeId] .= ' Use this!';
 
-                break;
+                if ($recursive) {
+                    $recursive--;
+                } else {
+                    break;
+                }
             } else {
                 $priceDiffData[$strikeId] .= ' Not Found!';
             }
-
         }
 
         // return strike object
@@ -380,12 +469,14 @@ class DailyIVController extends FindController
      * closest - will get positive or negative cycle closest to dte
      * forward - will only get positive cycle closest to dte
      * backward - will only get negative cycle closest to dte
+     * @param int $recursive
+     * use number of next cycle, for closest cycle array(0,1,2,3...)
      * @return Cycle object
      * return one cycle object that is closest to DTE
      * @throws \Symfony\Component\HttpKernel\Exception\NotFoundHttpException
      * error happen when getting object from db
      */
-    public function findOneCycleByDTE($underlyingId, $date, $dte, $type = 'closest')
+    public function findOneCycleByDTE($underlyingId, $date, $dte, $type = 'closest', $recursive = 0)
     {
         // set default time zone to utc
         date_default_timezone_set('UTC');
@@ -460,7 +551,11 @@ class DailyIVController extends FindController
 
                 $dayDiffData[$cycleId] .= ' Use this!';
 
-                break;
+                if ($recursive) {
+                    $recursive--;
+                } else {
+                    break;
+                }
             } else {
                 $dayDiffData[$cycleId] .= ' Not Found!';
             }

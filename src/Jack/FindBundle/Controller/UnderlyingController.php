@@ -468,23 +468,6 @@ class UnderlyingController extends FindController
 
     }
 
-    public function findUnderlyingByDateRange($firstDate, $lastDate, $sort = 'asc')
-    {
-        $symbolEM = $this->getDoctrine()->getManager('symbol');
-
-        $repository = $symbolEM->getRepository('JackImportBundle:Underlying');
-
-        $query = $repository->createQueryBuilder('u')
-            ->where('u.date >= :firstDate and u.date <= :lastDate')
-            ->setParameter('firstDate', $firstDate)
-            ->setParameter('lastDate', $lastDate)
-            ->orderBy('u.date', $sort)
-            ->getQuery();
-
-        return $query->getResult();
-    }
-
-
     /**
      * @param $firstDate
      * first date use in form for last search

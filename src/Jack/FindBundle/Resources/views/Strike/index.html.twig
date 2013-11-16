@@ -1,7 +1,31 @@
-{% extends "::base.html.twig" %}
+{% extends "JackFindBundle::layout.html.twig" %}
 
-{% block title %}JackFindBundle:Strike:index{% endblock %}
+{% block title %}Find Bundle: Strike{% endblock %}
 
-{% block body %}
-    <h1>Welcome to the Strike:index page</h1>
+{% block content %}
+    <h2 style="background-color: darkcyan">Find Strike</h2>
+
+
+    {{ form_start(findStrikeForm) }}
+    {{ form_errors(findStrikeForm) }}
+
+    <div>
+        {{ form_label(findStrikeForm.symbol, 'Symbol Name:') }}
+        {{ form_errors(findStrikeForm.symbol) }}
+        {{ form_widget(findStrikeForm.symbol) }}
+
+        {{ form_label(findStrikeForm.action, 'Action:') }}
+        {{ form_errors(findStrikeForm.action) }}
+        {{ form_widget(findStrikeForm.action) }}
+        {{ form_widget(findStrikeForm.find) }}
+    </div>
+
+    <span style="font-size: 0.8em; color: darkorange">
+        ** Latest import into database.
+    </span>
+
+    {{ form_end(findStrikeForm) }}
+
+
+
 {% endblock %}
