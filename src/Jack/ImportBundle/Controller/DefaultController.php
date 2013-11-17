@@ -29,7 +29,7 @@ use Jack\ImportBundle\Entity\Holiday;
  */
 class DefaultController extends Controller
 {
-    public static $maxFilesInsert = 10;
+    public static $maxFilesInsert = 5;
 
     /**
      * @return \Symfony\Component\HttpFoundation\Response

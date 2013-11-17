@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doctrine-mapping xmlns="http://doctrine-project.org/schemas/orm/doctrine-mapping"
+                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                  xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping http://doctrine-project.org/schemas/orm/doctrine-mapping.xsd">
+    <entity name="Jack\ImportBundle\Entity\Hv" table="hv">
+        <id name="id" type="integer" column="id">
+            <generator strategy="IDENTITY"/>
+        </id>
+        <field name="sample" type="integer" column="sample" nullable="false"/>
+        <field name="value" type="float" column="value" nullable="false"/>
+        <field name="yearhigh" type="float" column="yearHigh" nullable="true"/>
+        <field name="yearlow" type="float" column="yearLow" nullable="true"/>
+        <field name="rank" type="float" column="rank" nullable="true"/>
+        <many-to-one field="underlyingid" target-entity="Underlying">
+            <join-columns>
+                <join-column name="underlyingId" referenced-column-name="id"/>
+            </join-columns>
+        </many-to-one>
+    </entity>
+</doctrine-mapping>

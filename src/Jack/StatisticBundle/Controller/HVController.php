@@ -28,6 +28,7 @@ class HVController extends DefaultController
     protected $underlyings;
     protected $hvs;
 
+
     /**
      * @param $symbol
      */
@@ -66,6 +67,136 @@ class HVController extends DefaultController
          */
         $sampleSize = self::$sampleSize['oneMonth'];
 
+        // for generate hv value only
+        //$debug = $this->generateValueHV($sampleSize);
+
+        // for generate year high, low, and daily rank
+        $debug = $this->setYearHighLowRankHV();
+
+
+        // all done show output
+        return $this->render(
+            'JackStatisticBundle:HV:result.html.twig',
+            array('debugResults' => $debug)
+        );
+    }
+
+    public function setYearHighLowRankHV()
+    {
+        /*
+         * 0. create an array of hv using underlying date as key
+         * 1. get the symbol last date + 1 year (exact date)
+         * 2. run a loop to get past exact 1 year hv
+         * 3. get the max and min of the list
+         */
+
+        // create an array date => hv
+
+        $dateHVArray = array();
+        foreach ($this->hvs as $hv) {
+            // error checking
+            if (!($hv instanceof Hv)) {
+                throw $this->createNotFoundException(
+                    'Error [ HV ] object from entity manager!'
+                );
+            }
+
+            $dateHVArray[$hv->getUnderlyingid()->getDate()->format('Y-m-d')]
+                = $hv->getValue();
+        }
+
+
+        // create a new sort array
+        /*
+        $sortHVArray = array();
+        foreach ($this->underlyings as $underlying)
+        {
+            // error checking
+            if (!($underlying instanceof Underlying)) {
+                throw $this->createNotFoundException(
+                    'Error [ Underlying ] object from entity manager!'
+                );
+            }
+
+            $currentDate = $underlying->getDate()->format('Y-m-d');
+
+            if (isset($dateHVArray[$currentDate])) {
+                $sortValueArrayHV[] = $dateHVArray[$currentDate];
+                $sortDateArrayHV[] = $currentDate;
+            }
+        }
+        */
+
+
+        // do loop later
+
+        // start date, 1 year after first date
+        //$startDate = '2009-12-30';
+
+
+        /*
+         * create a every date array with
+         * date as key, value as hv
+         * if no hv value, it set to null
+         */
+        $firstDate = new \DateTime($this->symbolObject->getFirstdate()->format('Y-m-d'));
+        $lastDate = new \DateTime($this->symbolObject->getLastdate()->format('Y-m-d'));
+
+        $dayDiff = intval($firstDate->diff($lastDate)->format("%a"));
+
+
+        // an array of include all date (holiday, saturday, sunday)
+        $dailyArrayHV = array();
+        for ($day = 0; $day <= $dayDiff; $day++) {
+            $currentDay = new \DateTime($firstDate->format('Y-m-d'));
+            $currentDay = $currentDay->modify("+$day day")->format('Y-m-d');
+
+            if (isset($dateHVArray[$currentDay])) {
+                $dailyArrayHV[$currentDay] = $dateHVArray[$currentDay];
+            } else {
+                $dailyArrayHV[$currentDay] = null;
+            }
+        }
+
+        // loop section
+        $startDate = new \DateTime($this->symbolObject->getFirstdate()->format('Y-m-d'));
+
+        // get teh start and end date
+        $sampleStartDate = $startDate->format('Y-m-d');
+        $sampleEndDate = $startDate->modify("+1 year")->format('Y-m-d');
+
+        // date key array and use it as index
+        $DateKeyArray = array_keys($dailyArrayHV);
+        //$DateIndexArray = array_search('SX1T_1',$DateKeyArray);
+
+        // get the start and end position in array
+        $sampleStartPosition = array_search($sampleStartDate, $DateKeyArray);
+        $sampleEndPosition = array_search($sampleEndDate, $DateKeyArray);
+
+        // get the array of start until end position, then remove null
+        $sampleArray = array_slice($dailyArrayHV, $sampleStartPosition, $sampleEndPosition);
+        $sampleArray = array_filter($sampleArray, 'strlen');
+
+        // get the max and min value
+        $maxHV = max($sampleArray);
+        $minHV = min($sampleArray);
+
+        // insert into table
+
+
+        $a = 1;
+
+
+        return array();
+    }
+
+    /**
+     * @param $sampleSize
+     * @return array
+     * @throws \Symfony\Component\HttpKernel\Exception\NotFoundHttpException
+     */
+    public function generateValueHV($sampleSize)
+    {
         // start the entity manager
         $symbolEM = $this->getDoctrine()->getManager('symbol');
 
@@ -119,12 +250,7 @@ class HVController extends DefaultController
         // insert into hv table
         $symbolEM->flush();
 
-
-        // all done show output
-        return $this->render(
-            'JackStatisticBundle:HV:result.html.twig',
-            array('debugResults' => $debugResults)
-        );
+        return $debugResults;
     }
 
     /**
