@@ -22,9 +22,9 @@ class Strike
     /**
      * @var float
      *
-     * @ORM\Column(name="strike", type="float", nullable=false)
+     * @ORM\Column(name="price", type="float", nullable=false)
      */
-    private $strike;
+    private $price;
 
     /**
      * @var integer
@@ -36,6 +36,7 @@ class Strike
     private $id;
 
 
+
     /**
      * Set category
      *
@@ -45,14 +46,14 @@ class Strike
     public function setCategory($category)
     {
         $this->category = $category;
-
+    
         return $this;
     }
 
     /**
      * Get category
      *
-     * @return string
+     * @return string 
      */
     public function getCategory()
     {
@@ -60,32 +61,32 @@ class Strike
     }
 
     /**
-     * Set strike
+     * Set price
      *
-     * @param float $strike
+     * @param float $price
      * @return Strike
      */
-    public function setStrike($strike)
+    public function setPrice($price)
     {
-        $this->strike = $strike;
-
+        $this->price = $price;
+    
         return $this;
     }
 
     /**
-     * Get strike
+     * Get price
      *
-     * @return float
+     * @return float 
      */
-    public function getStrike()
+    public function getPrice()
     {
-        return $this->strike;
+        return $this->price;
     }
 
     /**
      * Get id
      *
-     * @return integer
+     * @return integer 
      */
     public function getId()
     {

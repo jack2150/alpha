@@ -20,18 +20,18 @@ class Analyst
     private $firm;
 
     /**
-     * @var integer
+     * @var boolean
      *
-     * @ORM\Column(name="opinion", type="integer", nullable=false)
+     * @ORM\Column(name="opinion", type="boolean", nullable=false)
      */
-    private $opinion = 0;
+    private $opinion;
 
     /**
-     * @var integer
+     * @var boolean
      *
-     * @ORM\Column(name="rating", type="integer", nullable=false)
+     * @ORM\Column(name="rating", type="boolean", nullable=false)
      */
-    private $rating = 3;
+    private $rating;
 
     /**
      * @var float
@@ -86,7 +86,7 @@ class Analyst
     /**
      * Set opinion
      *
-     * @param integer $opinion
+     * @param boolean $opinion
      * @return Analyst
      */
     public function setOpinion($opinion)
@@ -99,7 +99,7 @@ class Analyst
     /**
      * Get opinion
      *
-     * @return integer
+     * @return boolean
      */
     public function getOpinion()
     {
@@ -109,7 +109,7 @@ class Analyst
     /**
      * Set rating
      *
-     * @param integer $rating
+     * @param boolean $rating
      * @return Analyst
      */
     public function setRating($rating)
@@ -122,7 +122,7 @@ class Analyst
     /**
      * Get rating
      *
-     * @return integer
+     * @return boolean
      */
     public function getRating()
     {

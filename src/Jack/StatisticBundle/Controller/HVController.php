@@ -2,20 +2,17 @@
 
 namespace Jack\StatisticBundle\Controller;
 
-use Jack\FindBundle\Controller\FindController;
 
+use Jack\ImportBundle\Entity\Hv;
 use Jack\ImportBundle\Entity\Underlying;
+use Jack\StatisticBundle\Controller\DefaultController;
 
 /**
  * Class HVController
  * @package Jack\StatisticBundle\Controller
  */
-class HVController extends FindController
+class HVController extends DefaultController
 {
-    protected $underlyings;
-    //protected $cycles;
-    //protected $strikes;
-
     protected static $sampleSize = array(
         'oneWeek' => 5,
         'twoWeek' => 10,
@@ -26,11 +23,42 @@ class HVController extends FindController
         'oneYear' => 252,
     );
 
+    //protected $cycles;
+    //protected $strikes;
+    protected $underlyings;
+    protected $hvs;
 
-    public function resultAction($symbol)
+    /**
+     * @param $symbol
+     */
+    public function initHV($symbol)
     {
         // init the data ready for use
         $this->init($symbol);
+
+        // create new hv table if table not exists
+        if (!$this->checkTableExist('hv')) {
+            $this->createTable('Jack\ImportBundle\Entity\Hv');
+        }
+
+        // get the underlying result
+        $this->underlyings = $this->findUnderlyingAll();
+
+        // set hv data
+        $this->setHV();
+    }
+
+    // TODO: next put all into a function, create 52 week (year) high / low / rank function
+
+    /**
+     * @param $symbol
+     * @return \Symfony\Component\HttpFoundation\Response
+     * @throws \Symfony\Component\HttpKernel\Exception\NotFoundHttpException
+     */
+    public function resultAction($symbol)
+    {
+        // init all the data
+        $this->initHV($symbol);
 
         /*
          * 1. get a list of underlying price
@@ -38,49 +66,124 @@ class HVController extends FindController
          */
         $sampleSize = self::$sampleSize['oneMonth'];
 
-        /*
-        // get 20 + 1 days of price changes standard deviation
+        // start the entity manager
+        $symbolEM = $this->getDoctrine()->getManager('symbol');
 
-        $hv = $this->sampleSizeHV($sampleSize, '2012-5-31');
-
-        $debugResults = "$sampleSize Days HV: ".number_format($hv, 2, '.', '.')."%";
-        */
-
+        // start the underlying loop
         $debugResults = array();
         foreach ($this->underlyings as $underlying) {
+            // error checking
             if (!($underlying instanceof Underlying)) {
                 throw $this->createNotFoundException(
                     'Error [ Underlying ] object from entity manager!'
                 );
             }
 
-            $currentDate = $underlying->getDate()->format('Y-m-d');
-            $hv = $this->sampleSizeHV($sampleSize, $currentDate);
+            // if not exist in database, insert it
+            if (!($this->checkSampleHVExist($sampleSize, $underlying->getId()))) {
+                // set current date
+                $currentDate = $underlying->getDate()->format('Y-m-d');
 
-            $debugResults[] =
-                "ID: " . $underlying->getId() . ": " .
-                "$currentDate - $sampleSize Days HV: "
-                . number_format($hv, 2, '.', '.') . "% \n\n";
+                // calculate the hv value for current date
+                $hvValue = $this->sampleSizeHV($sampleSize, $currentDate);
+
+                // debug use only
+                $debugResults[$underlying->getId()] = "ID: " . $underlying->getId() . ": " .
+                    "$currentDate - $sampleSize Days HV: "
+                    . number_format($hvValue * 100, 2, '.', '.') . "%";
+
+
+                // if hv is not empty or zero, where it have no enough sample
+                if ($hvValue) {
+                    // format hv into 6 decimals
+                    $hvValue = number_format($hvValue, 6);
+
+                    // create a new hv object
+                    $hvObject = new Hv();
+
+                    // add data into object
+                    $hvObject->setSample($sampleSize);
+                    $hvObject->setValue($hvValue);
+                    $hvObject->setUnderlyingid($underlying);
+
+                    // add into database
+                    $symbolEM->persist($hvObject);
+
+                    $debugResults[$underlying->getId()] .= ", Added into db!\n";
+                } else {
+                    $debugResults[$underlying->getId()] .= ", Not enough sample!\n";
+                }
+            }
         }
 
-        // TODO: next check db exist, create db, insert db
+        // insert into hv table
+        $symbolEM->flush();
 
 
+        // all done show output
         return $this->render(
             'JackStatisticBundle:HV:result.html.twig',
             array('debugResults' => $debugResults)
         );
     }
 
+    /**
+     * @param $sampleSize
+     * @param $underlyingId
+     * @return int
+     * @throws \Symfony\Component\HttpKernel\Exception\NotFoundHttpException
+     */
+    public function checkSampleHVExist($sampleSize, $underlyingId)
+    {
+        $exist = 0;
+        foreach ($this->hvs as $hv) {
+            // error checking
+            if (!($hv instanceof Hv)) {
+                throw $this->createNotFoundException(
+                    'Error [ HV ] object from entity manager!'
+                );
+            }
+
+            if ($hv->getSample() == $sampleSize
+                && $hv->getUnderlyingid()->getId() == $underlyingId
+            ) {
+                $exist = 1;
+            }
+        }
+
+        return $exist;
+    }
+
+
+    public function setHV()
+    {
+        $symbolEM = $this->getDoctrine()->getManager('symbol');
+
+        $this->hvs = $symbolEM
+            ->getRepository('JackImportBundle:Hv')
+            ->findAll();
+    }
+
+    /**
+     * @param $sampleSize
+     * total of sample collect to calculate hv
+     * @param $startDate
+     * start date use to calculate the sample
+     * @return float|int
+     * return a value of historical volatility
+     * @throws \Symfony\Component\HttpKernel\Exception\NotFoundHttpException
+     */
     public function sampleSizeHV($sampleSize, $startDate)
     {
+        date_default_timezone_get('UTC');
+
         // define price array
         $priceArray = array();
         $debugPriceArray = array(); // debug use only
 
         // set start date, will be start date - sample size
         $startDate = new \DateTime($startDate);
-        $sampleDate = $startDate->modify("-$sampleSize days");
+        //$sampleDate = $startDate->modify("-$sampleSize days");
 
 
         // get 21 data and put it into array
@@ -108,20 +211,24 @@ class HVController extends FindController
                     " DayDiff: " . $dayDiff .
                     " Sample No: " . $countSample .
                     " Last: " . $underlying->getLast();
+            } else {
+                break;
             }
         }
 
-        // after get a list of last price, get the latest 20 from the array
-        $slide = ($sampleSize + 1) * -1;
-        $priceArray = array_slice($priceArray, $slide);
-        $debugPriceArray = array_slice($debugPriceArray, $slide);
 
         // check if sample have more than sample size + 1 days (20+1=21)
         $haveSample = 0;
         if (count($priceArray) > $sampleSize) {
             // calculate change and remain
             $haveSample = 1;
+
+            // after get a list of last price, get the latest 20 from the array
+            $slide = ($sampleSize + 1) * -1;
+            $priceArray = array_slice($priceArray, $slide);
+            //$debugPriceArray = array_slice($debugPriceArray, $slide);
         }
+
 
         if ($haveSample) {
             // good sample
@@ -170,6 +277,7 @@ class HVController extends FindController
 
 
     // Function to calculate standard deviation (uses sd_square)
+
     /**
      * @param $array
      * @return float

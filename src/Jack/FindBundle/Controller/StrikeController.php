@@ -56,7 +56,7 @@ class StrikeController extends FindController
                     $params = array(
                         'symbol' => strtolower($symbol),
                         'action' => strtolower($action),
-                        'category' => 0,
+                        'category' => 'any',
                     );
                     break;
 
@@ -68,8 +68,6 @@ class StrikeController extends FindController
                         'action' => strtolower($action),
                     );
                     break;
-
-
             }
 
             return $this->redirect(

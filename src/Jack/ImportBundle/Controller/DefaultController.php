@@ -538,7 +538,7 @@ class DefaultController extends Controller
                         foreach ($strikeObjectArray as $tempStrikeObject) {
                             if ($tempStrikeObject instanceof Strike) {
                                 if (($tempStrikeObject->getCategory() == $fileLineArray[0]
-                                    && $tempStrikeObject->getStrike() == $fileLineArray[1])
+                                    && $tempStrikeObject->getPrice() == $fileLineArray[1])
                                 ) {
                                     $duplicate = 1;
 
@@ -553,7 +553,7 @@ class DefaultController extends Controller
                             $strikeObject = new Strike();
 
                             $strikeObject->setCategory($fileLineArray[0]);
-                            $strikeObject->setStrike($fileLineArray[1]);
+                            $strikeObject->setPrice($fileLineArray[1]);
 
                             // set it into strike object array
                             $strikeObjectArray[] = $strikeObject;
@@ -763,7 +763,7 @@ class DefaultController extends Controller
                             $existStrike = $this->findOneByArray(
                                 array(
                                     'category' => $strikeObject->getCategory(),
-                                    'strike' => $strikeObject->getStrike(),
+                                    'price' => $strikeObject->getPrice(),
                                 ),
                                 'Strike'
                             );
@@ -791,7 +791,7 @@ class DefaultController extends Controller
                             $existStrike = $this->findOneByArray(
                                 array(
                                     'category' => $chainObject->getStrikeid()->getCategory(),
-                                    'strike' => $chainObject->getStrikeid()->getStrike(),
+                                    'price' => $chainObject->getStrikeid()->getPrice(),
                                 ),
                                 'Strike'
                             );

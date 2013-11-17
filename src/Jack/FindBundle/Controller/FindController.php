@@ -22,15 +22,15 @@ abstract class FindController extends Controller
      */
     public function init($symbol)
     {
+        // default timezone
+        date_default_timezone_set('UTC');
+
         // set symbol and symbol object
         $this->symbol = $symbol;
         $this->getSymbolObject($symbol);
 
         // start function with get underlyings data
         $this->get('jack_service.fastdb')->switchSymbolDb($symbol);
-        //$this->underlyings = $this->findUnderlyingByDateRange('2012-1-3', '2012-3-31');
-
-        $this->underlyings = $this->findUnderlyingAll();
     }
 
     /**
@@ -92,7 +92,7 @@ abstract class FindController extends Controller
 
     /**
      * @param string $sort
-     * strikes data sort 'strike' type 'asc' or 'desc' by date
+     * strikes data sort 'price' type 'asc' or 'desc' by date
      * @return array
      * return an array of strike objects
      */
@@ -104,7 +104,7 @@ abstract class FindController extends Controller
 
         return $symbolEM
             ->getRepository('JackImportBundle:Strike')
-            ->findBy(array(), array('strike' => $sort));
+            ->findBy(array(), array('price' => $sort));
     }
 
     /**
@@ -123,7 +123,7 @@ abstract class FindController extends Controller
             ->getRepository('JackImportBundle:Strike')
             ->findBy(
                 array('category' => strtoupper($category)),
-                array('strike' => $sort)
+                array('price' => $sort)
             );
     }
 

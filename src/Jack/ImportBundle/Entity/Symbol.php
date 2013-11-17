@@ -66,21 +66,21 @@ class Symbol
      *
      * @ORM\Column(name="country", type="string", length=100, nullable=false)
      */
-    private $country = 'USA';
+    private $country;
 
     /**
      * @var string
      *
      * @ORM\Column(name="marketCap", type="string", length=100, nullable=false)
      */
-    private $marketcap = 'Mega';
+    private $marketcap;
 
     /**
      * @var boolean
      *
      * @ORM\Column(name="shortable", type="boolean", nullable=false)
      */
-    private $shortable = 1;
+    private $shortable;
 
     /**
      * @var integer

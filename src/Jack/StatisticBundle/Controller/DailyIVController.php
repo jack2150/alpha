@@ -177,7 +177,7 @@ class DailyIVController extends FindController
             // calculate the exact iv
             $iv = $this->impliedVolatilityBySampleSize(
                 $chain->getImpl(), $chain->getDte(), $sampleSize,
-                $underlying->getLast(), $strike->getStrike()
+                $underlying->getLast(), $strike->getPrice()
             );
             */
 
@@ -224,7 +224,7 @@ class DailyIVController extends FindController
             $iv = $this->ivBy2SampleMean(
                 $chainStrikeCycle0->getImpl(), $chainStrikeCycle1->getImpl(),
                 $chainStrikeCycle0->getDte(), $chainStrikeCycle1->getDte(), $sampleSize,
-                $strikeCycle0->getStrike(), $strikeCycle1->getStrike(), $underlying->getLast()
+                $strikeCycle0->getPrice(), $strikeCycle1->getPrice(), $underlying->getLast()
             );
 
             // format into 2 decimal
@@ -248,8 +248,8 @@ class DailyIVController extends FindController
                 " Cycle1 exDate: " . $cycleRecursive0->getExpiredate()->format('Y-m-d') .
                 " Cycle2 ExDate: " . $cycleRecursive1->getExpiredate()->format('Y-m-d') .
                 "\n Last Price: " . $underlying->getLast() .
-                " Strike1 Price: " . $strikeCycle0->getStrike() .
-                " Strike2 Price: " . $strikeCycle1->getStrike() .
+                " Strike1 Price: " . $strikeCycle0->getPrice() .
+                " Strike2 Price: " . $strikeCycle1->getPrice() .
                 "\n Chain1 IV: " . $chainStrikeCycle0->getImpl() .
                 " Chain2 IV: " . $chainStrikeCycle1->getImpl() .
                 " Chain1 DTE: " . $chainStrikeCycle0->getDte() .
@@ -371,7 +371,7 @@ class DailyIVController extends FindController
 
             // format strike price in object and get diff in price
 
-            $strikePrice = floatval($strike->getStrike());
+            $strikePrice = floatval($strike->getPrice());
 
             if ($strike->getCategory() == $category) {
                 if ($category == 'call') {

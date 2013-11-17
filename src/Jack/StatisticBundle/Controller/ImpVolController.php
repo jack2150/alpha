@@ -129,7 +129,7 @@ class ImpVolController extends Controller
         // get a list of strike
         $strikes = $symbolEM
             ->getRepository('JackImportBundle:Strike')
-            ->findBy(array(), array('strike' => 'asc'));
+            ->findBy(array(), array('price' => 'asc'));
 
         // generate a list of date cloest to dte
         $closestChainArray = array();
@@ -208,7 +208,7 @@ class ImpVolController extends Controller
                     );
                 }
 
-                $currentStrikePrice = $strike->getStrike();
+                $currentStrikePrice = $strike->getPrice();
 
                 if ($strike->getCategory() == 'CALL') {
 

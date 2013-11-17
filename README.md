@@ -42,10 +42,11 @@ s doctrine:mapping:import  --em=system --force JackImportBundle xml
 
 2. generate entity from xml using annotation (./src/jack/ directory to company)
 
-s doctrine:mapping:convert --em=symbol annotation ./src
+s doctrine:mapping:convert --em=symbol annotation ./src --force
 
 s doctrine:mapping:convert --em=system annotation ./src
 
+if exist files, use --force
 
 
 3.  generate getter and setter in php files

@@ -7,8 +7,8 @@
             <generator strategy="IDENTITY"/>
         </id>
         <field name="firm" type="string" column="firm" length="200" nullable="true"/>
-        <field name="opinion" type="integer" column="opinion" nullable="false"/>
-        <field name="rating" type="integer" column="rating" nullable="false"/>
+        <field name="opinion" type="boolean" column="opinion" nullable="false"/>
+        <field name="rating" type="boolean" column="rating" nullable="false"/>
         <field name="target" type="float" column="target" nullable="false"/>
         <many-to-one field="eventid" target-entity="Event">
             <join-columns>
