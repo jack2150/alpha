@@ -1,0 +1,16 @@
+{% extends "JackStatisticBundle::layout.html.twig" %}
+
+{% block title %}Statistic Bundle: HV Generator: Display{% endblock %}
+
+{% block content %}
+    <h2 style="background-color: darkcyan">Statistic: HV Generator: Display</h2>
+
+    <div>
+        <ul>
+            {% for debugResult in debugResults %}
+                <li style="font-size: 0.85em;">{{ debugResult|nl2br }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+
+{% endblock %}

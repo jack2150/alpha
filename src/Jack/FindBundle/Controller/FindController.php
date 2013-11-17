@@ -17,13 +17,21 @@ abstract class FindController extends Controller
     protected $symbol;
     protected $symbolObject;
 
-    // Force Extending class to define this method
     /**
-     * @param Request $request
-     * @return mixed
+     * @param $symbol
      */
-    //abstract public function indexAction(Request $request);
+    public function init($symbol)
+    {
+        // set symbol and symbol object
+        $this->symbol = $symbol;
+        $this->getSymbolObject($symbol);
 
+        // start function with get underlyings data
+        $this->get('jack_service.fastdb')->switchSymbolDb($symbol);
+        //$this->underlyings = $this->findUnderlyingByDateRange('2012-1-3', '2012-3-31');
+
+        $this->underlyings = $this->findUnderlyingAll();
+    }
 
     /**
      * @param string $sort

@@ -6,8 +6,6 @@ use Symfony\Component\HttpFoundation\Request;
 
 use Jack\FindBundle\Controller\FindController;
 
-use Jack\ImportBundle\Entity\Strike;
-
 /**
  * Class StrikeController
  * @package Jack\FindBundle\Controller

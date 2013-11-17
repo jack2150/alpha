@@ -5,3 +5,7 @@ jack_stat_daily_iv_index:
 jack_stat_daily_iv_display:
     pattern: /daily/iv/display/{action}/{symbol}
     defaults: { _controller: JackStatisticBundle:DailyIV:display }
+
+jack_stat_hv_result:
+    pattern: /hv/generate/result/{symbol}
+    defaults: { _controller: JackStatisticBundle:HV:result }

@@ -68,10 +68,10 @@ jack_find_strike_result_findbycategory:
     pattern: /strike/result/findbycategory/{category}/{symbol}
     defaults: { _controller: JackFindBundle:Strike:result, action: findByCategory }
 
-index:
-    pattern: /index
+jack_find_chain_index:
+    pattern: /chain/index
     defaults: { _controller: JackFindBundle:Chain:index }
 
-result:
-    pattern: /result
-    defaults: { _controller: JackFindBundle:Chain:result }
+jack_find_chain_result_findone:
+    pattern: /result/findone/{symbol}
+    defaults: { _controller: JackFindBundle:Chain:result, action: findOne }
