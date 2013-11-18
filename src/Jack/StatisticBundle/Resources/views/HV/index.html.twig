@@ -1,0 +1,31 @@
+{% extends "JackStatisticBundle::layout.html.twig" %}
+
+{% block title %}Statistic Bundle: HV Generator{% endblock %}
+
+{% block content %}
+    <h2 style="background-color: darkcyan">Statistic: HV Generator</h2>
+
+
+    {{ form_start(generateHVForm) }}
+    {{ form_errors(generateHVForm) }}
+
+    <div>
+        {{ form_label(generateHVForm.symbol, 'Symbol Name:') }}
+        {{ form_errors(generateHVForm.symbol) }}
+        {{ form_widget(generateHVForm.symbol) }}
+
+        {{ form_label(generateHVForm.action, 'Action:') }}
+        {{ form_errors(generateHVForm.action) }}
+        {{ form_widget(generateHVForm.action) }}
+        {{ form_widget(generateHVForm.generate) }}
+    </div>
+
+    <span style="font-size: 0.8em; color: darkorange">
+        ** Latest import into database.
+    </span>
+
+    {{ form_end(generateHVForm) }}
+
+
+
+{% endblock %}
