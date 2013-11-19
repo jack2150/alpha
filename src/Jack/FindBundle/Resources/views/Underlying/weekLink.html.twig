@@ -1,24 +1,39 @@
-<table>
-    <tr>
-        <td>
-            <b style="float: left; width: 100px; height:60px;">More weeks:</b>
-            {% for searchLink in searchLinks %}
-                {% if searchLink.url == '#' %}
-                    <div style="float: left; width: 40px;">
-                        [{{ searchLink.week }}]
-                    </div>
-                {% else %}
-                    <a style="float: left;" href="{{ path('jack_find_underlying_result_findbyweek',
-                    {'action': searchLink.url, 'symbol': symbol, 'week': searchLink.week }) }}">
-                        <div style="width: 40px;">
-                            {{ searchLink.week }}
-                        </div>
-                    </a>
-                {% endif %}
-            {% endfor %}
-        </td>
-    </tr>
-</table>
-<br/>
+<div class="row">
+
+    <div class="col-md-2">
+        <blockquote>
+            <p>By Week Day:</p>
+        </blockquote>
+
+    </div>
+    <div class="col-md-10">
+        {% for weekLink in searchLinks %}
+
+            {% if weekLink.week == 0 %}
+                {% set display = 'ALL' %}
+            {% else %}
+                {% set display = "%02s"|format(weekLink.week) %}
+            {% endif %}
+
+            {% if weekLink.url == '#' %}
+                <a class="btn btn-default disabled marginbottom4px" href="#">
+                    {{ display }}
+                </a>
+            {% else %}
+                <a class="btn btn-default marginbottom4px" href="
+                {{ path('jack_find_underlying_result_findbycalendar', {
+                'action': 'findbycalendar', 'symbol': symbol,
+                'day': date.day, 'month': date.month, 'year': date.year,
+                'weekday': date.weekday, 'week': weekLink.week
+                }) }}
+                ">
+                    {{ display }}
+                </a>
+            {% endif %}
+        {% endfor %}
+    </div>
+
+</div>
+
 
 

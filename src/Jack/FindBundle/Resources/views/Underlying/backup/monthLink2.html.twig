@@ -1,0 +1,24 @@
+<table>
+    <tr>
+        <td>
+            <b style="float: left; width: 120px; height:20px;">More Months:</b>
+            {% for searchLink in searchLinks %}
+                {% if searchLink.url == '#' %}
+                    <div style="float: left; width: 50px;">
+                        <b>[{{ searchLink.display }}]</b>
+                    </div>
+                {% else %}
+                    <a style="float: left;" href="{{ path('jack_find_underlying_result_findbymonth',
+                    {'action': searchLink.url, 'symbol': symbol, 'month': searchLink.month }) }}">
+                        <div style="width: 50px;">
+                            {{ searchLink.display }}
+                        </div>
+                    </a>
+                {% endif %}
+            {% endfor %}
+        </td>
+    </tr>
+</table>
+<br/>
+
+

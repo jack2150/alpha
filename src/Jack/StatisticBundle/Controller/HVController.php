@@ -59,7 +59,7 @@ class HVController extends DefaultController
     {
         $generateHVData = array(
             'symbol' => null,
-            'action' => 'value40d',
+            'action' => 'value20d',
         );
 
         $generateHVForm = $this->createFormBuilder($generateHVData)
@@ -231,9 +231,13 @@ class HVController extends DefaultController
 
                 // debug use only
                 $debugCount++;
-                $debugResults[$underlying->getId()] = $debugCount . ". ID: " . $underlying->getId() . ": " .
+                $debugResults[$underlying->getId()] = array(
+                    'count' => $debugCount,
+                    'data' => "ID: " . $underlying->getId() . ": " .
                     "$currentDate - $sampleSize Days HV: "
-                    . number_format($hvValue * 100, 2, '.', '.') . "%";
+                    . number_format($hvValue * 100, 2, '.', '.') . "%",
+                    'result' => ''
+                );
 
 
                 // if hv is not empty or zero, where it have no enough sample
@@ -252,9 +256,9 @@ class HVController extends DefaultController
                     // add into database
                     $symbolEM->persist($hvObject);
 
-                    $debugResults[$underlying->getId()] .= ", Added into db!\n";
+                    $debugResults[$underlying->getId()]['result'] = 1;
                 } else {
-                    $debugResults[$underlying->getId()] .= ", Not enough sample!\n";
+                    $debugResults[$underlying->getId()]['result'] = 0;
                 }
             }
         }
@@ -373,7 +377,7 @@ class HVController extends DefaultController
             }
 
             // set underlying id
-            $priceDate = $underlying->getId();
+            $underlyingId = $underlying->getId();
 
             // set current date for search
             $currentDate = new \DateTime($underlying->getDate()->format('Y-m-d'));
@@ -412,7 +416,7 @@ class HVController extends DefaultController
                 $rankHV = 1 - (($maxHV - $currentHV) / ($maxHV - $minHV));
 
                 // set all data into array
-                $hvData[$priceDate] = array(
+                $hvData[$underlyingId] = array(
                     'high' => floatval(number_format($maxHV, 6)),
                     'low' => floatval(number_format($minHV, 6)),
                     'rank' => floatval(number_format($rankHV, 6))
@@ -420,15 +424,26 @@ class HVController extends DefaultController
 
                 // debug use only
                 $debugCount++;
-                $debugAllHVData[$priceDate] = $debugCount .
-                    ". Date: $currentDateStr " .
+                $debugAllHVData[$underlyingId] = array(
+                    'count' => $debugCount,
+                    'data' => "Date: $currentDateStr " .
                     " Sample: $sampleStartDate ($sampleStartPosition)" .
                     " ~ $sampleEndDate ($sampleEndPosition) = $totalSample" .
                     ", HV: " . number_format($currentHV * 100, 2) .
                     "% High: " . number_format($maxHV * 100, 2) .
                     "% Low: " . number_format($minHV * 100, 2) .
-                    "% Rank: " . number_format($rankHV * 100, 2) .
-                    "%";
+                    "% Rank: " . number_format($rankHV * 100, 2) . "%",
+                    'result' => 0
+                );
+            } else {
+                // debug use only
+                $debugCount++;
+                $debugAllHVData[$underlyingId] = array(
+                    'count' => $debugCount,
+                    'data' => "Date: $currentDateStr" .
+                    ", HV: " . number_format($dailyArrayHV[$currentDateStr] * 100, 2),
+                    'result' => 0
+                );
             }
         }
 
@@ -451,9 +466,9 @@ class HVController extends DefaultController
             $currentDateHV = $hv->getValue();
 
             if (array_key_exists($currentUnderlyingId, $hvData)) {
-                $debugAllHVData[$currentUnderlyingId] .= ' Use this!';
+                $debugAllHVData[$currentUnderlyingId]['result'] = 1;
 
-
+                // set year high low rank into hv object
                 $this->hvs[$currentKey]->setYearhigh($hvData[$currentUnderlyingId]['high']);
                 $this->hvs[$currentKey]->setYearlow($hvData[$currentUnderlyingId]['low']);
                 $this->hvs[$currentKey]->setRank($hvData[$currentUnderlyingId]['rank']);

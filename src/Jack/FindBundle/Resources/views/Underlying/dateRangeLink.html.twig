@@ -1,37 +1,33 @@
-<table>
-    <tr>
-        {{ form_start(searchLinks) }}
-        {{ form_errors(searchLinks) }}
-
-        <td style="width: 100px;">
-            <b>{{ form_label(searchLinks.startDate, 'First Date: ') }}</b>
-        </td>
-
-        <td>
+<div class="row">
+    <div class="col-md-2">
+        <div class="form-group">
+            {{ form_label(searchLinks.startDate, 'First Date: ') }}
             {{ form_errors(searchLinks.startDate) }}
-            {{ form_widget(searchLinks.startDate) }}
-        </td>
+            {{ form_widget(searchLinks.startDate.day, {'attr': {'class': 'form-control' }}) }}
+            {{ form_widget(searchLinks.startDate.month, {'attr': {'class': 'form-control' }}) }}
+            {{ form_widget(searchLinks.startDate.year, {'attr': {'class': 'form-control' }}) }}
 
-        <td style="width: 30px;"></td>
+        </div>
+    </div>
 
-        <td style="width: 100px;">
-            <b>{{ form_label(searchLinks.endDate, 'Last Date: ') }}</b>
-        </td>
+    <div class="col-md-4">
+        <div class="form-group">
+            {{ form_label(searchLinks.endDate, 'Last Date:') }}
 
-        <td>
             {{ form_errors(searchLinks.endDate) }}
-            {{ form_widget(searchLinks.endDate) }}
-        </td>
+            {{ form_widget(searchLinks.endDate,
+            {'attr': {'class': 'form-control', 'placeholder': '.col-md-4' }}) }}
+        </div>
+    </div>
 
-        <td style="width: 30px;"></td>
+    <div class="col-md-4">
+        <div class="form-group">
+            <div><label>&nbsp;</label></div>
+            {{ form_widget(searchLinks.endDate,
+            {'attr': {'class': 'btn btn-primary' }}) }}
+        </div>
+    </div>
 
-        <td>{{ form_widget(searchLinks.find) }}</td>
-
-        {{ form_end(searchLinks) }}
-
-    </tr>
-</table>
-
-<br/>
-
+    {{ form_end(searchLinks) }}
+</div>
 

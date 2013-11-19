@@ -1,0 +1,7 @@
+parameters:
+#    jack_default.example.class: Jack\DefaultBundle\Example
+
+services:
+#    jack_default.example:
+#        class: %jack_default.example.class%
+#        arguments: [@service_id, "plain_value", %parameter%]

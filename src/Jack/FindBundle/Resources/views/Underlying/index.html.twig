@@ -1,27 +1,54 @@
-{% extends "JackFindBundle::layout.html.twig" %}
+{% extends "JackDefaultBundle::layout.html.twig" %}
 
 {% block title %}Find Bundle: Underlying{% endblock %}
 
 {% block content %}
-    <h2 style="background-color: darkcyan">Find Underlying</h2>
+    <h3><span class="glyphicon glyphicon-hdd"></span> Find: Underlying Data</h3>
 
 
-    {{ form_start(form) }}
+    {{ form_start(form, {'attr': {'class': 'form-inline', 'role': 'form' }}) }}
     {{ form_errors(form) }}
 
-    <div>
-        {{ form_label(form.symbol, 'Symbol Name:') }}
-        {{ form_errors(form.symbol) }}
-        {{ form_widget(form.symbol) }}
-        {{ form_label(form.action, 'Action:') }}
-        {{ form_errors(form.action) }}
-        {{ form_widget(form.action) }}
-        {{ form_widget(form.find) }}
-    </div>
+    <div class="panel panel-default">
+        <div class="panel-heading"><b>Selection Form</b></div>
+        <div class="panel-body">
+            <div class="row">
+                <div class="col-md-2">
+                    <div class="form-group">
+                        {{ form_label(form.symbol, 'Symbol Name:') }}
+                        {{ form_errors(form.symbol) }}
+                        {{ form_widget(form.symbol,
+                        {'attr': {'class': 'form-control', 'placeholder': '.col-md-2' }} ) }}
+                    </div>
+                </div>
 
-    <span style="font-size: 0.8em; color: darkorange">
-        ** Latest import into database.
-    </span>
+                <div class="col-md-3">
+                    <div class="form-group">
+                        {{ form_label(form.action, 'Action:') }}
+                        {{ form_errors(form.action) }}
+                        {{ form_widget(form.action,
+                        {'attr': {'class': 'form-control', 'placeholder': '.col-md-3' }} ) }}
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <div><label>&nbsp;</label></div>
+                        {{ form_widget(form.find,
+                        {'attr': {'class': 'btn btn-primary' }}) }}
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-2">
+            <span class="help-block">
+                ** Latest import
+            </span>
+                </div>
+            </div>
+        </div>
+    </div>
 
     {{ form_end(form) }}
 

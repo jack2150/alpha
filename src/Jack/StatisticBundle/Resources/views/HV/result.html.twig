@@ -1,16 +1,28 @@
-{% extends "JackStatisticBundle::layout.html.twig" %}
+{% extends "JackDefaultBundle::layout.html.twig" %}
 
 {% block title %}Statistic Bundle: HV Generator: Result & Debug{% endblock %}
 
 {% block content %}
-    <h2 style="background-color: darkcyan">Statistic: HV Generator: Result & Debug</h2>
+    <h2><span class="glyphicon glyphicon-tasks"></span> Statistic: HV Generator</h2>
 
-    <div>
-        <ul>
-            {% for debugResult in debugResults %}
-                <li style="font-size: 0.85em;">{{ debugResult|nl2br }}</li>
-            {% endfor %}
-        </ul>
+    <div class="panel panel-default">
+        <div class="panel-heading">Result & Debug</div>
+        <div class="panel-body">
+            <ul class="list-group">
+                {% for debugResult in debugResults %}
+
+                    <li class="list-group-item">
+                        {{ debugResult.count }}.
+                        {{ debugResult.data }}
+                        {% if debugResult.result %}
+                            <span class="label label-success">Success, inserted into table!</span>
+                        {% else %}
+                            <span class="label label-warning">Warning, not enough samples!</span>
+                        {% endif %}
+                    </li>
+                {% endfor %}
+            </ul>
+
+        </div>
     </div>
-
 {% endblock %}

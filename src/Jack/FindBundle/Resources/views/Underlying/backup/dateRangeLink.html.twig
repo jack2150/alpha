@@ -1,0 +1,37 @@
+<table>
+    <tr>
+        {{ form_start(searchLinks) }}
+        {{ form_errors(searchLinks) }}
+
+        <td style="width: 100px;">
+            <b>{{ form_label(searchLinks.startDate, 'First Date: ') }}</b>
+        </td>
+
+        <td>
+            {{ form_errors(searchLinks.startDate) }}
+            {{ form_widget(searchLinks.startDate) }}
+        </td>
+
+        <td style="width: 30px;"></td>
+
+        <td style="width: 100px;">
+            <b>{{ form_label(searchLinks.endDate, 'Last Date: ') }}</b>
+        </td>
+
+        <td>
+            {{ form_errors(searchLinks.endDate) }}
+            {{ form_widget(searchLinks.endDate) }}
+        </td>
+
+        <td style="width: 30px;"></td>
+
+        <td>{{ form_widget(searchLinks.find) }}</td>
+
+        {{ form_end(searchLinks) }}
+
+    </tr>
+</table>
+
+<br/>
+
+

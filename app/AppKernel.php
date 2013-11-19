@@ -21,6 +21,7 @@ class AppKernel extends Kernel
             new Jack\SystemBundle\JackSystemBundle(),
             new Jack\StatisticBundle\JackStatisticBundle(),
             new Jack\FindBundle\JackFindBundle(),
+            new Jack\DefaultBundle\JackDefaultBundle(),
         );
 
         if (in_array($this->getEnvironment(), array('dev', 'test'))) {

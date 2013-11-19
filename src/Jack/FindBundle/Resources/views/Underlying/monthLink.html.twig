@@ -1,24 +1,32 @@
-<table>
-    <tr>
-        <td>
-            <b style="float: left; width: 120px; height:20px;">More Months:</b>
-            {% for searchLink in searchLinks %}
-                {% if searchLink.url == '#' %}
-                    <div style="float: left; width: 50px;">
-                        <b>[{{ searchLink.display }}]</b>
-                    </div>
-                {% else %}
-                    <a style="float: left;" href="{{ path('jack_find_underlying_result_findbymonth',
-                    {'action': searchLink.url, 'symbol': symbol, 'month': searchLink.month }) }}">
-                        <div style="width: 50px;">
-                            {{ searchLink.display }}
-                        </div>
-                    </a>
-                {% endif %}
-            {% endfor %}
-        </td>
-    </tr>
-</table>
-<br/>
+<div class="row">
 
+    <div class="col-md-2">
+        <blockquote>
+            <p>By Month:</p>
+            <small>One Month Only!</small>
+        </blockquote>
+
+    </div>
+    <div class="col-md-10">
+        {% for monthLink in searchLinks %}
+            {% if monthLink.url == '#' %}
+                <a class="btn btn-default disabled marginbottom4px" href="#">
+                    {{ monthLink.display }}
+                </a>
+            {% else %}
+                <a class="btn btn-default marginbottom4px" href="
+                  {{ path('jack_find_underlying_result_findbycalendar',
+                {
+                'action': monthLink.url, 'symbol': symbol,
+                'day': date.day, 'month': monthLink.month, 'year': date.year,
+                'weekday': date.weekday, 'week': date.week
+                }) }}
+                ">
+                    {{ monthLink.display }}
+                </a>
+            {% endif %}
+        {% endfor %}
+    </div>
+
+</div>
 

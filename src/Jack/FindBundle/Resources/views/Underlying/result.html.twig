@@ -1,100 +1,113 @@
-{% extends "JackFindBundle::layout.html.twig" %}
+{% extends "JackDefaultBundle::layout.html.twig" %}
 
 {% block title %}Find Bundle: Underlying: Result{% endblock %}
 
 {% block content %}
-    <h2 style="background-color: darkcyan">Underlying: {{ searchName }}
+    <h3><span class="glyphicon glyphicon-hdd"></span> Underlying: {{ searchName }}</h3>
 
-    </h2>
-
-    {% if linkType == 'days' %}
-        {{ include(
-        'JackFindBundle:Underlying:dayLink.html.twig',
-        { 'searchLinks': searchLinks }
-        ) }}
-    {% elseif linkType == 'months' %}
-        {{ include(
-        'JackFindBundle:Underlying:monthLink.html.twig',
-        { 'searchLinks': searchLinks }
-        ) }}
-    {% elseif linkType == 'years' %}
-        {{ include(
-        'JackFindBundle:Underlying:yearLink.html.twig',
-        { 'searchLinks': searchLinks }
-        ) }}
-    {% elseif linkType == 'weekday' %}
-        {{ include(
-        'JackFindBundle:Underlying:weekdayLink.html.twig',
-        { 'searchLinks': searchLinks }
-        ) }}
-    {% elseif linkType == 'week' %}
-        {{ include(
-        'JackFindBundle:Underlying:weekLink.html.twig',
-        { 'searchLinks': searchLinks }
-        ) }}
-    {% elseif linkType == 'calendar' %}
-        {{ include(
-        'JackFindBundle:Underlying:calendarLink.html.twig',
-        { 'searchLinks': searchLinks }
-        ) }}
-    {% elseif linkType == 'daterange' %}
-        {{ include(
-        'JackFindBundle:Underlying:dateRangeLink.html.twig',
-        { 'searchLinks': searchLinks }
-        ) }}
-    {% endif %}
+    <div class="panel panel-info">
+        <div class="panel-heading">Finder Panel</div>
+        <div class="panel-body">
 
 
-    <h2 style="background-color: darkcyan">
-        In {{ symbol }}:
+            {% if linkType == 'days' %}
+                {{ include(
+                'JackFindBundle:Underlying:dayLink.html.twig',
+                { 'searchLinks': searchLinks }
+                ) }}
+            {% elseif linkType == 'months' %}
+                {{ include(
+                'JackFindBundle:Underlying:monthLink.html.twig',
+                { 'searchLinks': searchLinks }
+                ) }}
+            {% elseif linkType == 'years' %}
+                {{ include(
+                'JackFindBundle:Underlying:yearLink.html.twig',
+                { 'searchLinks': searchLinks }
+                ) }}
+            {% elseif linkType == 'weekday' %}
+                {{ include(
+                'JackFindBundle:Underlying:weekdayLink.html.twig',
+                { 'searchLinks': searchLinks }
+                ) }}
+            {% elseif linkType == 'week' %}
+                {{ include(
+                'JackFindBundle:Underlying:weekLink.html.twig',
+                { 'searchLinks': searchLinks }
+                ) }}
+            {% elseif linkType == 'calendar' %}
+                {{ include(
+                'JackFindBundle:Underlying:calendarLink.html.twig',
+                { 'searchLinks': searchLinks }
+                ) }}
+            {% elseif linkType == 'daterange' %}
+                {{ include(
+                'JackFindBundle:Underlying:dateRangeLink.html.twig',
+                { 'searchLinks': searchLinks }
+                ) }}
+            {% endif %}
+        </div>
+    </div>
+
+
+    <h3>
+        <span class="glyphicon glyphicon-th-list"></span> In {{ symbol|upper }}:
         {% if resultCount %}
             {{ resultCount }} Results
         {% else %}
             Empty Result
         {% endif %}
-    </h2>
+    </h3>
 
     {% if underlyings %}
-        <table>
-        <tr>
-            <th style="font-weight: bold;">ID</th>
-            <th style="font-weight: bold;">Name</th>
-            <th style="font-weight: bold;">Date</th>
-            <th style="font-weight: bold;">Weekday</th>
-            <th style="font-weight: bold;">Week.</th>
-            <th style="font-weight: bold;">Last</th>
-            <th style="font-weight: bold;">Change</th>
-            <th style="font-weight: bold;">Volume</th>
-            <th style="font-weight: bold;">Open</th>
-            <th style="font-weight: bold;">High</th>
-            <th style="font-weight: bold;">Low</th>
-        </tr>
-        {% for underlying in underlyings %}
-            <tr>
-                <td style="width: 50px;">{{ underlying.id }}</td>
-                <td style="width: 70px;">{{ underlying.name }}</td>
-                <td style="width: 120px;">{{ underlying.date|date("M-d-Y") }}</td>
-                <td style="width: 100px;">{{ underlying.date|date("l") }}</td>
-                <td style="width: 60px;">{{ underlying.date|date("W") }}</td>
-                <td style="width: 70px;">{{ underlying.last|number_format(2, '.', ',') }}</td>
-                <td style="width: 70px;">
-                    {% if underlying.netChange >= 0 %}
-                        <b style="color: green">+{{ underlying.netChange|number_format(2, '.', ',') }}</b>
-                    {% else %}
-                        <b style="color: red">{{ underlying.netChange|number_format(2, '.', ',') }}</b>
-                    {% endif %}
-                </td>
-                <td style="width: 120px;">{{ underlying.volume|number_format(0, '.', ',') }}</td>
-                <td style="width: 70px;">{{ underlying.open|number_format(2, '.', ',') }}</td>
-                <td style="width: 70px;">{{ underlying.high|number_format(2, '.', ',') }}</td>
-                <td style="width: 70px;">{{ underlying.low|number_format(2, '.', ',') }}</td>
-            </tr>
-        {% endfor %}
+        <div class="panel panel-success">
+            <div class="panel-heading">Results Table</div>
+            <div class="panel-body">
+
+                <table class="table">
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Date</th>
+                        <th>Weekday</th>
+                        <th>Week.</th>
+                        <th>Last</th>
+                        <th>Change</th>
+                        <th>Volume</th>
+                        <th>Open</th>
+                        <th>High</th>
+                        <th>Low</th>
+                    </tr>
+                    {% for underlying in underlyings %}
+                        <tr>
+                            <td>{{ underlying.id }}</td>
+                            <td>{{ underlying.name }}</td>
+                            <td>{{ underlying.date|date("M-d-Y") }}</td>
+                            <td>{{ underlying.date|date("l") }}</td>
+                            <td>{{ underlying.date|date("W") }}</td>
+                            <td>{{ underlying.last|number_format(2, '.', ',') }}</td>
+                            <td>
+                                {% if underlying.netChange >= 0 %}
+                                    <b style="color: green">+{{ underlying.netChange|number_format(2, '.', ',') }}</b>
+                                {% else %}
+                                    <b style="color: red">{{ underlying.netChange|number_format(2, '.', ',') }}</b>
+                                {% endif %}
+                            </td>
+                            <td>{{ underlying.volume|number_format(0, '.', ',') }}</td>
+                            <td>{{ underlying.open|number_format(2, '.', ',') }}</td>
+                            <td>{{ underlying.high|number_format(2, '.', ',') }}</td>
+                            <td>{{ underlying.low|number_format(2, '.', ',') }}</td>
+                        </tr>
+                    {% endfor %}
+                </table>
+
+            </div>
+        </div>
     {% else %}
-        <p>No underlying data available for specific search!</p>
+        <div class="alert alert-warning">No underlying data available for specific search!</div>
     {% endif %}
 
-    </table>
+
 
 
 

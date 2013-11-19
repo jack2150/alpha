@@ -1,30 +1,61 @@
-{% extends "JackStatisticBundle::layout.html.twig" %}
+{% extends "JackDefaultBundle::layout.html.twig" %}
 
 {% block title %}Statistic Bundle: HV Generator{% endblock %}
 
 {% block content %}
-    <h2 style="background-color: darkcyan">Statistic: HV Generator</h2>
 
+    <h3><span class="glyphicon glyphicon-tasks"></span> Statistic: HV Generator</h3>
 
-    {{ form_start(generateHVForm) }}
+    {{ form_start(generateHVForm, {'attr': {'class': 'form-inline', 'role': 'form' }}) }}
     {{ form_errors(generateHVForm) }}
 
-    <div>
-        {{ form_label(generateHVForm.symbol, 'Symbol Name:') }}
-        {{ form_errors(generateHVForm.symbol) }}
-        {{ form_widget(generateHVForm.symbol) }}
+    <div class="panel panel-default">
+        <div class="panel-heading"><b>Selection Form</b></div>
+        <div class="panel-body">
+            <div class="row">
+                <div class="col-md-2">
+                    <div class="form-group">
+                        {{ form_label(generateHVForm.symbol, 'Symbol:') }}
+                        {{ form_errors(generateHVForm.symbol) }}
+                        {{ form_widget(generateHVForm.symbol,
+                        {'attr': {'class': 'form-control', 'placeholder': '.col-md-2' }}) }}
 
-        {{ form_label(generateHVForm.action, 'Action:') }}
-        {{ form_errors(generateHVForm.action) }}
-        {{ form_widget(generateHVForm.action) }}
-        {{ form_widget(generateHVForm.generate) }}
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="form-group">
+                        {{ form_label(generateHVForm.action, 'Action:') }}
+
+                        {{ form_errors(generateHVForm.action) }}
+                        {{ form_widget(generateHVForm.action,
+                        {'attr': {'class': 'form-control', 'placeholder': '.col-md-4' }}) }}
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <div><label>&nbsp;</label></div>
+                        {{ form_widget(generateHVForm.generate,
+                        {'attr': {'class': 'btn btn-primary' }}) }}
+                    </div>
+                </div>
+
+                {{ form_end(generateHVForm) }}
+            </div>
+
+            <div class="row">
+                <div class="col-md-2">
+            <span class="help-block">
+                ** Latest import
+            </span>
+                </div>
+            </div>
+
+        </div>
     </div>
 
-    <span style="font-size: 0.8em; color: darkorange">
-        ** Latest import into database.
-    </span>
 
-    {{ form_end(generateHVForm) }}
 
 
 

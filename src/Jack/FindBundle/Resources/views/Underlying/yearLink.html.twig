@@ -1,24 +1,37 @@
-<table>
-    <tr>
-        <td>
-            <b style="float: left; width: 100px; height:40px;">More Years:</b>
-            {% for searchLink in searchLinks %}
-                {% if searchLink.url == '#' %}
-                    <div style="float: left; width: 60px;">
-                        [{{ searchLink.year }}]
-                    </div>
-                {% else %}
-                    <a style="float: left;" href="{{ path('jack_find_underlying_result_findbyyear',
-                    {'action': searchLink.url, 'symbol': symbol, 'year': searchLink.year }) }}">
-                        <div style="width: 60px;">
-                            {{ searchLink.year }}
-                        </div>
-                    </a>
-                {% endif %}
-            {% endfor %}
-        </td>
-    </tr>
-</table>
-<br/>
+<div class="row">
+
+    <div class="col-md-2">
+        <blockquote>
+            <p>By Year:</p>
+        </blockquote>
+
+    </div>
+    <div class="col-md-10">
+        {% for yearLink in searchLinks %}
+            {% if yearLink.year == 0 %}
+                {% set display = 'ALL' %}
+            {% else %}
+                {% set display = yearLink.year %}
+            {% endif %}
+
+            {% if yearLink.url == '#' %}
+                <a class="btn btn-default disabled marginbottom4px" href="#">
+                    {{ display }}
+                </a>
+            {% else %}
+                <a class="btn btn-default marginbottom4px" href="
+                {{ path('jack_find_underlying_result_findbycalendar', {
+                'action': yearLink.url, 'symbol': symbol,
+                'day': date.day, 'month': date.month, 'year': yearLink.year,
+                'weekday': date.weekday, 'week': date.week
+                }) }}
+                ">
+                    {{ display }}
+                </a>
+            {% endif %}
+        {% endfor %}
+    </div>
+
+</div>
 
 

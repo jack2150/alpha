@@ -9,6 +9,7 @@ use Symfony\Component\HttpFoundation\Request;
 
 use Jack\ImportBundle\Entity\Symbol;
 use Jack\ImportBundle\Entity\Underlying;
+use Symfony\Component\Validator\Constraints\Length;
 
 class UnderlyingController extends FindController
 {
@@ -25,7 +26,7 @@ class UnderlyingController extends FindController
         // create a form
         $findForm = array(
             'symbol' => '',
-            'action' => '------'
+            'action' => 'findByCalendar'
         );
         $form = $this->createFormBuilder($findForm)
             ->add('symbol', 'choice', array(
@@ -35,8 +36,8 @@ class UnderlyingController extends FindController
             ))
             ->add('action', 'choice', array(
                 'choices' => array(
-                    'findByDateRange' => 'Find By Date Range',
                     'findByCalendar' => 'Find By Calendar',
+                    'findByDateRange' => 'Find By Date Range',
                     'findByWeek' => 'Find By Week',
                     'findByWeekday' => 'Find By Weekday',
                     'findByYear' => 'Find By Year',
@@ -233,11 +234,11 @@ class UnderlyingController extends FindController
                 ), 'desc');
                 $linkType = 'calendar';
 
-                $dayLinks = $this->getListOfDay($day, 'findbyday');
-                $monthLinks = $this->getListOfMonth($month, 'findbymonth');
-                $yearLinks = $this->getListOfYear($year, 'findbyyear');
-                $weekdayLinks = $this->getListOfWeekday($weekday, 'findbyweekday');
-                $weekLinks = $this->getListOfWeek($week, 'findbyweek');
+                $dayLinks = $this->getListOfDay($day, 'findbyday', 1);
+                $monthLinks = $this->getListOfMonth($month, 'findbymonth', 1);
+                $yearLinks = $this->getListOfYear($year, 'findbyyear', 1);
+                $weekdayLinks = $this->getListOfWeekday($weekday, 'findbyweekday', 1);
+                $weekLinks = $this->getListOfWeek($week, 'findbyweek', 1);
                 $searchLinks = array(
                     'day' => $dayLinks,
                     'month' => $monthLinks,
@@ -619,9 +620,10 @@ class UnderlyingController extends FindController
      * @param $returnURL
      * return url for the search
      * @return array
+     * @param int $useAny
      * return a list of day link for select
      */
-    private function getListOfWeek($currentWeek, $returnURL)
+    private function getListOfWeek($currentWeek, $returnURL, $useAny = 0)
     {
         $weekLinkArray = Array();
 
@@ -640,15 +642,29 @@ class UnderlyingController extends FindController
             );
         }
 
+        if ($useAny) {
+            $useUrl = $returnURL;
+            if ($currentWeek == 0) {
+                $useUrl = '#';
+            }
+
+            $weekLinkArray[] = array(
+                'week' => 0,
+                'url' => $useUrl
+            );
+        }
+
         return $weekLinkArray;
     }
+
 
     /**
      * @param $currentWeekday
      * @param $returnURL
+     * @param int $useAny
      * @return array
      */
-    private function getListOfWeekday($currentWeekday, $returnURL)
+    private function getListOfWeekday($currentWeekday, $returnURL, $useAny = 0)
     {
         $weekdayArray = array(
             '1' => 'Monday',
@@ -678,6 +694,19 @@ class UnderlyingController extends FindController
             );
         }
 
+        if ($useAny) {
+            $useUrl = $returnURL;
+            if (strlen($currentWeekday) < 2) {
+                $useUrl = '#';
+            }
+
+            $weekdayLinkArray[] = array(
+                'display' => 'ANY',
+                'weekday' => 0,
+                'url' => $useUrl
+            );
+        }
+
         return $weekdayLinkArray;
     }
 
@@ -687,7 +716,7 @@ class UnderlyingController extends FindController
      * @return array
      * @throws \Symfony\Component\HttpKernel\Exception\NotFoundHttpException
      */
-    private function getListOfYear($currentYear, $returnURL)
+    private function getListOfYear($currentYear, $returnURL, $useAny = 0)
     {
 
         $symbol = $this->getDoctrine('system')
@@ -728,6 +757,18 @@ class UnderlyingController extends FindController
             );
         }
 
+        if ($useAny) {
+            $useUrl = $returnURL;
+            if ($currentYear == 0) {
+                $useUrl = '#';
+            }
+
+            $yearLinkArray[] = array(
+                'year' => 0,
+                'url' => $useUrl
+            );
+        }
+
         return $yearLinkArray;
     }
 
@@ -735,23 +776,24 @@ class UnderlyingController extends FindController
     /**
      * @param $currentMonth
      * @param $returnURL
+     * @param int $useAny
      * @return array
      */
-    private function getListOfMonth($currentMonth, $returnURL)
+    private function getListOfMonth($currentMonth, $returnURL, $useAny = 0)
     {
         $monthArray = Array(
-            '1' => 'JAN',
-            '2' => 'FEB',
-            '3' => 'MAR',
-            '4' => 'APR',
+            '1' => 'JANUARY',
+            '2' => 'FEBRUARY',
+            '3' => 'MARCH',
+            '4' => 'APRIL',
             '5' => 'MAY',
             '6' => 'JUN',
-            '7' => 'JUL',
-            '8' => 'AUG',
-            '9' => 'SEP',
-            '10' => 'OCT',
-            '11' => 'NOV',
-            '12' => 'DEC',
+            '7' => 'JULY',
+            '8' => 'AUGUST',
+            '9' => 'SEPTEMBER',
+            '10' => 'OCTOBER',
+            '11' => 'NOVEMBER',
+            '12' => 'DECEMBER',
         );
         $monthLinkArray = Array();
 
@@ -772,6 +814,19 @@ class UnderlyingController extends FindController
             );
         }
 
+        if ($useAny) {
+            $useUrl = $returnURL;
+            if ($currentMonth == 0) {
+                $useUrl = '#';
+            }
+
+            $monthLinkArray[] = array(
+                'display' => 'ALL',
+                'month' => 0,
+                'url' => $useUrl
+            );
+        }
+
         return $monthLinkArray;
     }
 
@@ -780,10 +835,11 @@ class UnderlyingController extends FindController
      * current searched day, do not allow to reselect
      * @param $returnURL
      * return url for the search
+     * @param int $useAny
      * @return array
      * return a list of day link for select
      */
-    private function getListOfDay($currentDay, $returnURL)
+    private function getListOfDay($currentDay, $returnURL, $useAny = 0)
     {
         $dayLinkArray = Array();
 
@@ -801,6 +857,19 @@ class UnderlyingController extends FindController
                 'url' => $useUrl,
             );
         }
+
+        if ($useAny) {
+            $useUrl = $returnURL;
+            if ($currentDay == 0) {
+                $useUrl = '#';
+            }
+
+            $dayLinkArray[] = array(
+                'day' => 'ALL',
+                'url' => $useUrl,
+            );
+        }
+
 
         return $dayLinkArray;
     }
