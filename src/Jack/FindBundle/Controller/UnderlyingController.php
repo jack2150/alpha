@@ -38,23 +38,22 @@ class UnderlyingController extends FindController
                 'choices' => array(
                     'findByCalendar' => 'Find By Calendar',
                     'findByDateRange' => 'Find By Date Range',
-                    'findByWeek' => 'Find By Week',
-                    'findByWeekday' => 'Find By Weekday',
-                    'findByYear' => 'Find By Year',
-                    'findByMonth' => 'Find By Month',
                     'findAll' => 'Find All',
-                    'findByDay' => 'Find By Day',
-
+                    //'findByWeek' => 'Find By Week',
+                    //'findByWeekday' => 'Find By Weekday',
+                    //'findByYear' => 'Find By Year',
+                    //'findByMonth' => 'Find By Month',
+                    //'findByDay' => 'Find By Day',
                     // next for underlying
 
 
                     // TODO: remain find underlying type
                     //'findByDTE' => 'Find By DTE',
-                    '1' => 'Find By Earnings',
-                    '5' => 'Find By Date Range',
-                    '6' => 'Find By IV',
-                    '7' => 'Find By HV',
-                    '8' => 'Find By IV Rank',
+                    //'1' => 'Find By Earnings',
+                    //'5' => 'Find By Date Range',
+                    //'6' => 'Find By IV',
+                    //'7' => 'Find By HV',
+                    //'8' => 'Find By IV Rank',
                 ),
                 'required' => true,
                 'multiple' => false,
@@ -139,8 +138,9 @@ class UnderlyingController extends FindController
                     $params = array(
                         'symbol' => strtolower($symbol),
                         'action' => strtolower($action),
-                        'firstDate' => $this->symbolObject->getFirstdate()->format('Y-m-d'),
                         'lastDate' => $this->symbolObject->getLastdate()->format('Y-m-d'),
+                        'firstDate' => $this->symbolObject->getLastdate()
+                            ->modify("-1 month")->format('Y-m-d'),
                     );
                     break;
                 case 'findAll':
@@ -481,11 +481,7 @@ class UnderlyingController extends FindController
      */
     private function getDateRangeForm($firstDate, $lastDate, $returnURL)
     {
-        // put used first and last date into form
-        $findForm = array(
-            'startDate' => new \DateTime($firstDate),
-            'endDate' => new \DateTime($lastDate),
-        );
+
 
         // use the symbol first and last date in form
         if (!($this->symbolObject instanceof Symbol)) {
@@ -495,8 +491,16 @@ class UnderlyingController extends FindController
         }
 
         // set the first and last year in underlying
-        $firstYear = $this->symbolObject->getFirstdate()->format('Y');
-        $lastYear = $this->symbolObject->getLastdate()->format('Y');
+        $fromDate = $this->symbolObject->getFirstdate()->format('Y-m-d');
+        $toDate = $this->symbolObject->getLastdate()->format('Y-m-d');
+
+        // put used first and last date into form
+        $findForm = array(
+            'startDate' => new \DateTime($firstDate),
+            'endDate' => new \DateTime($lastDate),
+            'from_date' => $fromDate,
+            'to_date' => $toDate,
+        );
 
         // create form
         $form = $this->createFormBuilder($findForm)
@@ -509,16 +513,16 @@ class UnderlyingController extends FindController
             )))
             ->add('startDate', 'date', array(
                 'input' => 'datetime',
-                'widget' => 'choice',
-                'years' => range($firstYear, $lastYear),
+                'widget' => 'single_text',
                 'required' => true,
             ))
             ->add('endDate', 'date', array(
                 'input' => 'datetime',
-                'widget' => 'choice',
-                'years' => range($firstYear, $lastYear),
+                'widget' => 'single_text',
                 'required' => true,
             ))
+            ->add('from_date', 'hidden')
+            ->add('to_date', 'hidden')
             ->add('find', 'submit')
             ->getForm();
 
@@ -541,6 +545,8 @@ class UnderlyingController extends FindController
 
         $formData = $this->getRequest()->get('form');
 
+
+        /*
         $firstYear = $formData['startDate']['year'];
         $firstMonth = $formData['startDate']['month'];
         $firstDay = $formData['startDate']['day'];
@@ -548,15 +554,29 @@ class UnderlyingController extends FindController
         $lastYear = $formData['endDate']['year'];
         $lastMonth = $formData['endDate']['month'];
         $lastDay = $formData['endDate']['day'];
+        */
+
+        $startDate = new \DateTime($formData['startDate']);
+        $endDate = new \DateTime($formData['endDate']);
+
+        $firstYear = intval($startDate->format('Y'));
+        $firstMonth = intval($startDate->format('m'));
+        $firstDay = intval($startDate->format('d'));
+
+        $lastYear = intval($endDate->format('Y'));
+        $lastMonth = intval($endDate->format('m'));
+        $lastDay = intval($endDate->format('d'));
 
 
         // validate is all numeric
+        /*
         if (!is_numeric($firstYear) || !is_numeric($firstMonth) ||
             !is_numeric($firstDay) || !is_numeric($lastYear) ||
             !is_numeric($lastMonth) || !is_numeric($lastDay)
         ) {
             $errorFound = 1;
         }
+        */
 
         // check is reverse
         // if year is bigger

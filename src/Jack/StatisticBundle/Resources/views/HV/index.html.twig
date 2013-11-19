@@ -9,10 +9,16 @@
     {{ form_start(generateHVForm, {'attr': {'class': 'form-inline', 'role': 'form' }}) }}
     {{ form_errors(generateHVForm) }}
 
-    <div class="panel panel-default">
+    <div class="panel panel-primary">
         <div class="panel-heading"><b>Selection Form</b></div>
         <div class="panel-body">
             <div class="row">
+                <div class="col-md-2">
+                    <blockquote>
+                        <p>Please select:</p>
+                    </blockquote>
+                </div>
+
                 <div class="col-md-2">
                     <div class="form-group">
                         {{ form_label(generateHVForm.symbol, 'Symbol:') }}
@@ -46,9 +52,11 @@
 
             <div class="row">
                 <div class="col-md-2">
-            <span class="help-block">
-                ** Latest import
-            </span>
+                </div>
+                <div class="col-md-2">
+                    <span class="help-block">
+                        ** Latest import
+                    </span>
                 </div>
             </div>
 

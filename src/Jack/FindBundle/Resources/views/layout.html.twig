@@ -1,39 +1,28 @@
-{% extends "TwigBundle::layout.html.twig" %}
+{% extends "JackDefaultBundle::layout.html.twig" %}
 
 {% block head %}
     <link rel="icon" sizes="16x16" href="{{ asset('favicon.ico') }}"/>
-    <link rel="stylesheet" href="{{ asset('bundles/acmedemo/css/demo.css') }}"/>
+
+    <link rel="stylesheet" href="{{ asset('bundles/bootstrap/css/datepicker.css') }}"/>
+
+
 {% endblock %}
 
-{% block title 'Demo Bundle' %}
+{% block extra_footer %}
+    <script>
+        var from_date = $("#form_from_date").val();
+        var to_date = $("#form_to_date").val();
 
-{% block body %}
-    {% for flashMessage in app.session.flashbag.get('notice') %}
-        <div class="flash-message">
-            <em>Notice</em>: {{ flashMessage }}
-        </div>
-    {% endfor %}
+        $('#form_startDate').datepicker({
+            format: 'yyyy-mm-dd',
+            startDate: from_date,
+            endDate: to_date
+        });
 
-    {% block content_header %}
-        <ul id="menu">
-            {% block content_header_more %}
-                <li><a href="{{ path('jack_find_underlying_index') }}">Find Underlying</a></li>
-                <li><a href="{{ path('jack_find_cycle_index') }}">Find Cycle</a></li>
-                <li><a href="{{ path('jack_find_strike_index') }}">Find Strike</a></li>
-            {% endblock %}
-        </ul>
-
-        <div style="clear: both"></div>
-    {% endblock %}
-
-    <div class="block">
-        {% block content %}{% endblock %}
-    </div>
-
-    {% if code is defined %}
-        <h2>Code behind this page</h2>
-        <div class="block">
-            <div class="symfony-content">{{ code|raw }}</div>
-        </div>
-    {% endif %}
+        $('#form_endDate').datepicker({
+            format: 'yyyy-mm-dd',
+            startDate: from_date,
+            endDate: to_date
+        });
+    </script>
 {% endblock %}

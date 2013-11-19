@@ -1,33 +1,42 @@
+{{ form_start(searchLinks) }}
+{{ form_errors(searchLinks) }}
+
 <div class="row">
     <div class="col-md-2">
-        <div class="form-group">
-            {{ form_label(searchLinks.startDate, 'First Date: ') }}
-            {{ form_errors(searchLinks.startDate) }}
-            {{ form_widget(searchLinks.startDate.day, {'attr': {'class': 'form-control' }}) }}
-            {{ form_widget(searchLinks.startDate.month, {'attr': {'class': 'form-control' }}) }}
-            {{ form_widget(searchLinks.startDate.year, {'attr': {'class': 'form-control' }}) }}
+        <blockquote>
+            <p>Date Range</p>
+            <small>Start to End!</small>
+        </blockquote>
+    </div>
 
+    <div class="col-md-2">
+        <div class="form-group">
+            {{ form_label(searchLinks.startDate, 'Start: ') }}
+            {{ form_errors(searchLinks.startDate) }}
+            {{ form_widget(searchLinks.startDate,
+            {'attr': {'class': 'form-control', 'data-date-format': 'yyyy-mm-dd' }}) }}
         </div>
     </div>
 
-    <div class="col-md-4">
+    <div class="col-md-2">
         <div class="form-group">
-            {{ form_label(searchLinks.endDate, 'Last Date:') }}
+            {{ form_label(searchLinks.endDate, 'End:') }}
 
             {{ form_errors(searchLinks.endDate) }}
             {{ form_widget(searchLinks.endDate,
-            {'attr': {'class': 'form-control', 'placeholder': '.col-md-4' }}) }}
+            {'attr': {'class': 'form-control', 'data-date-format': 'yyyy-mm-dd' }}) }}
         </div>
     </div>
 
-    <div class="col-md-4">
+    <div class="col-md-2">
         <div class="form-group">
             <div><label>&nbsp;</label></div>
-            {{ form_widget(searchLinks.endDate,
+            {{ form_widget(searchLinks.find,
             {'attr': {'class': 'btn btn-primary' }}) }}
         </div>
     </div>
 
-    {{ form_end(searchLinks) }}
+
 </div>
 
+{{ form_end(searchLinks) }}
