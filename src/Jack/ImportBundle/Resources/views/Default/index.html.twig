@@ -31,13 +31,13 @@
                 <div class="panel-heading"><b>Remaining Symbols</b></div>
                 <div class="panel-body">
                     {% if remaining_symbols %}
-                        <div class="alert alert-info">
-                            <p>Remaining symbols: <b>{{ remaining_symbols }}</b></p>
-                        </div>
+                        <h4>
+                            Remaining symbols: <b>{{ remaining_symbols }}</b>
+                        </h4>
                     {% else %}
-                        <div class="alert alert-warning">
+                        <h4>
                             No more remaining files in folder...
-                        </div>
+                        </h4>
                         <p><a href="{{ path('jack_import_check_form') }}">Check imported files now!</a></p>
                     {% endif %}
 

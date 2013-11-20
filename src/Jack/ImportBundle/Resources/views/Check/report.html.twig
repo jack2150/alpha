@@ -1,41 +1,67 @@
-{% extends "JackImportBundle::layout.html.twig" %}
+{% extends "JackDefaultBundle::layout.html.twig" %}
 
 {% block title %}Import Bundle: Check: {{ symbol }} Report{% endblock %}
 
 {% block content %}
-    <h2 style="background-color: darkcyan">Import Check Report: {{ symbol }}</h2>
+    <h3><span class="glyphicon glyphicon-check"></span> Import: Check Report</h3>
 
-    <p>Imported day range: {{ firstDate }} until {{ lastDate }}</p>
+    <div class="panel panel-info">
+        <div class="panel-heading"><b>Data Check Report</b></div>
+        <div class="panel-body">
+            <div class="row">
 
-    <p>Total days between: <b style="color: green">{{ workingDays }}</b>
-        (business days) / {{ dayBetween }} (+ sunday saturday)</p>
+                <div class="col-md-12">
+                    <p>
+                        Imported day range: {{ firstDate }} until {{ lastDate }},
+                        Total days between: <b style="color: royalblue">{{ workingDays }}</b>
+                        (business days) / {{ dayBetween }} (+ sunday saturday)
+                    </p>
 
-    <p>
-        Total cycles:
-        <b>{{ cycleCount }}</b>,
-        Total strikes:
-        <b>{{ strikeCount|number_format(0, '.', ',') }}</b>,
-        Total chains:
-        <b style="color: green">
-            {{ chainCount|number_format(0, '.', ',') }}
-        </b>
-    </p>
-
+                    <p>
+                        Total underlying count:
+                        <b style="color: green">{{ underlyingCount }}</b>,
+                        Total cycle count:
+                        <b>{{ cycleCount }}</b>,
+                        Total strike count:
+                        <b>{{ strikeCount|number_format(0, '.', ',') }}</b>,
+                        Total chain count:
+                        <b style="color: green">
+                            {{ chainCount|number_format(0, '.', ',') }}
+                        </b>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
 
     {% if missingDates %}
-        <p>Total missing days: <b style="color: red">{{ totalMissingDays }}</b>
-            (business days, including holiday)</p>
+        <div class="panel panel-danger">
+            <div class="panel-heading"><b>Warning Report</b></div>
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <p>
+                            Total missing days: <b style="color: red">{{ totalMissingDays }}</b>
+                            / {{ workingDays }}
+                            (business days, not include holiday)
+                        </p>
 
-        <h2 style="background-color: darkcyan">Missing Dates:</h2>
-        <ul style="padding: 1em">
-            {% for missingDate in missingDates %}
-                <li>
-                    <div style="color: red; width: 80px; height: 40px; float: left;">(Missing)</div>
-                    <div style="height: 40px;">[ {{ missingDate }} ] on table.</div>
-                </li>
-            {% endfor %}
-        </ul>
+                        <ul class="list-group">
+                            {% for missingDate in missingDates %}
+                                <li class="list-group-item">
+                                    <span class="label label-warning">MISSING</span>
+                                    [ {{ missingDate }} ] on table.
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
     {% endif %}
+
+
+
 
 
 

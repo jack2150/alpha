@@ -115,6 +115,7 @@ class CheckController extends Controller
      */
     public function reportAction($name)
     {
+        set_time_limit(360);
         date_default_timezone_set('UTC');
 
         // 1. check symbol exist in system symbol table
@@ -213,10 +214,6 @@ class CheckController extends Controller
         $businessDays = 0;
 
 
-        $date = '2009-12-06';
-        // End date
-        $end_date = '2020-12-31';
-
         $totalMissing = 0;
         $missingDates = Array();
         $missingDate = null;
@@ -281,12 +278,65 @@ class CheckController extends Controller
         }
 
 
-        // count cycle, striek, and chain
+        // count underlying, cycle, strike, and chain
+        // underlying section
+        $query = $symbolEM->createQuery(
+            "select count(u.id) " . " from JackImportBundle:Underlying u"
+        );
+
+        $underlyingCount = implode($query->getSingleResult());
+
+        // cycle section
+        $query = $symbolEM->createQuery(
+            "SELECT COUNT(c.id) " . " FROM JackImportBundle:Cycle c"
+        );
+
+        $cycleCount = implode($query->getSingleResult());
+
+        // strike section
+        $query = $symbolEM->createQuery(
+            "SELECT COUNT(s.id) " . " FROM JackImportBundle:Strike s"
+        );
+
+        $strikeCount = implode($query->getSingleResult());
+
+        // strike section
+        $query = $symbolEM->createQuery(
+            "SELECT COUNT(c.id) " . " FROM JackImportBundle:Chain c"
+        );
+
+        $chainCount = implode($query->getSingleResult());
+
+        /*
         $qb = $symbolEM->createQueryBuilder();
         if ($qb instanceof QueryBuilder) {
+            $underlyingCount = 0;
+            $cycleCount = 0;
+            $strikeCount = 0;
+            $chainCount = 0;
+
+
+            $qb->select('count(underlying.id)');
+            $qb->from('JackImportBundle:Underlying', 'underlying');
+            $underlyingCount = $qb->getQuery()->getSingleScalarResult();
+
+            $em = $this->getDoctrine()->getManager('symbol');
+            $query = $em->createQuery(
+                'SELECT COUNT(u.id) FROM JackImportBundle:Underlying u'
+            );
+
+            $underlyingCount = $query->getSingleResult();
+            $underlyingCount = $underlyingCount[1];
+
+
+
+
+
+
             $qb->select('count(cycle.id)');
             $qb->from('JackImportBundle:Cycle', 'cycle');
             $cycleCount = $qb->getQuery()->getSingleScalarResult();
+
 
             $qb->select('count(strike.id)');
             $qb->from('JackImportBundle:Strike', 'strike');
@@ -295,11 +345,13 @@ class CheckController extends Controller
             $qb->select('count(chain.id)');
             $qb->from('JackImportBundle:Chain', 'chain');
             $chainCount = $qb->getQuery()->getSingleScalarResult();
+
         } else {
             throw $this->createNotFoundException(
                 'Error [ QueryBuilder ] object from entity manager!'
             );
         }
+        */
 
         return $this->render(
             'JackImportBundle:Check:report.html.twig',
@@ -311,6 +363,7 @@ class CheckController extends Controller
                 'workingDays' => $businessDays - $holidayCount,
                 'totalMissingDays' => $totalMissing,
                 'missingDates' => $missingDates,
+                'underlyingCount' => $underlyingCount,
                 'cycleCount' => $cycleCount,
                 'strikeCount' => $strikeCount,
                 'chainCount' => $chainCount,

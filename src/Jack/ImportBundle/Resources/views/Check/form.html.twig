@@ -1,23 +1,54 @@
-{% extends "JackImportBundle::layout.html.twig" %}
+{% extends "JackDefaultBundle::layout.html.twig" %}
 
 {% block title %}Import Bundle: Check: Select Symbol{% endblock %}
 
 {% block content %}
-    <h2 style="background-color: darkcyan">Check Imported</h2>
 
-    {{ form_start(form) }}
+    <h3><span class="glyphicon glyphicon-check"></span> Import: Check All Data</h3>
+
+    {{ form_start(form, {'attr': {'class': 'form-inline', 'role': 'form' }}) }}
     {{ form_errors(form) }}
 
-    <div>
-        {{ form_label(form.name, 'Symbol Name:') }}
-        {{ form_errors(form.name) }}
-        {{ form_widget(form.name) }}
-        {{ form_widget(form.check) }}
+    <div class="panel panel-primary">
+        <div class="panel-heading"><b>Form</b></div>
+        <div class="panel-body">
+            <div class="row">
+                <div class="col-md-2">
+                    <blockquote>
+                        <p>Please select:</p>
+                    </blockquote>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="form-group">
+                        {{ form_label(form.name, 'Symbol Name:') }}
+                        {{ form_errors(form.name) }}
+                        {{ form_widget(form.name,
+                        {'attr': {'class': 'form-control', 'placeholder': '.col-md-2' }} ) }}
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <div><label>&nbsp;</label></div>
+                        {{ form_widget(form.check,
+                        {'attr': {'class': 'btn btn-primary' }}) }}
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-2">
+                </div>
+                <div class="col-md-2">
+                    <span class="help-block">
+                        ** Latest import
+                    </span>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <span style="font-size: 0.8em; color: darkorange">
-        ** Latest import into database.
-    </span>
 
     {{ form_end(form) }}
 
