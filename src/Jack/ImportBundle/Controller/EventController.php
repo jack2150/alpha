@@ -167,20 +167,34 @@ class EventController extends Controller
         $notice = "";
         $error = "";
 
+        // switch the symbol db before it run valid
+        $this->get('jack_service.fastdb')->switchSymbolDb($symbol);
+
+        // get data from system on symbol table
+        $symbolObject = $this->getDoctrine('system')
+            ->getRepository('JackImportBundle:Symbol')
+            ->findOneByName($symbol);
+
+        $fromDate = $symbolObject->getFirstdate()->format('Y-m-d');
+        $toDate = $symbolObject->getLastdate()->format('Y-m-d');
+
+
         // add new event into database
         //$event = new Event();
         $event = array(
             //'date' => new \DateTime("today"),
-            'date' => new \DateTime("yesterday"),
+            'date' => new \DateTime($toDate),
             'name' => '',
             'context' => '',
-            'symbol' => $symbol
+            'symbol' => $symbol,
+            'from_date' => $fromDate,
+            'to_date' => $toDate,
         );
         $eventForm = $this->createFormBuilder($event)
             // only work on chrome but not firefox or ie
             ->add('date', 'date', array(
-                'widget' => 'choice',
-                'format' => 'MM/dd/yyyy',
+                'widget' => 'single_text',
+                'format' => 'yyyy-MM-dd',
                 'required' => true,
             ))
             ->add('name', 'choice', array(
@@ -201,11 +215,13 @@ class EventController extends Controller
             ->add('symbol', 'hidden', array(
                 'required' => true,
             ))
+            ->add('from_date', 'hidden')
+            ->add('to_date', 'hidden')
+
             ->add('save', 'submit')
             ->getForm();
 
-        // switch the symbol db before it run valid
-        $this->get('jack_service.fastdb')->switchSymbolDb($symbol);
+
         $symbolEM = $this->getDoctrine()->getManager('symbol');
 
         // get request
@@ -308,22 +324,36 @@ class EventController extends Controller
         $notice = "";
         $error = "";
 
+
+        // switch the symbol db before it run valid
+        $this->get('jack_service.fastdb')->switchSymbolDb($symbol);
+
+        // get data from system on symbol table
+        $symbolObject = $this->getDoctrine('system')
+            ->getRepository('JackImportBundle:Symbol')
+            ->findOneByName($symbol);
+
+        $fromDate = $symbolObject->getFirstdate()->format('Y-m-d');
+        $toDate = $symbolObject->getLastdate()->format('Y-m-d');
+
         // create a new object for form
         $earning = array(
-            'date' => new \DateTime("yesterday"),
+            'date' => new \DateTime($toDate),
             'name' => 'earning',
             'symbol' => $symbol,
             'marketHour' => '',
-            'periodEnding' => new \DateTime("yesterday"),
+            'periodEnding' => new \DateTime(date('y-m-1')),
             'estimate' => 0,
             'actual' => 0,
+            'from_date' => $fromDate,
+            'to_date' => $toDate,
         );
 
         // create form now
         $earningForm = $this->createFormBuilder($earning)
             ->add('date', 'date', array(
-                'widget' => 'choice',
-                'format' => 'MMM/dd/yyyy',
+                'widget' => 'single_text',
+                'format' => 'yyyy-MM-dd',
                 'required' => true,
             ))
             ->add('name', 'hidden', array('required' => true))
@@ -339,10 +369,9 @@ class EventController extends Controller
                 'multiple' => false,
             ))
             ->add('periodEnding', 'date', array(
-                    'input' => 'datetime',
-                    'widget' => 'choice',
-                    'format' => 'MMM/dd/yyyy',
-                    'days' => range(1, 1),
+                    'widget' => 'single_text',
+                    'format' => 'yyyy-MM-dd',
+                    'required' => true,
                 )
             )
             ->add('estimate', 'number', array(
@@ -355,6 +384,9 @@ class EventController extends Controller
                 'precision' => 2,
                 'invalid_message' => 'Warning: Invalid format 0.00',
             ))
+            ->add('from_date', 'hidden')
+            ->add('to_date', 'hidden')
+
             ->add('save', 'submit')
             ->getForm();
 
@@ -464,7 +496,7 @@ class EventController extends Controller
 
         $analystForm = $this->createFormBuilder($analyst)
             ->add('date', 'date', array(
-                'widget' => 'choice',
+                'widget' => 'single_text',
                 'format' => 'MMM/dd/yyyy',
                 'required' => true,
             ))

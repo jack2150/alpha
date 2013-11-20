@@ -1,28 +1,29 @@
+<h3><span class="glyphicon glyphicon-calendar"></span> Event Data</h3>
 {% if events %}
-    <h2 style="background-color: darkcyan">
-        EVENTS (DIVIDEND, CONFERENCE, SPLIT, SPECIAL)
-    </h2>
-    <table>
-        <tr>
-            <th style="width: 70px; font-weight: bold;">ID</th>
-            <th style="width: 120px; font-weight: bold;">Date</th>
-            <th style="width: 100px; font-weight: bold;">Name</th>
-            <th style="width: 300px; font-weight: bold;">Content</th>
-            <th></th>
-        </tr>
-        {% for event in events %}
-            <tr>
-                <td>{{ event.id }}</td>
-                <td>{{ event.date }}</td>
-                <td>{{ event.name }}</td>
-                <td>{{ event.context }}</td>
-                <td><a href="{{ event.delete }}">Remove Event</a></td>
-            </tr>
-        {% endfor %}
-    </table>
+    <div class="panel panel-success">
+        <div class="panel-heading"><b>Event Table</b> (DIVIDEND, CONFERENCE, SPLIT, SPECIAL)</div>
+        <div class="panel-body">
+            <table class="table">
+                <tr>
+                    <th>ID</th>
+                    <th>Date</th>
+                    <th>Name</th>
+                    <th>Content</th>
+                    <th></th>
+                </tr>
+                {% for event in events %}
+                    <tr>
+                        <td>{{ event.id }}</td>
+                        <td>{{ event.date }}</td>
+                        <td>{{ event.name }}</td>
+                        <td>{{ event.context }}</td>
+                        <td><a href="{{ event.delete }}">Remove Event</a></td>
+                    </tr>
+                {% endfor %}
+            </table>
+        </div>
+    </div>
+
 {% else %}
-    <h2 style="background-color: darkcyan">
-        EVENTS (DIVIDEND, CONFERENCE, SPLIT, SPECIAL)
-    </h2>
-    <p>This underlying have no event inserted yet.</p>
+    <div class="alert alert-warning"><b>EMPTY!</b> This underlying have no event inserted yet.</div>
 {% endif %}

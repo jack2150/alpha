@@ -1,0 +1,131 @@
+{% extends "JackImportBundle::layout.html.twig" %}
+
+{% block title %}Import Bundle: Event: Add Event: Earning{% endblock %}
+
+{% block head %}
+    <link rel="icon" sizes="16x16" href="{{ asset('favicon.ico') }}"/>
+    <link rel="stylesheet" href="{{ asset('bundles/acmedemo/css/demo.css') }}"/>
+    <style>
+        .event {
+            width: 80%;
+        }
+
+        .event td {
+            padding: 2px;
+        }
+
+        .event .first {
+            width: 100px;
+        }
+
+        .event .money {
+            width: 160px;
+        }
+
+        .notice {
+            color: green;
+            line-break:;
+            line-height: 2em;
+        }
+
+        .error2 {
+            color: red;
+            line-break:;
+            line-height: 2em;
+        }
+
+        .field_error {
+            color: red;
+        }
+
+    </style>
+{% endblock %}
+
+{% block content %}
+    <h2 style="background-color: darkcyan">Add Event [Earning]:</h2>
+
+    {% if notice %}
+        <div class="notice" style="padding-left: 4px;">
+            <b>(SUCCESS) </b>
+            {{ notice }}
+        </div>
+    {% endif %}
+
+    {% if error %}
+        <div class="error2" style="padding-left: 4px;">
+            <b style="color: red">(WARNING) </b>
+            {{ error }}
+        </div>
+    {% endif %}
+
+    {{ form_start(form) }}
+    {{ form_errors(form) }}
+
+    <table class="event">
+        <tr>
+            <td class="first">
+                {{ form_label(form.date, 'Event Date: ') }}
+            </td>
+            <td>
+                <b class="field_error">{{ form_errors(form.date) }}</b>
+                {{ form_widget(form.date) }}
+            </td>
+        </tr>
+        <tr>
+            <td>
+                {{ form_label(form.marketHour, 'Market Hour: ') }}
+            </td>
+            <td>
+                <b class="field_error">{{ form_errors(form.marketHour) }}</b>
+                {{ form_widget(form.marketHour) }}
+            </td>
+        </tr>
+        <tr>
+            <td class="first">
+                {{ form_label(form.periodEnding, 'Period Ending: ') }}
+            </td>
+            <td>
+                <b class="field_error">{{ form_errors(form.periodEnding) }}</b>
+                {{ form_widget(form.periodEnding) }}
+            </td>
+        </tr>
+        <tr>
+            <td>
+                {{ form_label(form.estimate, 'Estimate ($): ') }}
+            </td>
+
+            <td>
+                <b class="field_error">{{ form_errors(form.estimate) }}</b>
+                {{ form_widget(form.estimate, {'attr': {'class': 'money' }}) }}
+            </td>
+
+        </tr>
+        <tr>
+            <td>
+                {{ form_label(form.actual, 'Actual ($): ') }}
+            </td>
+
+            <td>
+                <b class="field_error">{{ form_errors(form.actual) }}</b>
+                {{ form_widget(form.actual, {'attr': {'class': 'money' }}) }}
+            </td>
+
+        </tr>
+        <tr>
+            <td>
+                {{ form_widget(form.symbol) }}
+                {{ form_widget(form.save) }}
+            </td>
+        </tr>
+    </table>
+
+    {{ form_end(form) }}
+
+    <br/>
+
+    {{ include(
+    'JackImportBundle:Event:showEarning.html.twig',
+    { 'earnings': earnings }
+    ) }}
+
+{% endblock %}

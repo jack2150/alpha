@@ -2,101 +2,78 @@
 
 {% block title %}Import Bundle: Event: Add Event{% endblock %}
 
-{% block head %}
-    <link rel="icon" sizes="16x16" href="{{ asset('favicon.ico') }}"/>
-    <link rel="stylesheet" href="{{ asset('bundles/acmedemo/css/demo.css') }}"/>
-    <style>
-        .event {
-            width: 80%;
-        }
-
-        .event td {
-            padding: 2px;
-        }
-
-        .event .first {
-            width: 70px;
-        }
-
-        .event .money {
-            width: 200px;
-        }
-
-        .notice {
-            color: green;
-            line-break:;
-            line-height: 2em;
-        }
-
-        .error2 {
-            color: red;
-            line-break:;
-            line-height: 2em;
-        }
-    </style>
-{% endblock %}
-
 {% block content %}
-    <h2 style="background-color: darkcyan">ADD NEW EVENT</h2>
+    <h3><span class="glyphicon glyphicon-calendar"></span> Add New Event</h3>
 
     {% if notice %}
-        <div class="notice" style="padding-left: 4px;">
-            <b>(SUCCESS) </b>
-            {{ notice }}
+        <div class="alert alert-success">
+            <b>(SUCCESS)</b> {{ notice }}
         </div>
     {% endif %}
 
     {% if error %}
-        <div class="error2" style="padding-left: 4px;">
-            <b style="color: red">(WARNING) </b>
-            {{ error }}
+        <div class="alert alert-danger">
+            <b>(WARNING)</b> {{ error }}
         </div>
     {% endif %}
 
-    {{ form_start(form) }}
-    {{ form_errors(form) }}
+    <div class="panel panel-info">
+        <div class="panel-heading"><b>Event Form</b></div>
+        <div class="panel-body">
+            <div class="row">
+                <div class="col-md-2">
+                    <blockquote>
+                        <p>Input Data:</p>
+                    </blockquote>
+                </div>
 
-    <table class="event">
-        <tr>
-            <td class="first">
-                {{ form_label(form.date, 'Event Date: ') }}
-            </td>
-            <td>
-                {{ form_errors(form.date) }}
-                {{ form_widget(form.date) }}
-            </td>
+                <div class="col-md-10">
+                    {{ form_start(form) }}
+                    {{ form_errors(form) }}
 
-        </tr>
-        <tr>
-            <td>
-                {{ form_label(form.name, 'Event Type: ') }}
-            </td>
-            <td>
-                {{ form_errors(form.name) }}
-                {{ form_widget(form.name) }}
-            </td>
-        </tr>
-        <tr>
-            <td>
-                {{ form_label(form.context, 'Description: ') }}
-            </td>
+                    <div class="col-md-2">
+                        <div class="form-group">
+                            {{ form_label(form.date, 'Event Date: ') }}
+                            {{ form_errors(form.date) }}
+                            {{ form_widget(form.date,
+                            {'attr': {'class': 'form-control' }} ) }}
+                        </div>
+                    </div>
 
-            <td>
-                {{ form_errors(form.context) }}
-                {{ form_widget(form.context, {'attr': {'class': 'context' }}) }}
-            </td>
-        </tr>
-        <tr>
-            <td>
-                {{ form_widget(form.symbol) }}
-                {{ form_widget(form.save) }}
-            </td>
-        </tr>
-    </table>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            {{ form_label(form.name, 'Event Type: ') }}
+                            {{ form_errors(form.name) }}
+                            {{ form_widget(form.name,
+                            {'attr': {'class': 'form-control' }} ) }}
+                        </div>
+                    </div>
 
-    {{ form_end(form) }}
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            {{ form_label(form.context, 'Description: ') }}
 
-    <br/>
+                            {{ form_errors(form.context) }}
+                            {{ form_widget(form.context,
+                            {'attr': {'class': 'form-control', 'placeholder': '...' }}) }}
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+
+                        <div class="form-group">
+                            <div><label>&nbsp;</label></div>
+                            {{ form_widget(form.symbol) }}
+                            {{ form_widget(form.save,
+                            {'attr': {'class': 'btn btn-primary' }}) }}
+                        </div>
+                    </div>
+
+                    {{ form_end(form) }}
+                </div>
+            </div>
+        </div>
+    </div>
 
     {{ include(
     'JackImportBundle:Event:showEvent.html.twig',

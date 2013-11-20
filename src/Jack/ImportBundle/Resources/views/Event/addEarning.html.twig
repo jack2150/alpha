@@ -2,124 +2,133 @@
 
 {% block title %}Import Bundle: Event: Add Event: Earning{% endblock %}
 
-{% block head %}
-    <link rel="icon" sizes="16x16" href="{{ asset('favicon.ico') }}"/>
-    <link rel="stylesheet" href="{{ asset('bundles/acmedemo/css/demo.css') }}"/>
-    <style>
-        .event {
-            width: 80%;
-        }
-
-        .event td {
-            padding: 2px;
-        }
-
-        .event .first {
-            width: 100px;
-        }
-
-        .event .money {
-            width: 160px;
-        }
-
-        .notice {
-            color: green;
-            line-break:;
-            line-height: 2em;
-        }
-
-        .error2 {
-            color: red;
-            line-break:;
-            line-height: 2em;
-        }
-
-        .field_error {
-            color: red;
-        }
-
-    </style>
-{% endblock %}
-
 {% block content %}
-    <h2 style="background-color: darkcyan">Add Event [Earning]:</h2>
+    <h3><span class="glyphicon glyphicon-calendar"></span> Add Event [Earning]:</h3>
 
     {% if notice %}
-        <div class="notice" style="padding-left: 4px;">
-            <b>(SUCCESS) </b>
-            {{ notice }}
+        <div class="alert alert-success">
+            <b>(SUCCESS)</b> {{ notice }}
         </div>
     {% endif %}
 
     {% if error %}
-        <div class="error2" style="padding-left: 4px;">
-            <b style="color: red">(WARNING) </b>
-            {{ error }}
+        <div class="alert alert-danger">
+            <b>(WARNING)</b> {{ error }}
         </div>
     {% endif %}
 
-    {{ form_start(form) }}
-    {{ form_errors(form) }}
 
-    <table class="event">
-        <tr>
-            <td class="first">
-                {{ form_label(form.date, 'Event Date: ') }}
-            </td>
-            <td>
-                <b class="field_error">{{ form_errors(form.date) }}</b>
-                {{ form_widget(form.date) }}
-            </td>
-        </tr>
-        <tr>
-            <td>
-                {{ form_label(form.marketHour, 'Market Hour: ') }}
-            </td>
-            <td>
-                <b class="field_error">{{ form_errors(form.marketHour) }}</b>
-                {{ form_widget(form.marketHour) }}
-            </td>
-        </tr>
-        <tr>
-            <td class="first">
-                {{ form_label(form.periodEnding, 'Period Ending: ') }}
-            </td>
-            <td>
-                <b class="field_error">{{ form_errors(form.periodEnding) }}</b>
-                {{ form_widget(form.periodEnding) }}
-            </td>
-        </tr>
-        <tr>
-            <td>
-                {{ form_label(form.estimate, 'Estimate ($): ') }}
-            </td>
 
-            <td>
-                <b class="field_error">{{ form_errors(form.estimate) }}</b>
-                {{ form_widget(form.estimate, {'attr': {'class': 'money' }}) }}
-            </td>
 
-        </tr>
-        <tr>
-            <td>
-                {{ form_label(form.actual, 'Actual ($): ') }}
-            </td>
+    <div class="panel panel-info">
+        <div class="panel-heading"><b>Event Form</b></div>
+        <div class="panel-body">
+            <div class="row">
 
-            <td>
-                <b class="field_error">{{ form_errors(form.actual) }}</b>
-                {{ form_widget(form.actual, {'attr': {'class': 'money' }}) }}
-            </td>
 
-        </tr>
-        <tr>
-            <td>
-                {{ form_widget(form.symbol) }}
-                {{ form_widget(form.save) }}
-            </td>
-        </tr>
+                <div class="col-md-2">
+                    <blockquote>
+                        <p>Input Data:</p>
+                    </blockquote>
+                </div>
+
+                <div class="col-md-10">
+
+                    {{ form_start(form) }}
+                    {{ form_errors(form) }}
+
+                    <div class="row">
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                {{ form_label(form.date, 'Event Date: ') }}
+                                {{ form_errors(form.date) }}
+                                {{ form_widget(form.date, {'attr': {'class': 'form-control' }}) }}
+                            </div>
+                        </div>
+
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                {{ form_label(form.marketHour, 'Market Hour: ') }}
+                                {{ form_errors(form.marketHour) }}
+                                {{ form_widget(form.marketHour, {'attr': {'class': 'form-control' }}) }}
+                            </div>
+                        </div>
+
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                {{ form_label(form.periodEnding, 'Period Ending: ') }}
+                                {{ form_errors(form.periodEnding) }}
+                                {{ form_widget(form.periodEnding, {'attr': {'class': 'form-control' }}) }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                {{ form_label(form.estimate, 'Estimate ($): ') }}
+                                {{ form_errors(form.estimate) }}
+                                {{ form_widget(form.estimate, {'attr': {'class': 'form-control' }}) }}
+                            </div>
+                        </div>
+
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                {{ form_label(form.actual, 'Actual ($): ') }}
+                                {{ form_errors(form.actual) }}
+                                {{ form_widget(form.actual, {'attr': {'class': 'form-control' }}) }}
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                {{ form_widget(form.symbol) }}
+                                {{ form_widget(form.save, {'attr': {'class': 'btn btn-primary' }}) }}
+                            </div>
+                        </div>
+                    </div>
+
+
+
+
+
+
+
+                    {{ form_end(form) }}
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    </tr>
+    <tr>
+        <td>
+
+        </td>
+    </tr>
     </table>
 
-    {{ form_end(form) }}
+
 
     <br/>
 
