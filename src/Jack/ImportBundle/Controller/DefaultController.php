@@ -31,6 +31,14 @@ class DefaultController extends Controller
 {
     public static $maxFilesInsert = 5;
 
+    protected $underlyingDateArray;
+    protected $cycleExDateArray;
+    protected $strikePriceArray;
+
+    protected $underlyingObjects;
+    protected $cycleObjects;
+    protected $strikeObjects;
+
     /**
      * @return \Symfony\Component\HttpFoundation\Response
      */
@@ -40,45 +48,66 @@ class DefaultController extends Controller
 
         $result = $this->getFiles($importDirectory);
 
-        $files = $result[0];
-        $currentSymbol = $result[1];
-        $remainSymbols = $result[2];
-        $importedPaths = $result[3];
-        $warning = "";
+        $templateArray = array();
 
-        // format each line
-        $files = $this->formatLines(
-            $this->formatFiles($files)
-        );
+        $error = 0;
+        if (!count($result[0])) {
+            $error = 'Folder is empty or does not have correct csv files!';
 
-        // convert files into object
-        $object = $this->filesToObject($files);
-
-        // insert object into database
-        $warning = $this->insertObjectToDb($object);
-
-        // remove files from folder
-        $this->removeImportedFiles($importedPaths);
-
-        // update symbol table in system
-        $this->updateSymbolTable($currentSymbol, $importedPaths);
-
-
-        // check still have other remaining underlying
-        $importURL = "";
-        if (count($remainSymbols)) {
-            // repeating until no more files in import folder
-            $importURL = $this->generateUrl('jack_import_default');
+            $templateArray = array(
+                'current_symbol' => '',
+                'remaining_symbols' => '',
+                'imported_paths' => 0,
+                'import_url' => '',
+                'warning' => 0,
+                'error' => $error,
+            );
         }
 
-        $templateArray = array(
-            'current_symbol' => $currentSymbol,
-            'remaining_symbols' => count($remainSymbols) ?
-                implode(", ", $remainSymbols) : 0,
-            'imported_paths' => $importedPaths,
-            'import_url' => $importURL,
-            'warning' => $warning,
-        );
+        if (!$error) {
+
+            $files = $result[0];
+            $currentSymbol = $result[1];
+            $remainSymbols = $result[2];
+            $importedPaths = $result[3];
+            $warning = "";
+
+            // format each line
+            $files = $this->formatLines(
+                $this->formatFiles($files)
+            );
+
+            // convert files into object
+            $object = $this->filesToObject($files);
+
+            // insert object into database
+            $warning = $this->insertObjectToDb($object);
+
+            // remove files from folder
+            $this->removeImportedFiles($importedPaths);
+
+            // update symbol table in system
+            $this->updateSymbolTable($currentSymbol, $importedPaths);
+
+            // check still have other remaining underlying
+            $importURL = "";
+            if (count($remainSymbols)) {
+                // repeating until no more files in import folder
+                $importURL = $this->generateUrl('jack_import_default');
+            }
+
+            $templateArray = array(
+                'current_symbol' => $currentSymbol,
+                'remaining_symbols' => count($remainSymbols) ?
+                    implode(", ", $remainSymbols) : 0,
+                'imported_paths' => $importedPaths,
+                'import_url' => $importURL,
+                'warning' => $warning,
+                'error' => 0
+            );
+
+        }
+
 
         return $this->render(
             'JackImportBundle:Default:index.html.twig',
@@ -110,9 +139,13 @@ class DefaultController extends Controller
             ->ignoreUnreadableDirs();
 
         if (count($finder) == 0) {
+            /*
             throw $this->createNotFoundException(
                 'Folder is empty or does not have correct csv files!'
             );
+            */
+
+            return array(array(), '', '', '');
         }
 
 
@@ -442,6 +475,9 @@ class DefaultController extends Controller
      */
     private function filesToObject($files)
     {
+        // set default timezone
+        date_default_timezone_set('UTC');
+
         // contain all underlying, cycle, strike and chain
         $quoteArray = new ArrayCollection();
 
@@ -650,7 +686,9 @@ class DefaultController extends Controller
 
     private function insertObjectToDb($quoteObjectArray)
     {
+        // set default timezone
         date_default_timezone_set('UTC');
+
 
         //set warning empty
         $warning = Array();
@@ -691,22 +729,40 @@ class DefaultController extends Controller
                                 $this->container->getParameter('database_user'),
                                 $this->container->getParameter('database_password')
                             );
+
+                            // set underlying
+                            $this->setUnderlyingDateArray();
+                            $this->setCycleExpireDateArray();
+                            $this->setStrikePriceArray();
                         }
 
                         // if exist, then skip this insert and other object, to next file
+                        /*
                         $existUnderlying = $this->findOneByArray(
                             array('date' => $underlyingObject->getDate()),
                             'Underlying'
+                        );
+                        */
+
+                        $existUnderlying = $this->checkUnderlyingExist(
+                            $underlyingObject->getDate()->format('Y-m-d'),
+                            $underlyingObject->getLast()
                         );
 
                         if ($existUnderlying) {
                             // skip all object insert including underlying
                             $doInsert = 0;
 
+                            // new warning
+                            $warning[] = $underlyingObject->getName()
+                                . ": " . $underlyingObject->getDate()->format("Y-m-d");
+
+                            /*
                             if ($existUnderlying instanceof Underlying) {
                                 $warning[] = $existUnderlying->getName()
                                     . ": " . $existUnderlying->getDate()->format("Y-m-d");
                             }
+                            */
                         } else {
                             // insert into database for underlying
                             $entityManager->persist($underlyingObject);
@@ -727,6 +783,7 @@ class DefaultController extends Controller
                         // check if it exist
                         if ($cycleObject instanceof Cycle) {
                             // find exact same cycle
+                            /*
                             $existCycle = $this->findOneByArray(
                                 array(
                                     'expiredate' => $cycleObject->getExpiredate(),
@@ -737,6 +794,12 @@ class DefaultController extends Controller
                                     'isweekly' => $cycleObject->getIsweekly()
                                 ),
                                 'Cycle'
+                            );
+                            */
+
+                            $existCycle = $this->checkCycleExist(
+                                $cycleObject->getExpiredate()->format('Y-m-d'),
+                                $cycleObject->getIsmini()
                             );
 
                             if (!$existCycle) {
@@ -760,12 +823,19 @@ class DefaultController extends Controller
                         // check if it exist
                         if ($strikeObject instanceof Strike) {
                             // find exact same strike
+                            /*
                             $existStrike = $this->findOneByArray(
                                 array(
                                     'category' => $strikeObject->getCategory(),
                                     'price' => $strikeObject->getPrice(),
                                 ),
                                 'Strike'
+                            );
+                            */
+
+                            $existStrike = $this->checkStrikeExist(
+                                $strikeObject->getPrice(),
+                                $strikeObject->getCategory()
                             );
 
                             if (!$existStrike) {
@@ -782,12 +852,47 @@ class DefaultController extends Controller
                     // insert into database for strike
                     $entityManager->flush();
                 } elseif ($objectKey == 3 && $doInsert) {
+                    // todo: replace search strike, cycle, underlying with direct object array
+                    // do not do it in db
+
+                    // set object for later searching use
+                    $this->setAllObject();
+
+
                     // chain object with other foreign key
                     $countUnderlying = 0;
                     $existUnderlying = "";
                     foreach ($objectArray as $chainObject) {
                         if ($chainObject instanceof Chain) {
                             // use inserted strike id
+                            $existStrike = 0;
+
+                            /*
+                            $strike = $entityManager->getReference(
+                                'Jack\ImportBundle\Entity\Strike',
+                                $this->getStrikeId(
+                                    $chainObject->getStrikeid()->getPrice(),
+                                    $chainObject->getStrikeid()->getCategory()
+                                )
+                            );
+                            */
+                            /*
+                            $strike = $this->strikeObjects[
+                                $this->getStrikeId(
+                                    $chainObject->getStrikeid()->getPrice(),
+                                    $chainObject->getStrikeid()->getCategory()
+                                )
+                            ];
+                            */
+
+
+                            $chainObject->setStrikeid(
+                                $this->strikeObjects[$chainObject->getStrikeid()->getCategory() .
+                                strval($chainObject->getStrikeid()->getPrice())]
+                            );
+
+
+                            /*
                             $existStrike = $this->findOneByArray(
                                 array(
                                     'category' => $chainObject->getStrikeid()->getCategory(),
@@ -795,17 +900,25 @@ class DefaultController extends Controller
                                 ),
                                 'Strike'
                             );
+                            */
 
+                            /*
                             if ($existStrike instanceof Strike) {
-                                $strike = $entityManager->getReference(
-                                    'Jack\ImportBundle\Entity\Strike',
-                                    $existStrike->getId()
-                                );
 
-                                $chainObject->setStrikeid($strike);
                             }
+                            */
 
                             // use inserted cycle id
+                            // do not use exist chain search
+
+                            $isMini = $chainObject->getCycleid()->getIsmini() ?
+                                $chainObject->getCycleid()->getIsmini() : 0;
+                            $cycleKey = $isMini . "=" .
+                                $chainObject->getCycleid()->getExpiredate()->format('Y-m-d');
+
+                            $chainObject->setCycleid($this->cycleObjects[$cycleKey]);
+
+                            /*
                             $existCycle = $this->findOneByArray(
                                 array(
                                     'expiredate' => $chainObject->getCycleid()->getExpiredate(),
@@ -818,11 +931,19 @@ class DefaultController extends Controller
                                 'Cycle'
                             );
 
+
                             if ($existCycle instanceof Cycle) {
                                 $chainObject->setCycleid($existCycle);
                             }
+                            */
+
 
                             // use inserted underlying id
+                            $chainObject->setUnderlyingid(
+                                $this->underlyingObjects[$chainObject->getUnderlyingid()->getDate()->format('Y-m-d')]
+                            );
+
+                            /*
                             if (!$countUnderlying) {
                                 $existUnderlying = $this->findOneByArray(
                                     array('date' => $chainObject->getUnderlyingid()->getDate()),
@@ -835,6 +956,7 @@ class DefaultController extends Controller
                             if ($existUnderlying instanceof Underlying) {
                                 $chainObject->setUnderlyingid($existUnderlying);
                             }
+                            */
 
                             // add into persist query
                             $entityManager->persist($chainObject);
@@ -990,6 +1112,12 @@ class DefaultController extends Controller
         $symbol->setName($symbolName);
         $symbol->setImportdate(new \DateTime('now'));
 
+        // add this
+        $symbol->setCountry('USA');
+        $symbol->setMarketcap('Mega');
+        $symbol->setShortable(1);
+
+
         // create em and insert row
         $entityManager = $this->getDoctrine()->getManager();
         $entityManager->persist($symbol);
@@ -1021,5 +1149,178 @@ class DefaultController extends Controller
 
         $refParams->setAccessible('private');
         $refParams->setValue($connection, $params);
+    }
+
+    private function setUnderlyingDateArray()
+    {
+        $underlyings = $this->getDoctrine()
+            ->getRepository('JackImportBundle:Underlying', 'symbol')
+            ->findAll();
+
+        $underlyingDateArray = array();
+        foreach ($underlyings as $underlying) {
+            // error checking
+            if (!$underlying instanceof Underlying) {
+                throw $this->createNotFoundException(
+                    'Error [ Underlying ] object from entity manager!'
+                );
+            }
+
+            // set into array
+            $underlyingDateArray[$underlying->getDate()->format('Y-m-d')] = $underlying->getLast();
+        }
+
+        $this->underlyingDateArray = $underlyingDateArray;
+
+    }
+
+    private function checkUnderlyingExist($searchDate, $searchLast)
+    {
+        // format search data
+        $searchLast = floatval($searchLast);
+
+        $found = 0;
+        if (isset($this->underlyingDateArray[$searchDate])) {
+            if ($this->underlyingDateArray[$searchDate] == $searchLast) {
+                $found = 1;
+            }
+        }
+
+        return $found;
+    }
+
+    private function setCycleExpireDateArray()
+    {
+        $cycles = $this->getDoctrine()
+            ->getRepository('JackImportBundle:Cycle', 'symbol')
+            ->findAll();
+
+        $cycleExpireDateArray = array();
+        foreach ($cycles as $cycle) {
+            // error checking
+            if (!$cycle instanceof Cycle) {
+                throw $this->createNotFoundException(
+                    'Error [ Cycle ] object from entity manager!'
+                );
+            }
+
+            // set into array
+            $cycleExpireDateArray[$cycle->getExpiredate()->format('Y-m-d')] = $cycle->getIsmini();
+        }
+
+        $this->cycleExDateArray = $cycleExpireDateArray;
+
+    }
+
+    private function checkCycleExist($searchExDate, $searchIsMini)
+    {
+        // format search data
+        $searchIsMini = intval($searchIsMini);
+
+        $found = 0;
+        if (isset($this->cycleExDateArray[$searchExDate])) {
+            if ($this->cycleExDateArray[$searchExDate] == $searchIsMini) {
+                $found = 1;
+            }
+        }
+
+        return $found;
+    }
+
+    private function setStrikePriceArray()
+    {
+        $strikes = $this->getDoctrine()
+            ->getRepository('JackImportBundle:Strike', 'symbol')
+            ->findAll();
+
+        $strikePriceArray = array();
+        foreach ($strikes as $strike) {
+            // error checking
+            if (!$strike instanceof Strike) {
+                throw $this->createNotFoundException(
+                    'Error [ Strike ] object from entity manager!'
+                );
+            }
+
+            // set into array
+            $combineStr = $strike->getCategory() . strval($strike->getPrice());
+            $strikePriceArray[$combineStr] = 0;
+        }
+
+        $this->strikePriceArray = $strikePriceArray;
+    }
+
+    private function checkStrikeExist($searchPrice, $searchCategory)
+    {
+        // format search data
+        $combineStr = $searchCategory . strval($searchPrice);
+
+        $found = 0;
+        if (isset($this->strikePriceArray[$combineStr])) {
+            $found = 1;
+        }
+
+        return $found;
+    }
+
+    private function setAllObject()
+    {
+        /*
+         * Underlying Section
+         */
+        $originalUnderlyingObjects = $this->getDoctrine()
+            ->getRepository('JackImportBundle:Underlying', 'symbol')
+            ->findAll();
+
+        $newKeyUnderlyingObject = array();
+        foreach ($originalUnderlyingObjects as $underlyingObject) {
+            if (!$underlyingObject instanceof Underlying) {
+                throw $this->createNotFoundException(
+                    'Error [ Strike ] object from entity manager!'
+                );
+            }
+
+            $newKeyUnderlyingObject[$underlyingObject->getDate()->format('Y-m-d')] = $underlyingObject;
+        }
+        $this->underlyingObjects = $newKeyUnderlyingObject;
+
+
+        /*
+         * Cycle Section
+         */
+        $originalCycleObjects = $this->getDoctrine()
+            ->getRepository('JackImportBundle:Cycle', 'symbol')
+            ->findAll();
+
+        $newKeyCycleObjects = array();
+        foreach ($originalCycleObjects as $cycleObject) {
+            if (!$cycleObject instanceof Cycle) {
+                throw $this->createNotFoundException(
+                    'Error [ Strike ] object from entity manager!'
+                );
+            }
+
+            $isMini = $cycleObject->getIsmini() ? $cycleObject->getIsmini() : 0;
+
+            $newCycleKey = $isMini . '=' . $cycleObject->getExpiredate()->format('Y-m-d');
+            $newKeyCycleObjects[$newCycleKey] = $cycleObject;
+        }
+        $this->cycleObjects = $newKeyCycleObjects;
+
+
+        /*
+         * Strike Section
+         */
+        $originalStrikeObjects = $this->getDoctrine()
+            ->getRepository('JackImportBundle:Strike', 'symbol')
+            ->findAll();
+
+        // make a new strike object with category price key
+        $newKeyStrikeObjects = array();
+        foreach ($originalStrikeObjects as $strikeObject) {
+            $newStrikeKey = $strikeObject->getCategory() . strval($strikeObject->getPrice());
+            $newKeyStrikeObjects[$newStrikeKey] = $strikeObject;
+        }
+        $this->strikeObjects = $newKeyStrikeObjects;
     }
 }

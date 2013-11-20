@@ -1,45 +1,81 @@
-{% extends "JackImportBundle::layout.html.twig" %}
+{% extends "JackDefaultBundle::layout.html.twig" %}
 
 {% block head %}
     {% if import_url %}
         <meta http-equiv="refresh" content="1; url={{ import_url }}">
     {% endif %}
-
-    <link rel="icon" sizes="16x16" href="{{ asset('favicon.ico') }}"/>
-    <link rel="stylesheet" href="{{ asset('bundles/acmedemo/css/demo.css') }}"/>
 {% endblock %}
 
 {% block title "Import Single Underlying (Multiple Files) Quotes" %}
 
 {% block content %}
-    <h2 style="background-color: darkcyan">
-        Successful imported: {{ current_symbol }}
-    </h2>
-    {% if remaining_symbols %}
-        <p>Remaining symbols: <b>{{ remaining_symbols }}</b></p>
-    {% else %}
-        <p>No more remaining files in folder...</p>
-        <p><a href="{{ path('jack_import_check_form') }}">Check imported files now!</a></p>
-    {% endif %}
-    <ul>
-        {% if warning %}
-            {% for notice in warning %}
-                <li><b style="color: red">Warning:</b> Duplicate underlying date found on {{ notice }}</li>
-            {% endfor %}
-        {% endif %}
-    </ul>
 
-    <p>
-    <ul>
-        <h2>Imported Paths:</h2>
-        {% for path in imported_paths %}
-            <li>{{ path }}</li>
-        {% endfor %}
-    </ul>
-    </p>
+    <h3>Import Single Underlying (Multiple Files) Quotes</h3>
 
-    {% if import_url %}
-        <p><a href="{{ import_url }}">Continue next underlying. Redirecting...</a></p>
-    {% endif %}
+    <div class="row">
+        <div class="col-md-6">
+            {% if error %}
+                <div class="alert alert-danger">
+                    <p><b>Error:</b> {{ error }}</p>
+                </div>
+            {% else %}
+                <div class="alert alert-success">
+                    <p>
+                        <b>Complete:</b> Import total {{ imported_paths|length }}
+                        files for underlying {{ current_symbol }}
+                    </p>
+                </div>
+            {% endif %}
+
+            <div class="panel panel-default">
+                <div class="panel-heading"><b>Remaining Symbols</b></div>
+                <div class="panel-body">
+                    {% if remaining_symbols %}
+                        <div class="alert alert-info">
+                            <p>Remaining symbols: <b>{{ remaining_symbols }}</b></p>
+                        </div>
+                    {% else %}
+                        <div class="alert alert-warning">
+                            No more remaining files in folder...
+                        </div>
+                        <p><a href="{{ path('jack_import_check_form') }}">Check imported files now!</a></p>
+                    {% endif %}
+
+                    {% if import_url %}
+                        <p><a href="{{ import_url }}">Continue next underlying. Redirecting...</a></p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            {% if warning %}
+                {% for notice in warning %}
+                    <div class="alert alert-warning">
+                        <b>Warning:</b> Duplicate underlying date found on {{ notice }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            <div class="panel panel-default">
+                <div class="panel-heading"><b>Imported Files</b></div>
+                <div class="panel-body">
+                    {% if imported_paths %}
+                        <ul class="list-group">
+                            {% for path in imported_paths %}
+                                <li class="list-group-item">Path: {{ path }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        Nothing yet import!
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+
+
 {% endblock %}
 
