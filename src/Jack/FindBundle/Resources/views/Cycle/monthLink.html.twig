@@ -1,81 +1,79 @@
-<table>
-    <tr>
-        <td>
-            <b style="float: left; width: 120px; height:20px;">More Months:</b>
-            {% for monthLink in monthLinks %}
-                {% if monthLink.url == '#' %}
-                    <div style="float: left; width: 50px;">
-                        {% if monthLink.month == 1 %}
-                            <b>JAN</b>
-                        {% elseif monthLink.month == 2 %}
-                            <b>FEB</b>
-                        {% elseif monthLink.month == 3 %}
-                            <b>MAR</b>
-                        {% elseif monthLink.month == 4 %}
-                            <b>APR</b>
-                        {% elseif monthLink.month == 5 %}
-                            <b>MAY</b>
-                        {% elseif monthLink.month == 6 %}
-                            <b>JUN</b>
-                        {% elseif monthLink.month == 7 %}
-                            <b>JUL</b>
-                        {% elseif monthLink.month == 8 %}
-                            <b>AUG</b>
-                        {% elseif monthLink.month == 9 %}
-                            <b>SEP</b>
-                        {% elseif monthLink.month == 10 %}
-                            <b>OCT</b>
-                        {% elseif monthLink.month == 11 %}
-                            <b>NOV</b>
-                        {% elseif monthLink.month == 12 %}
-                            <b>DEC</b>
-                        {% else %}
-                            <b>[ANY]</b>
-                        {% endif %}
-                    </div>
-                {% else %}
-                    <a style="float: left;" href="{{ path('jack_find_cycle_result_findbyspecific',
-                    {
-                    'action': monthLink.url, 'symbol': symbol,
-                    'weekNo': parameters.weekNo, 'month': monthLink.month,
-                    'leap': parameters.leap, 'weekly': parameters.weekly,
-                    'mini': parameters.mini, 'year': parameters.year,
-                    }) }}">
-                        <div style="width: 50px;">
-                            {% if monthLink.month == 1 %}
-                                JAN
-                            {% elseif monthLink.month == 2 %}
-                                FEB
-                            {% elseif monthLink.month == 3 %}
-                                MAR
-                            {% elseif monthLink.month == 4 %}
-                                APR
-                            {% elseif monthLink.month == 5 %}
-                                MAY
-                            {% elseif monthLink.month == 6 %}
-                                JUN
-                            {% elseif monthLink.month == 7 %}
-                                JUL
-                            {% elseif monthLink.month == 8 %}
-                                AUG
-                            {% elseif monthLink.month == 9 %}
-                                SEP
-                            {% elseif monthLink.month == 10 %}
-                                OCT
-                            {% elseif monthLink.month == 11 %}
-                                NOV
-                            {% elseif monthLink.month == 12 %}
-                                DEC
-                            {% else %}
-                                ANY
-                            {% endif %}
-                        </div>
-                    </a>
-                {% endif %}
-            {% endfor %}
-        </td>
-    </tr>
-</table>
-<br/>
+<div class="row">
+    <div class="col-md-2">
+        <blockquote>
+            <p>Months: </p>
+        </blockquote>
+    </div>
 
+    <div class="col-md-10">
+        {% for monthLink in monthLinks %}
+            {% if monthLink.url == '#' %}
+                <a class="btn btn-default marginbottom4px disabled">
+                    {% if monthLink.month == 1 %}
+                        <b>JANUARY</b>
+                    {% elseif monthLink.month == 2 %}
+                        <b>FEBRUARY</b>
+                    {% elseif monthLink.month == 3 %}
+                        <b>MARCH</b>
+                    {% elseif monthLink.month == 4 %}
+                        <b>APRIL</b>
+                    {% elseif monthLink.month == 5 %}
+                        <b>MAY</b>
+                    {% elseif monthLink.month == 6 %}
+                        <b>JUNE</b>
+                    {% elseif monthLink.month == 7 %}
+                        <b>JULY</b>
+                    {% elseif monthLink.month == 8 %}
+                        <b>AUGUST</b>
+                    {% elseif monthLink.month == 9 %}
+                        <b>SEPTEMBER</b>
+                    {% elseif monthLink.month == 10 %}
+                        <b>OCTOBER</b>
+                    {% elseif monthLink.month == 11 %}
+                        <b>NOVEMBER</b>
+                    {% elseif monthLink.month == 12 %}
+                        <b>DECEMBER</b>
+                    {% else %}
+                        <b>ANY MONTH</b>
+                    {% endif %}
+                </a>
+            {% else %}
+                <a class="btn btn-default marginbottom4px"
+                   href="{{ path('jack_find_cycle_result_findbyspecific',
+                   {'action': monthLink.url, 'symbol': symbol,
+                   'weekNo': parameters.weekNo, 'month': monthLink.month,
+                   'leap': parameters.leap, 'weekly': parameters.weekly,
+                   'mini': parameters.mini, 'year': parameters.year}) }}">
+                    {% if monthLink.month == 1 %}
+                        JANUARY
+                    {% elseif monthLink.month == 2 %}
+                        FEBRUARY
+                    {% elseif monthLink.month == 3 %}
+                        MARCH
+                    {% elseif monthLink.month == 4 %}
+                        APRIL
+                    {% elseif monthLink.month == 5 %}
+                        MAY
+                    {% elseif monthLink.month == 6 %}
+                        JUNE
+                    {% elseif monthLink.month == 7 %}
+                        JULY
+                    {% elseif monthLink.month == 8 %}
+                        AUGUST
+                    {% elseif monthLink.month == 9 %}
+                        SEPTEMBER
+                    {% elseif monthLink.month == 10 %}
+                        OCTOBER
+                    {% elseif monthLink.month == 11 %}
+                        NOVEMBER
+                    {% elseif monthLink.month == 12 %}
+                        DECEMBER
+                    {% else %}
+                        ANY MONTH
+                    {% endif %}
+                </a>
+            {% endif %}
+        {% endfor %}
 
+    </div>
+</div>

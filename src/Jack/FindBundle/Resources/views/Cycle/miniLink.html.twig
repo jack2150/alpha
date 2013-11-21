@@ -1,41 +1,45 @@
-<table>
-    <tr>
-        <td>
-            <b style="float: left; width: 120px; height:20px;">Mini Option:</b>
-            {% for miniLink in miniLinks %}
-                {% if miniLink.url == '#' %}
-                    <div style="float: left; width: 80px;">
-                        {% if miniLink.mini == 1 %}
-                            <b>[YES]</b>
-                        {% elseif miniLink.mini == -1 %}
-                            <b>[NO]</b>
-                        {% else %}
-                            <b>[ANY]</b>
-                        {% endif %}
-                    </div>
-                {% else %}
-                    <a style="float: left;" href="{{ path('jack_find_cycle_result_findbyspecific',
-                    {
-                    'action': miniLink.url, 'symbol': symbol,
-                    'weekNo': parameters.weekNo, 'month': parameters.month,
-                    'leap': parameters.leap, 'weekly': parameters.weekly,
-                    'mini': miniLink.mini, 'year': parameters.year,
-                    }) }}">
-                        <div style="width: 80px;">
-                            {% if miniLink.mini == 1 %}
-                                YES
-                            {% elseif miniLink.mini == -1 %}
-                                NO
-                            {% else %}
-                                ANY
-                            {% endif %}
-                        </div>
-                    </a>
-                {% endif %}
-            {% endfor %}
-        </td>
-    </tr>
-</table>
-<br/>
+<div class="row">
+    <div class="col-md-2">
+        <blockquote>
+            <p>Mini:</p>
+        </blockquote>
+    </div>
+
+    <div class="col-md-10">
+        {% for miniLink in miniLinks %}
+            {% if miniLink.url == '#' %}
+                <a class="btn btn-default marginbottom4px disabled">
+                    {% if miniLink.mini == 1 %}
+                        <b>ONLY MINI</b>
+                    {% elseif miniLink.mini == -1 %}
+                        <b>NO MINI</b>
+                    {% else %}
+                        <b>ANY TYPE</b>
+                    {% endif %}
+                </a>
+
+            {% else %}
+                <a class="btn btn-default marginbottom4px"
+                   href="{{ path('jack_find_cycle_result_findbyspecific',
+                   {'action': miniLink.url, 'symbol': symbol,
+                   'weekNo': parameters.weekNo, 'month': parameters.month,
+                   'leap': parameters.leap, 'weekly': parameters.weekly,
+                   'mini': miniLink.mini, 'year': parameters.year,
+                   }) }}">
+                    {% if miniLink.mini == 1 %}
+                        ONLY MINI
+                    {% elseif miniLink.mini == -1 %}
+                        NO MINI
+                    {% else %}
+                        ANY TYPE
+                    {% endif %}
+                </a>
+            {% endif %}
+        {% endfor %}
+    </div>
+</div>
+
+
+
 
 

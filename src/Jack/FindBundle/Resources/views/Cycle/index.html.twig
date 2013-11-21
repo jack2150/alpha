@@ -3,29 +3,61 @@
 {% block title %}Find Bundle: Cycle{% endblock %}
 
 {% block content %}
-    <h2 style="background-color: darkcyan">Find Cycle</h2>
+    <h3><span class="glyphicon glyphicon-hdd"></span> Find Cycle</h3>
 
-
-    {{ form_start(findCycleForm) }}
+    {{ form_start(findCycleForm, {'attr': {'class': 'form-inline', 'role': 'form' }}) }}
     {{ form_errors(findCycleForm) }}
 
-    <div>
-        {{ form_label(findCycleForm.symbol, 'Symbol Name:') }}
-        {{ form_errors(findCycleForm.symbol) }}
-        {{ form_widget(findCycleForm.symbol) }}
+    <div class="panel panel-primary">
+        <div class="panel-heading"><b>Form</b></div>
+        <div class="panel-body">
+            <div class="row">
+                <div class="col-md-2">
+                    <blockquote>
+                        <p>Please select:</p>
+                    </blockquote>
+                </div>
 
-        {{ form_label(findCycleForm.action, 'Action:') }}
-        {{ form_errors(findCycleForm.action) }}
-        {{ form_widget(findCycleForm.action) }}
-        {{ form_widget(findCycleForm.find) }}
+                <div class="col-md-2">
+                    <div class="form-group">
+                        {{ form_label(findCycleForm.symbol, 'Symbol Name:') }}
+                        {{ form_errors(findCycleForm.symbol) }}
+                        {{ form_widget(findCycleForm.symbol,
+                        {'attr': {'class': 'form-control' }}) }}
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="form-group">
+                        {{ form_label(findCycleForm.action, 'Action:') }}
+                        {{ form_errors(findCycleForm.action) }}
+                        {{ form_widget(findCycleForm.action,
+                        {'attr': {'class': 'form-control' }}) }}
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <div><label>&nbsp;</label></div>
+                        {{ form_widget(findCycleForm.find,
+                        {'attr': {'class': 'btn btn-primary' }}) }}
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-2">
+                </div>
+                <div class="col-md-2">
+                    <span class="help-block">
+                        ** Latest import
+                    </span>
+                </div>
+            </div>
+        </div>
+
     </div>
 
-    <span style="font-size: 0.8em; color: darkorange">
-        ** Latest import into database.
-    </span>
-
     {{ form_end(findCycleForm) }}
-
-
 
 {% endblock %}

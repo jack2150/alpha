@@ -3,51 +3,30 @@
 {% block title %}Find Bundle: Underlying: Result{% endblock %}
 
 {% block content %}
-    <h3><span class="glyphicon glyphicon-hdd"></span> Underlying: {{ searchName }}</h3>
-
-    <div class="panel panel-info">
-        <div class="panel-heading">Finder Panel</div>
-        <div class="panel-body">
-
-
-            {% if linkType == 'days' %}
-                {{ include(
-                'JackFindBundle:Underlying:dayLink.html.twig',
-                { 'searchLinks': searchLinks }
-                ) }}
-            {% elseif linkType == 'months' %}
-                {{ include(
-                'JackFindBundle:Underlying:monthLink.html.twig',
-                { 'searchLinks': searchLinks }
-                ) }}
-            {% elseif linkType == 'years' %}
-                {{ include(
-                'JackFindBundle:Underlying:yearLink.html.twig',
-                { 'searchLinks': searchLinks }
-                ) }}
-            {% elseif linkType == 'weekday' %}
-                {{ include(
-                'JackFindBundle:Underlying:weekdayLink.html.twig',
-                { 'searchLinks': searchLinks }
-                ) }}
-            {% elseif linkType == 'week' %}
-                {{ include(
-                'JackFindBundle:Underlying:weekLink.html.twig',
-                { 'searchLinks': searchLinks }
-                ) }}
-            {% elseif linkType == 'calendar' %}
+    {% if linkType == 'calendar' %}
+        <h3><span class="glyphicon glyphicon-hdd"></span> Underlying: {{ searchName }}</h3>
+        <div class="panel panel-info">
+            <div class="panel-heading">Finder Panel</div>
+            <div class="panel-body">
                 {{ include(
                 'JackFindBundle:Underlying:calendarLink.html.twig',
                 { 'searchLinks': searchLinks }
                 ) }}
-            {% elseif linkType == 'daterange' %}
+            </div>
+        </div>
+    {% elseif linkType == 'daterange' %}
+        <h3><span class="glyphicon glyphicon-hdd"></span> Underlying: {{ searchName }}</h3>
+        <div class="panel panel-info">
+            <div class="panel-heading">Finder Panel</div>
+            <div class="panel-body">
                 {{ include(
                 'JackFindBundle:Underlying:dateRangeLink.html.twig',
                 { 'searchLinks': searchLinks }
                 ) }}
-            {% endif %}
+            </div>
         </div>
-    </div>
+    {% endif %}
+
 
 
     <h3>

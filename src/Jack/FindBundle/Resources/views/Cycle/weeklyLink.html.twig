@@ -1,41 +1,44 @@
-<table>
-    <tr>
-        <td>
-            <b style="float: left; width: 120px; height:20px;">Weekly Option:</b>
-            {% for weeklyLink in weeklyLinks %}
-                {% if weeklyLink.url == '#' %}
-                    <div style="float: left; width: 80px;">
-                        {% if weeklyLink.weekly == 1 %}
-                            <b>[YES]</b>
-                        {% elseif weeklyLink.weekly == -1 %}
-                            <b>[NO]</b>
-                        {% else %}
-                            <b>[ANY]</b>
-                        {% endif %}
-                    </div>
-                {% else %}
-                    <a style="float: left;" href="{{ path('jack_find_cycle_result_findbyspecific',
-                    {
-                    'action': weeklyLink.url, 'symbol': symbol,
-                    'weekNo': parameters.weekNo, 'month': parameters.month,
-                    'leap': parameters.leap, 'weekly': weeklyLink.weekly,
-                    'mini': parameters.mini, 'year': parameters.year,
-                    }) }}">
-                        <div style="width: 80px;">
-                            {% if weeklyLink.weekly == 1 %}
-                                YES
-                            {% elseif weeklyLink.weekly == -1 %}
-                                NO
-                            {% else %}
-                                ANY
-                            {% endif %}
-                        </div>
-                    </a>
-                {% endif %}
-            {% endfor %}
-        </td>
-    </tr>
-</table>
-<br/>
+<div class="row">
+
+    <div class="col-md-2">
+        <blockquote>
+            <p>Weekly:</p>
+        </blockquote>
+
+    </div>
+
+    <div class="col-md-10">
+        {% for weeklyLink in weeklyLinks %}
+            {% if weeklyLink.url == '#' %}
+                <a class="btn btn-default disabled marginbottom4px" href="#">
+                    {% if weeklyLink.weekly == 1 %}
+                        <b>WEEKLY ONLY</b>
+                    {% elseif weeklyLink.weekly == -1 %}
+                        <b>NO WEEKLY</b>
+                    {% else %}
+                        <b>ANY TYPE</b>
+                    {% endif %}
+                </a>
+            {% else %}
+                <a class="btn btn-default marginbottom4px"
+                   href="{{ path('jack_find_cycle_result_findbyspecific',
+                   {'action': weeklyLink.url, 'symbol': symbol,
+                   'weekNo': parameters.weekNo, 'month': parameters.month,
+                   'leap': parameters.leap, 'weekly': weeklyLink.weekly,
+                   'mini': parameters.mini, 'year': parameters.year}) }}">
+                    {% if weeklyLink.weekly == 1 %}
+                        WEEKLY ONLY
+                    {% elseif weeklyLink.weekly == -1 %}
+                        NO WEEKLY
+                    {% else %}
+                        ANY TYPE
+                    {% endif %}
+                </a>
+            {% endif %}
+        {% endfor %}
+
+    </div>
+
+</div>
 
 
