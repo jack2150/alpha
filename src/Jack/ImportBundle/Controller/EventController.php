@@ -483,6 +483,17 @@ class EventController extends Controller
         $notice = "";
         $error = "";
 
+        // switch the symbol db before it run valid
+        $this->get('jack_service.fastdb')->switchSymbolDb($symbol);
+
+        // get data from system on symbol table
+        $symbolObject = $this->getDoctrine('system')
+            ->getRepository('JackImportBundle:Symbol')
+            ->findOneByName($symbol);
+
+        $fromDate = $symbolObject->getFirstdate()->format('Y-m-d');
+        $toDate = $symbolObject->getLastdate()->format('Y-m-d');
+
         // create a new object for form
         $analyst = array(
             'date' => new \DateTime("yesterday"),
@@ -492,12 +503,14 @@ class EventController extends Controller
             'opinion' => '',
             'rating' => '',
             'target' => 0.00,
+            'from_date' => $fromDate,
+            'to_date' => $toDate,
         );
 
         $analystForm = $this->createFormBuilder($analyst)
             ->add('date', 'date', array(
                 'widget' => 'single_text',
-                'format' => 'MMM/dd/yyyy',
+                'format' => 'yyyy-MM-dd',
                 'required' => true,
             ))
             ->add('name', 'hidden', array('required' => true))
@@ -534,6 +547,9 @@ class EventController extends Controller
                 'precision' => 2,
                 'invalid_message' => 'Warning: Invalid format 0.00',
             ))
+            ->add('from_date', 'hidden')
+            ->add('to_date', 'hidden')
+
             ->add('save', 'submit')
             ->getForm();
 
@@ -594,7 +610,7 @@ class EventController extends Controller
                 $symbolEM->flush();
 
                 $notice = "Event " . $date->format('m-d-Y') .
-                    " [ $name ] with target price [ $target ] have been added!";
+                    " [ ANALYST ] with target price [ $target ] have been added!";
             }
         }
 
@@ -807,7 +823,7 @@ class EventController extends Controller
         foreach ($analysts as $analyst) {
             if (!($analyst instanceof Analyst)) {
                 throw $this->createNotFoundException(
-                    'Error [ analyst ] data object from database!'
+                    'Error [ ANALYST ] data object from database!'
                 );
             }
 
