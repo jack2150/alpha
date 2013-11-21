@@ -1,7 +1,88 @@
-{% extends "::base.html.twig" %}
+{% extends "JackSystemBundle::layout.html.twig" %}
 
-{% block title %}JackSystemBundle:Holiday:addHoliday{% endblock %}
+{% block title %}Import Bundle: Event: Add Event: Earning{% endblock %}
 
-{% block body %}
-    <h1>Welcome to the Holiday:addHoliday page</h1>
+{% block content %}
+    <h3><span class="glyphicon glyphicon-calendar"></span> New Holidays:</h3>
+
+    {% if notice %}
+        <div class="alert alert-success">
+            <b>(SUCCESS)</b> {{ notice }}
+        </div>
+    {% endif %}
+
+    {% if error %}
+        <div class="alert alert-danger">
+            <b>(WARNING)</b> {{ error }}
+        </div>
+    {% endif %}
+
+
+    <div class="panel panel-info">
+        <div class="panel-heading"><b>Add Holidays Form</b></div>
+        <div class="panel-body">
+            <div class="row">
+
+                <div class="col-md-2">
+                    <blockquote>
+                        <p>Input Data:</p>
+                    </blockquote>
+                </div>
+
+                <div class="col-md-10">
+                    {{ form_start(form) }}
+                    {{ form_errors(form) }}
+
+
+                    {% if form_errors(form) %}
+                        <div class="alert alert-danger">{{ form_errors(form.date) }}</div>
+                        <div class="alert alert-danger">{{ form_errors(form.name) }}</div>
+                    {% endif %}
+
+                    <div class="col-md-2">
+                        <div class="form-group">
+                            {{ form_label(form.date, 'Holiday Date: ') }}
+
+                            {{ form_widget(form.date, {'attr': {'class': 'form-control' }}) }}
+                        </div>
+                    </div>
+
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            {{ form_label(form.name, 'Holiday Name: ') }}
+
+                            {{ form_widget(form.name, {'attr': {'class': 'form-control' }}) }}
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <div><label>&nbsp;</label></div>
+                                {{ form_widget(form.save, {'attr': {'class': 'btn btn-primary' }}) }}
+                            </div>
+                        </div>
+                    </div>
+
+
+
+
+
+
+
+                    {{ form_end(form) }}
+
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+
+    {{ include(
+    'JackSystemBundle:Holiday:showHoliday.html.twig',
+    { 'holidays': holidays }
+    ) }}
+
 {% endblock %}

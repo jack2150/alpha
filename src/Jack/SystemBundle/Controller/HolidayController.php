@@ -27,8 +27,8 @@ class HolidayController extends Controller
         $holidayForm = $this->createFormBuilder($holiday)
             // only work on chrome but not firefox or ie
             ->add('date', 'date', array(
-                'widget' => 'choice',
-                'format' => 'MMM/dd/y',
+                'widget' => 'single_text',
+                'format' => 'yyyy-MM-dd',
                 'required' => true,
             ))
             ->add('name', 'text',
@@ -52,7 +52,7 @@ class HolidayController extends Controller
         }
 
         return $this->render(
-            'JackSystemBundle:Holiday:index.html.twig',
+            'JackSystemBundle:Holiday:addHoliday.html.twig',
             array(
                 'form' => $holidayForm->createView(),
                 'notice' => $notice,
@@ -70,7 +70,7 @@ class HolidayController extends Controller
     {
         $holidays = $this->getDoctrine('system')
             ->getRepository('JackImportBundle:Holiday')
-            ->findAll();
+            ->findBy(array(), array('date' => 'desc'));
 
         $holidayArray = array();
         $formatHoliday = array();

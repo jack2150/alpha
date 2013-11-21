@@ -3,7 +3,7 @@ jack_system:
     defaults: { _controller: JackSystemBundle:Default:index }
 
 jack_system_holiday:
-    pattern: /holiday
+    pattern: /holiday/index
     defaults: { _controller: JackSystemBundle:Holiday:index }
 
 jack_system_holiday_remove:
