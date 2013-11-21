@@ -1,32 +1,25 @@
-<table>
-    <tr>
-        <td>
-            <b style="float: left; width: 120px; height:20px;">Category:</b>
-            {% for categoryLink in categoryLinks %}
-                {% if categoryLink.url == '#' %}
-                    <div style="float: left; width: 160px;">
-                        <b>
-                            {% filter upper %}
-                            [{{ categoryLink.category }} OPTIONS]
-                            {% endfilter %}
-                        </b>
-                    </div>
-                {% else %}
-                    <a style="float: left;" href="{{ path('jack_find_strike_result_findbycategory',
-                    {
-                    'action': categoryLink.url, 'symbol': symbol, 'category': categoryLink.category
-                    }) }}">
-                        <div style="width: 160px;">
-                            {% filter upper %}
-                            {{ categoryLink.category }} OPTIONS
-                            {% endfilter %}
-                        </div>
-                    </a>
-                {% endif %}
-            {% endfor %}
-        </td>
-    </tr>
-</table>
-<br/>
+<div class="row">
+    <div class="col-md-2">
+        <blockquote>
+            <p>Category:</p>
+        </blockquote>
+    </div>
 
+    <div class="col-md-10">
+        {% for categoryLink in categoryLinks %}
+            {% if categoryLink.url == '#' %}
+                <a class="btn btn-default marginbottom4px disabled">
+                    {{ categoryLink.category|upper }}
+                </a>
+            {% else %}
+                <a class="btn btn-default marginbottom4px"
+                   href="{{ path('jack_find_strike_result_findbycategory',
+                   {'action': categoryLink.url, 'symbol': symbol,
+                   'category': categoryLink.category}) }}">
+                    {{ categoryLink.category|upper }}
+                </a>
+            {% endif %}
+        {% endfor %}
+    </div>
+</div>
 

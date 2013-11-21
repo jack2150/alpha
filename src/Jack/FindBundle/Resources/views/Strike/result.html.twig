@@ -3,47 +3,60 @@
 {% block title %}Find Bundle: Strike: Result{% endblock %}
 
 {% block content %}
-    <h2 style="background-color: darkcyan">Strike: {{ searchName }} </h2>
+    <h3><span class="glyphicon glyphicon-hdd"></span> Strike: {{ searchName }}</h3>
 
     {% if linkType == 'findbycategory' %}
-        {{ include(
-        'JackFindBundle:Strike:categoryLink.html.twig',
-        { 'categoryLinks': searchLinks }
-        ) }}
+        <div class="panel panel-info">
+            <div class="panel-heading">Finder Panel</div>
+            <div class="panel-body">
+                {{ include(
+                'JackFindBundle:Strike:categoryLink.html.twig',
+                { 'categoryLinks': searchLinks }
+                ) }}
+            </div>
+        </div>
     {% else %}
+
     {% endif %}
 
-    <h2 style="background-color: darkcyan">
-        In {{ symbol }}:
+    <h3><span class="glyphicon glyphicon-th-list"></span>
+        In {{ symbol|upper }}:
         {% if resultCount %}
             {{ resultCount }} Results
         {% else %}
             Empty Result
         {% endif %}
-    </h2>
+    </h3>
 
-    {% if strikes %}
-        <table>
-            <tr>
-                <th style="width: 50px; font-weight: bold;">ID</th>
-                <th style="width: 100px; font-weight: bold;">Category</th>
-                <th style="width: 100px; font-weight: bold;">Strike Price</th>
-            </tr>
-            {% for strike in strikes %}
-            <tr>
-                <td>{{ strike.id }}</td>
+    <div class="panel panel-success">
+        <div class="panel-heading">Strike Table</div>
+        <div class="panel-body">
 
-                <td>
-                    {% if strike.category == 'CALL' %}
-                        <b style="color: green">Call</b>
-                    {% else %}
-                        <b style="color: red">Put</b>
-                    {% endif %}
-                </td>
-                <td>{{ strike.price|number_format(2) }}</td>
+            <table class="table">
+                <tr>
+                    <th>ID</th>
+                    <th>Category</th>
+                    <th>Strike Price</th>
+                </tr>
+
+                {% for strike in strikes %}
+                    <tr>
+                        <td>{{ strike.id }}</td>
+
+                        <td>
+                            {% if strike.category == 'CALL' %}
+                                <b style="color: green">Call</b>
+                            {% else %}
+                                <b style="color: red">Put</b>
+                            {% endif %}
+                        </td>
+                        <td>{{ strike.price|number_format(2) }}</td>
+                    </tr>
                 {% endfor %}
 
-        </table>
-    {% endif %}
+            </table>
+
+        </div>
+    </div>
 
 {% endblock %}

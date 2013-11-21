@@ -3,29 +3,65 @@
 {% block title %}Find Bundle: Strike{% endblock %}
 
 {% block content %}
-    <h2 style="background-color: darkcyan">Find Strike</h2>
+    <h3><span class="glyphicon glyphicon-hdd"></span> Find Strike</h3>
 
-
-    {{ form_start(findStrikeForm) }}
+    {{ form_start(findStrikeForm, {'attr': {'class': 'form-inline', 'role': 'form' }}) }}
     {{ form_errors(findStrikeForm) }}
 
-    <div>
-        {{ form_label(findStrikeForm.symbol, 'Symbol Name:') }}
-        {{ form_errors(findStrikeForm.symbol) }}
-        {{ form_widget(findStrikeForm.symbol) }}
+    <div class="panel panel-primary">
+        <div class="panel-heading"><b>Form</b></div>
+        <div class="panel-body">
+            <div class="row">
+                <div class="col-md-2">
+                    <blockquote>
+                        <p>Please select:</p>
+                    </blockquote>
+                </div>
 
-        {{ form_label(findStrikeForm.action, 'Action:') }}
-        {{ form_errors(findStrikeForm.action) }}
-        {{ form_widget(findStrikeForm.action) }}
-        {{ form_widget(findStrikeForm.find) }}
+
+                <div class="col-md-2">
+                    <div class="form-group">
+                        {{ form_label(findStrikeForm.symbol, 'Symbol Name:') }}
+                        {{ form_errors(findStrikeForm.symbol) }}
+                        {{ form_widget(findStrikeForm.symbol,
+                        {'attr': {'class': 'form-control' }}) }}
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="form-group">
+                        {{ form_label(findStrikeForm.action, 'Action:') }}
+                        {{ form_errors(findStrikeForm.action) }}
+                        {{ form_widget(findStrikeForm.action,
+                        {'attr': {'class': 'form-control' }}) }}
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <div><label>&nbsp;</label></div>
+                        {{ form_widget(findStrikeForm.find,
+                        {'attr': {'class': 'btn btn-primary' }}) }}
+                    </div>
+                </div>
+
+
+            </div>
+
+
+            <div class="row">
+                <div class="col-md-2">
+                </div>
+                <div class="col-md-2">
+                    <span class="help-block">
+                        ** Latest import
+                    </span>
+                </div>
+            </div>
+
+        </div>
     </div>
 
-    <span style="font-size: 0.8em; color: darkorange">
-        ** Latest import into database.
-    </span>
-
     {{ form_end(findStrikeForm) }}
-
-
 
 {% endblock %}
