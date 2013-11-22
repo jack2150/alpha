@@ -128,6 +128,79 @@ abstract class FindController extends Controller
     }
 
     /**
+     * @param int $underlyingId
+     * underlying id from underlying table
+     * @param int $cycleId
+     * cycle id from cycle id table
+     * @param int $strikeId
+     * strike id from strike id table
+     * @return object
+     * use to search is the data 'exist' for
+     * both or all ids in chain table
+     */
+    public function findChainOneByIds($underlyingId = 0, $cycleId = 0, $strikeId = 0)
+    {
+        // generate search array
+        $searchTerm = array();
+        if ($underlyingId) {
+            $searchTerm += array('underlyingid' => $underlyingId);
+        }
+
+        if ($cycleId) {
+            $searchTerm += array('cycleid' => $cycleId);
+        }
+
+        if ($strikeId) {
+            $searchTerm += array('strikeid' => $strikeId);
+        }
+
+
+        $symbolEM = $this->getDoctrine()->getManager('symbol');
+
+        return $symbolEM
+            ->getRepository('JackImportBundle:Chain')
+            ->findOneBy(
+                $searchTerm
+            );
+    }
+
+    /**
+     * @param int $underlyingId
+     * underlying id from underlying table
+     * @param int $cycleId
+     * cycle id from cycle id table
+     * @param int $strikeId
+     * strike id from strike id table
+     * @return object
+     * a list of chain objects
+     */
+    public function findChainByIds($underlyingId = 0, $cycleId = 0, $strikeId = 0)
+    {
+        // generate search array
+        $searchTerm = array();
+        if ($underlyingId) {
+            $searchTerm += array('underlyingid' => $underlyingId);
+        }
+
+        if ($cycleId) {
+            $searchTerm += array('cycleid' => $cycleId);
+        }
+
+        if ($strikeId) {
+            $searchTerm += array('strikeid' => $strikeId);
+        }
+
+
+        $symbolEM = $this->getDoctrine()->getManager('symbol');
+
+        return $symbolEM
+            ->getRepository('JackImportBundle:Chain')
+            ->findBy(
+                $searchTerm
+            );
+    }
+
+    /**
      * @return array
      * generate a list of underlying symbol from system table
      * @throws \Symfony\Component\HttpKernel\Exception\NotFoundHttpException

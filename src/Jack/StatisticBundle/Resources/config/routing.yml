@@ -13,3 +13,11 @@ jack_stat_hv_index:
 jack_stat_hv_result:
     pattern: /hv/generate/{action}/{sample}/{symbol}
     defaults: { _controller: JackStatisticBundle:HV:result }
+
+jack_stat_pcratio_index:
+    pattern: /pcratio/generate/index
+    defaults: { _controller: JackStatisticBundle:pcRatio:index }
+
+jack_stat_pcratio_result:
+    pattern: /pcratio/generate/result/{symbol}
+    defaults: { _controller: JackStatisticBundle:pcRatio:result }

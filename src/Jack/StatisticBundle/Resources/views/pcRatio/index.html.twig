@@ -1,0 +1,61 @@
+{% extends "JackDefaultBundle::layout.html.twig" %}
+
+{% block title %}Statistic Bundle: PC Ratio Generator{% endblock %}
+
+{% block content %}
+
+    <h3><span class="glyphicon glyphicon-tasks"></span> Statistic: PC Ratio Generator</h3>
+
+    {{ form_start(generatePcRatioForm, {'attr': {'class': 'form-inline', 'role': 'form' }}) }}
+    {{ form_errors(generatePcRatioForm) }}
+
+    <div class="panel panel-primary">
+        <div class="panel-heading"><b>Form</b></div>
+        <div class="panel-body">
+            <div class="row">
+                <div class="col-md-2">
+                    <blockquote>
+                        <p>Please select:</p>
+                    </blockquote>
+                </div>
+
+                <div class="col-md-2">
+                    <div class="form-group">
+                        {{ form_label(generatePcRatioForm.symbol, 'Symbol:') }}
+                        {{ form_errors(generatePcRatioForm.symbol) }}
+                        {{ form_widget(generatePcRatioForm.symbol,
+                        {'attr': {'class': 'form-control', 'placeholder': '.col-md-2' }}) }}
+
+                    </div>
+                </div>
+
+
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <div><label>&nbsp;</label></div>
+                        {{ form_widget(generatePcRatioForm.generate,
+                        {'attr': {'class': 'btn btn-primary' }}) }}
+                    </div>
+                </div>
+
+                {{ form_end(generatePcRatioForm) }}
+            </div>
+
+            <div class="row">
+                <div class="col-md-2">
+                </div>
+                <div class="col-md-2">
+                    <span class="help-block">
+                        ** Latest import
+                    </span>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+
+
+
+
+{% endblock %}

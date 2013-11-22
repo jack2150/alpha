@@ -206,11 +206,11 @@ class DailyIVController extends DefaultController
             }
 
             // get 2 chain from using 1st and 2nd cycle, strike
-            $chainStrikeCycle0 = $this->findOneChainByIds(
+            $chainStrikeCycle0 = $this->findChainOneByIds(
                 $underlying->getId(), $cycleRecursive0->getId(), $strikeCycle0->getId()
             );
 
-            $chainStrikeCycle1 = $this->findOneChainByIds(
+            $chainStrikeCycle1 = $this->findChainOneByIds(
                 $underlying->getId(), $cycleRecursive1->getId(), $strikeCycle1->getId()
             );
 

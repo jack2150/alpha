@@ -139,7 +139,7 @@ class DefaultController extends FindController
         // find it in chain
         $foundCycleId = null;
         foreach ($dayDiffs as $cycleId => $dayDiff) {
-            $chain = $this->findOneChainByIds($underlyingId, $cycleId);
+            $chain = $this->findChainOneByIds($underlyingId, $cycleId);
 
             if ($chain) {
                 // check chain exist, if yes add into data
@@ -256,7 +256,7 @@ class DefaultController extends FindController
         // loop price diff to check exist chain
         $foundStrikeId = 0;
         foreach ($priceDiffs as $strikeId => $priceDiff) {
-            $chain = $this->findOneChainByIds($underlyingId, $cycleId, $strikeId);
+            $chain = $this->findChainOneByIds($underlyingId, $cycleId, $strikeId);
 
             if ($chain) {
                 // check chain exist, if yes add into data
@@ -285,40 +285,5 @@ class DefaultController extends FindController
         return $foundStrike;
     }
 
-    /**
-     * @param int $underlyingId
-     * underlying id from underlying table
-     * @param int $cycleId
-     * cycle id from cycle id table
-     * @param int $strikeId
-     * strike id from strike id table
-     * @return object
-     * use to search is the data 'exist' for
-     * both or all ids in chain table
-     */
-    public function findOneChainByIds($underlyingId = 0, $cycleId = 0, $strikeId = 0)
-    {
-        // generate search array
-        $searchTerm = array();
-        if ($underlyingId) {
-            $searchTerm += array('underlyingid' => $underlyingId);
-        }
 
-        if ($cycleId) {
-            $searchTerm += array('cycleid' => $cycleId);
-        }
-
-        if ($strikeId) {
-            $searchTerm += array('strikeid' => $strikeId);
-        }
-
-
-        $symbolEM = $this->getDoctrine()->getManager('symbol');
-
-        return $symbolEM
-            ->getRepository('JackImportBundle:Chain')
-            ->findOneBy(
-                $searchTerm
-            );
-    }
 }
