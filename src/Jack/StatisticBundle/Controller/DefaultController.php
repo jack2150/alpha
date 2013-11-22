@@ -285,5 +285,17 @@ class DefaultController extends FindController
         return $foundStrike;
     }
 
+    /**
+     * @return array
+     */
+    public function findPcRatioAll()
+    {
+        $symbolEM = $this->getDoctrine()->getManager('symbol');
+
+        return $symbolEM
+            ->getRepository('JackImportBundle:Pcratio')
+            ->findAll();
+    }
+
 
 }

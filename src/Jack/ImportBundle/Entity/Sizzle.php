@@ -36,9 +36,9 @@ class Sizzle
     /**
      * @var float
      *
-     * @ORM\Column(name="index", type="float", nullable=false)
+     * @ORM\Column(name="value", type="float", nullable=false)
      */
-    private $index;
+    private $value;
 
     /**
      * @var integer
@@ -130,26 +130,26 @@ class Sizzle
     }
 
     /**
-     * Set index
+     * Set value
      *
-     * @param float $index
+     * @param float $value
      * @return Sizzle
      */
-    public function setIndex($index)
+    public function setValue($value)
     {
-        $this->index = $index;
+        $this->value = $value;
 
         return $this;
     }
 
     /**
-     * Get index
+     * Get value
      *
      * @return float
      */
-    public function getIndex()
+    public function getValue()
     {
-        return $this->index;
+        return $this->value;
     }
 
     /**

@@ -21,3 +21,11 @@ jack_stat_pcratio_index:
 jack_stat_pcratio_result:
     pattern: /pcratio/generate/result/{symbol}
     defaults: { _controller: JackStatisticBundle:pcRatio:result }
+
+jack_stat_sizzle_index:
+    pattern: /sizzle/generate/index
+    defaults: { _controller: JackStatisticBundle:Sizzle:index }
+
+jack_stat_sizzle_result:
+    pattern: /sizzle/generate/result/{symbol}
+    defaults: { _controller: JackStatisticBundle:Sizzle:result }

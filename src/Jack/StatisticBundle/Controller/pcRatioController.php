@@ -17,7 +17,7 @@ use Jack\ImportBundle\Entity\Underlying;
  */
 class pcRatioController extends DefaultController
 {
-    protected static $maxPcRatioInsert = 20;
+    protected static $maxPcRatioInsert = 50;
 
     protected $pcRatios;
 
@@ -37,6 +37,9 @@ class pcRatioController extends DefaultController
 
         // get the underlying result
         $this->underlyings = $this->findUnderlyingAll();
+
+        // set pc ratio data
+        $this->setPcRatios();
     }
 
     /**
@@ -100,8 +103,6 @@ class pcRatioController extends DefaultController
         // entity manager
         $symbolEM = $this->getDoctrine()->getManager('symbol');
 
-        // set pc ratio data
-        $this->setPcRatios();
 
         /*
          * use 1 underlying data only
@@ -253,18 +254,6 @@ class pcRatioController extends DefaultController
 
         // save into variable
         $this->pcRatios = $newPcRatioArray;
-    }
-
-    /**
-     * @return array
-     */
-    public function findPcRatioAll()
-    {
-        $symbolEM = $this->getDoctrine()->getManager('symbol');
-
-        return $symbolEM
-            ->getRepository('JackImportBundle:Pcratio')
-            ->findAll();
     }
 
 
