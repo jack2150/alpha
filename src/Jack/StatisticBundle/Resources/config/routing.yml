@@ -29,3 +29,11 @@ jack_stat_sizzle_index:
 jack_stat_sizzle_result:
     pattern: /sizzle/generate/result/{symbol}
     defaults: { _controller: JackStatisticBundle:Sizzle:result }
+
+jack_stat_vwap_index:
+    pattern: /vwap/generate/index
+    defaults: { _controller: JackStatisticBundle:Vwap:index }
+
+jack_stat_vwap_result:
+    pattern: /vwap/generate/result/{sample}/{symbol}
+    defaults: { _controller: JackStatisticBundle:Vwap:result }

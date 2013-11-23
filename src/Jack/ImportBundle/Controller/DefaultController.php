@@ -852,7 +852,6 @@ class DefaultController extends Controller
                     // insert into database for strike
                     $entityManager->flush();
                 } elseif ($objectKey == 3 && $doInsert) {
-                    // todo: replace search strike, cycle, underlying with direct object array
                     // do not do it in db
 
                     // set object for later searching use

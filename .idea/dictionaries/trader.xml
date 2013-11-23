@@ -32,6 +32,8 @@
       <w>symfony</w>
       <w>underlyingid</w>
       <w>underlyings</w>
+      <w>vwap</w>
+      <w>vwaps</w>
     </words>
   </dictionary>
 </component>

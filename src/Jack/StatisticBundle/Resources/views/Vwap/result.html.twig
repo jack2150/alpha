@@ -1,0 +1,28 @@
+{% extends "JackDefaultBundle::layout.html.twig" %}
+
+{% block title %}Statistic Bundle: VWAP Generator: Result & Debug{% endblock %}
+
+{% block content %}
+    <h2><span class="glyphicon glyphicon-tasks"></span> Statistic: VWAP Generator</h2>
+
+    <div class="panel panel-default">
+        <div class="panel-heading">Result & Debug</div>
+        <div class="panel-body">
+            <ul class="list-group">
+                {% for debugResult in debugResults %}
+
+                    <li class="list-group-item">
+                        {{ debugResult.count }}.
+                        {{ debugResult.data }}
+                        {% if debugResult.result %}
+                            <span class="label label-success">Success, inserted into table!</span>
+                        {% else %}
+                            <span class="label label-default">Warning, not enough samples!</span>
+                        {% endif %}
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+
+{% endblock %}

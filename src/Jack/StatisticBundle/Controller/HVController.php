@@ -54,7 +54,6 @@ class HVController extends DefaultController
 
     }
 
-    // todo: next index page for selection, and result page
     public function indexAction(Request $request)
     {
         $generateHVData = array(

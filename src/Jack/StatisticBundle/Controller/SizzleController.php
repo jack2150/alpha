@@ -16,7 +16,15 @@ use Jack\ImportBundle\Entity\Sizzle;
  */
 class SizzleController extends DefaultController
 {
-    protected static $sampleSize = 5;
+    protected static $sampleSize = array(
+        'oneWeek' => 5,
+        'twoWeek' => 10,
+        'oneMonth' => 20,
+        'twoMonth' => 40,
+        'threeMonth' => 60,
+        'halfYear' => 126,
+        'oneYear' => 252,
+    );
 
     protected $pcRatios;
     protected $sizzles;
@@ -107,7 +115,7 @@ class SizzleController extends DefaultController
         $symbolEM = $this->getDoctrine()->getManager('symbol');
 
         // set sample size
-        $sampleSize = self::$sampleSize;
+        $sampleSize = self::$sampleSize['oneMonth'];
 
         /*
          * get all data from pc ratio

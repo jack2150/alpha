@@ -1,0 +1,70 @@
+{% extends "JackDefaultBundle::layout.html.twig" %}
+
+{% block title %}Statistic Bundle: VWAP Generator{% endblock %}
+
+{% block content %}
+
+    <h3><span class="glyphicon glyphicon-tasks"></span> Statistic: VWAP Generator</h3>
+
+    {{ form_start(generateVwapForm, {'attr': {'class': 'form-inline', 'role': 'form' }}) }}
+    {{ form_errors(generateVwapForm) }}
+
+    <div class="panel panel-primary">
+        <div class="panel-heading"><b>Form</b></div>
+        <div class="panel-body">
+            <div class="row">
+                <div class="col-md-2">
+                    <blockquote>
+                        <p>Please select:</p>
+                    </blockquote>
+                </div>
+
+                <div class="col-md-2">
+                    <div class="form-group">
+                        {{ form_label(generateVwapForm.symbol, 'Symbol:') }}
+                        {{ form_errors(generateVwapForm.symbol) }}
+                        {{ form_widget(generateVwapForm.symbol,
+                        {'attr': {'class': 'form-control', 'placeholder': '.col-md-2' }}) }}
+
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="form-group">
+                        {{ form_label(generateVwapForm.sample, 'Action:') }}
+
+                        {{ form_errors(generateVwapForm.sample) }}
+                        {{ form_widget(generateVwapForm.sample,
+                        {'attr': {'class': 'form-control', 'placeholder': '.col-md-4' }}) }}
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <div><label>&nbsp;</label></div>
+                        {{ form_widget(generateVwapForm.generate,
+                        {'attr': {'class': 'btn btn-primary' }}) }}
+                    </div>
+                </div>
+
+                {{ form_end(generateVwapForm) }}
+            </div>
+
+            <div class="row">
+                <div class="col-md-2">
+                </div>
+                <div class="col-md-2">
+                    <span class="help-block">
+                        ** Latest import
+                    </span>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+
+
+
+
+{% endblock %}
