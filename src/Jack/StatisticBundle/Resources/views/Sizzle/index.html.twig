@@ -24,7 +24,17 @@
                         {{ form_label(generatePcRatioForm.symbol, 'Symbol:') }}
                         {{ form_errors(generatePcRatioForm.symbol) }}
                         {{ form_widget(generatePcRatioForm.symbol,
-                        {'attr': {'class': 'form-control', 'placeholder': '.col-md-2' }}) }}
+                        {'attr': {'class': 'form-control' }}) }}
+
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="form-group">
+                        {{ form_label(generatePcRatioForm.sample, 'Action:') }}
+                        {{ form_errors(generatePcRatioForm.sample) }}
+                        {{ form_widget(generatePcRatioForm.sample,
+                        {'attr': {'class': 'form-control' }}) }}
 
                     </div>
                 </div>

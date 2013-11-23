@@ -57,7 +57,7 @@ class VwapController extends DefaultController
     {
         $generateVwapData = array(
             'symbol' => null,
-            'action' => 'value20d'
+            'action' => '20'
 
         );
 
@@ -139,8 +139,6 @@ class VwapController extends DefaultController
         $countDebug = 0;
         foreach ($this->underlyings as $underlying) {
             $currentDate = $underlying->getDate()->format('Y-m-d');
-
-            // todo: check exist with underlying id and sample size
 
             if (!$this->checkVwapExist($underlying->getId(), $sampleSize)) {
                 $currentPosition = array_search($currentDate, $this->underlyingDateArray);

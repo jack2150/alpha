@@ -34,7 +34,7 @@ class SizzleController extends DefaultController
     /**
      * @param $symbol
      */
-    public function initSizzle($symbol)
+    public function initSizzle($symbol, $sample)
     {
         // init the data ready for use
         $this->init($symbol);
@@ -52,7 +52,7 @@ class SizzleController extends DefaultController
         $this->setDatePcRatios();
 
         // set past sizzle data
-        $this->setSizzles();
+        $this->setSizzles($sample);
     }
 
     /**
@@ -62,12 +62,22 @@ class SizzleController extends DefaultController
     public function indexAction(Request $request)
     {
         $generatePcRatioData = array(
-            'symbol' => null
+            'symbol' => null,
+            'sample' => '20'
         );
 
         $generatePcRatioForm = $this->createFormBuilder($generatePcRatioData)
             ->add('symbol', 'choice', array(
                 'choices' => $this->getSymbolArray(),
+                'required' => true,
+                'multiple' => false,
+            ))
+            ->add('sample', 'choice', array(
+                'choices' => array(
+                    '5' => 'Generate 5 Trading Days Sizzle',
+                    '20' => 'Generate 20 Trading Days Sizzle',
+                    '30' => 'Generate 30 Trading Days Sizzle',
+                ),
                 'required' => true,
                 'multiple' => false,
             ))
@@ -80,10 +90,15 @@ class SizzleController extends DefaultController
             $generatePcRatioData = $generatePcRatioForm->getData();
 
             $symbol = $generatePcRatioData['symbol'];
+            $sample = $generatePcRatioData['sample'];
 
             return $this->redirect(
                 $this->generateUrl(
-                    'jack_stat_sizzle_result', array('symbol' => strtolower($symbol))
+                    'jack_stat_sizzle_result',
+                    array(
+                        'symbol' => strtolower($symbol),
+                        'sample' => $sample
+                    )
                 )
             );
         }
@@ -97,25 +112,25 @@ class SizzleController extends DefaultController
         );
     }
 
-
     /**
      * @param $symbol
+     * @param $sample
      * @return \Symfony\Component\HttpFoundation\Response
      * @throws \Symfony\Component\HttpKernel\Exception\NotFoundHttpException
      */
-    public function resultAction($symbol)
+    public function resultAction($symbol, $sample)
     {
         // debug use only
         $debug = array();
 
         // init the data
-        $this->initSizzle($symbol);
+        $this->initSizzle($symbol, $sample);
 
         // entity manager
         $symbolEM = $this->getDoctrine()->getManager('symbol');
 
         // set sample size
-        $sampleSize = self::$sampleSize['oneMonth'];
+        $sampleSize = $sample;
 
         /*
          * get all data from pc ratio
@@ -135,7 +150,7 @@ class SizzleController extends DefaultController
             }
 
             // check sizzle exist
-            if (!($this->checkSizzleExist($underlying->getId()))) {
+            if (!($this->checkSizzleExist($underlying->getId(), $sampleSize))) {
                 // get current date
                 $currentDate = $underlying->getDate()->format('Y-m-d');
 
@@ -241,25 +256,28 @@ class SizzleController extends DefaultController
         );
     }
 
+
     /**
      * @param $underlyingId
+     * @param $sample
      * @return int
-     * true if exist, false if not exist
      */
-    public function checkSizzleExist($underlyingId)
+    public function checkSizzleExist($underlyingId, $sample)
     {
         $found = 0;
 
-        if (isset($this->sizzles[$underlyingId])) {
+        $searchKey = "$underlyingId-$sample";
+        if (isset($this->sizzles[$searchKey])) {
             $found = 1;
         }
 
         return $found;
     }
 
-    public function setSizzles()
+    public function setSizzles($sample)
     {
-        $sizzles = $this->findSizzleAll();
+        $sizzles = $this->findSizzleBySample($sample);
+        //$sizzles = $this->findSizzleAll();
 
         $newSizzles = array();
         foreach ($sizzles as $sizzle) {
@@ -270,7 +288,9 @@ class SizzleController extends DefaultController
                 );
             }
 
-            $newSizzles[$sizzle->getUnderlyingid()->getId()] = $sizzle;
+            $newKey = $sizzle->getUnderlyingid()->getId() . '-' . $sample;
+
+            $newSizzles[$newKey] = $sizzle;
         }
 
         $this->sizzles = $newSizzles;
@@ -291,6 +311,20 @@ class SizzleController extends DefaultController
 
     }
 
+
+    /**
+     * @param $sample
+     * @return mixed
+     */
+    public function findSizzleBySample($sample)
+    {
+        $symbolEM = $this->getDoctrine()->getManager('symbol');
+
+        return $symbolEM
+            ->getRepository('JackImportBundle:Sizzle')
+            ->findBy(array('sample' => $sample));
+
+    }
 
     public function setDatePcRatios()
     {

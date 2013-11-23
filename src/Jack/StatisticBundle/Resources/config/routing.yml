@@ -27,7 +27,7 @@ jack_stat_sizzle_index:
     defaults: { _controller: JackStatisticBundle:Sizzle:index }
 
 jack_stat_sizzle_result:
-    pattern: /sizzle/generate/result/{symbol}
+    pattern: /sizzle/generate/result/{sample}/{symbol}
     defaults: { _controller: JackStatisticBundle:Sizzle:result }
 
 jack_stat_vwap_index:
