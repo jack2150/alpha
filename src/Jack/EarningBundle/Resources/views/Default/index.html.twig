@@ -1,19 +1,18 @@
-{% extends "JackDefaultBundle::layout.html.twig" %}
+{% extends "JackEarningBundle::layout.html.twig" %}
 
-{% block title %}Import Bundle: Event: Select Symbol{% endblock %}
+{% block title %}Earning Bundle: Index{% endblock %}
 
 {% block content %}
 
-    <h3><span class="glyphicon glyphicon-calendar"></span> Manage Events</h3>
+    <h3><span class="glyphicon glyphicon-calendar"></span> Earning Bundle: Index</h3>
 
-    {{ form_start(form, {'attr': {'class': 'form-inline', 'role': 'form' }}) }}
-    {{ form_errors(form) }}
+    {{ form_start(earningForm, {'attr': {'class': 'form-inline', 'role': 'form' }}) }}
+    {{ form_errors(earningForm) }}
 
     <div class="panel panel-primary">
         <div class="panel-heading"><b>Form</b></div>
         <div class="panel-body">
             <div class="row">
-
                 <div class="col-md-2">
                     <blockquote>
                         <p>Please select:</p>
@@ -22,29 +21,33 @@
 
                 <div class="col-md-2">
                     <div class="form-group">
-                        {{ form_label(form.symbol, 'Symbol Name:') }}
-                        {{ form_errors(form.symbol) }}
-                        {{ form_widget(form.symbol,
-                        {'attr': {'class': 'form-control' }} ) }}
+                        {{ form_label(earningForm.symbol, 'Symbol:') }}
+                        {{ form_errors(earningForm.symbol) }}
+                        {{ form_widget(earningForm.symbol,
+                        {'attr': {'class': 'form-control' }}) }}
+
                     </div>
                 </div>
 
-                <div class="col-md-3">
+                <div class="col-md-4">
                     <div class="form-group">
-                        {{ form_label(form.action, 'For: ') }}
-                        {{ form_errors(form.action) }}
-                        {{ form_widget(form.action,
-                        {'attr': {'class': 'form-control' }} ) }}
+                        {{ form_label(earningForm.action, 'Action:') }}
+
+                        {{ form_errors(earningForm.action) }}
+                        {{ form_widget(earningForm.action,
+                        {'attr': {'class': 'form-control' }}) }}
                     </div>
                 </div>
 
-                <div class="col-md-2">
+                <div class="col-md-4">
                     <div class="form-group">
                         <div><label>&nbsp;</label></div>
-                        {{ form_widget(form.continue,
+                        {{ form_widget(earningForm.generate,
                         {'attr': {'class': 'btn btn-primary' }}) }}
                     </div>
                 </div>
+
+                {{ form_end(earningForm) }}
             </div>
 
             <div class="row">
@@ -56,11 +59,12 @@
                     </span>
                 </div>
             </div>
+
         </div>
     </div>
 
 
-    {{ form_end(form) }}
+
 
 
 {% endblock %}

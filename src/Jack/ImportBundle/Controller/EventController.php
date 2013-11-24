@@ -85,9 +85,9 @@ class EventController extends Controller
             ))
             ->add('action', 'choice', array(
                 'choices' => array(
-                    'addEarning' => 'Add Earning',
-                    'addEvent' => 'Add Event',
-                    'addAnalyst' => 'Add Analyst',
+                    'addEarning' => 'Add Earnings Report Data',
+                    'addEvent' => 'Add Other Events Data',
+                    'addAnalyst' => 'Add Target Price Analyst Data',
                     'manageEvent' => 'Manage Event',
                 ),
                 'required' => true,
@@ -342,7 +342,7 @@ class EventController extends Controller
             'name' => 'earning',
             'symbol' => $symbol,
             'marketHour' => '',
-            'periodEnding' => new \DateTime(date('y-m-1')),
+            'periodEnding' => 'q1',
             'estimate' => 0,
             'actual' => 0,
             'from_date' => $fromDate,
@@ -368,12 +368,24 @@ class EventController extends Controller
                 'required' => true,
                 'multiple' => false,
             ))
-            ->add('periodEnding', 'date', array(
-                    'widget' => 'single_text',
-                    'format' => 'yyyy-MM-dd',
-                    'required' => true,
-                )
-            )
+
+            //->add('periodEnding', 'date', array(
+            //        'widget' => 'single_text',
+            //        'format' => 'yyyy-MM-dd',
+            //        'required' => true,
+            //    )
+            //)
+            ->add('periodEnding', 'choice', array(
+                'choices' => array(
+                    'q1' => 'Q1 (Jan-Mar)',
+                    'q2' => 'Q2 (Apr-Jun)',
+                    'q3' => 'Q3 (Jul-Sep)',
+                    'q4' => 'Q4 (Oct-Dec)',
+                ),
+                'required' => true,
+                'multiple' => false,
+            ))
+
             ->add('estimate', 'number', array(
                 'required' => true,
                 'precision' => 2,
@@ -790,7 +802,7 @@ class EventController extends Controller
             $formatEarning['name'] = "EARNING";
 
             $formatEarning['marketHour'] = $earning->getMarkethour();
-            $formatEarning['periodEnding'] = $earning->getPeriodending()->format("M Y");
+            $formatEarning['periodEnding'] = $earning->getPeriodending();
             $formatEarning['estimate'] = $earning->getEstimate();
             $formatEarning['actual'] = $earning->getActual();
 

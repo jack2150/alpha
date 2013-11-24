@@ -1,23 +1,27 @@
+jack_earning:
+    resource: "@JackEarningBundle/Resources/config/routing.yml"
+    prefix:   /earning
+
 jack_default:
     resource: "@JackDefaultBundle/Resources/config/routing.yml"
-    prefix:   /jack/default
+    prefix:   /default
 
 jack_find:
     resource: "@JackFindBundle/Resources/config/routing.yml"
-    prefix:   /jack/find
+    prefix:   /find
 
 jack_statistic:
     resource: "@JackStatisticBundle/Resources/config/routing.yml"
-    prefix:   /jack/stat
+    prefix:   /stat
 
 jack_import:
     resource: "@JackImportBundle/Resources/config/routing.yml"
-    prefix:   /jack/import
+    prefix:   /import
 
 jack_system:
     resource: "@JackSystemBundle/Resources/config/routing.yml"
-    prefix:   /jack/system
+    prefix:   /system
 
 jack_service:
     resource: "@JackServiceBundle/Resources/config/routing.yml"
-    prefix:   /jack/service
+    prefix:   /service

@@ -6,56 +6,36 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * Earning
- *
- * @ORM\Table(name="earning")
- * @ORM\Entity
  */
 class Earning
 {
     /**
      * @var string
-     *
-     * @ORM\Column(name="marketHour", type="string", length=7, nullable=false)
      */
     private $markethour;
 
     /**
-     * @var \DateTime
-     *
-     * @ORM\Column(name="periodEnding", type="date", nullable=false)
+     * @var string
      */
     private $periodending;
 
     /**
      * @var float
-     *
-     * @ORM\Column(name="estimate", type="float", nullable=false)
      */
     private $estimate;
 
     /**
      * @var float
-     *
-     * @ORM\Column(name="actual", type="float", nullable=false)
      */
     private $actual;
 
     /**
      * @var integer
-     *
-     * @ORM\Column(name="id", type="integer")
-     * @ORM\Id
-     * @ORM\GeneratedValue(strategy="IDENTITY")
      */
     private $id;
 
     /**
      * @var \Jack\ImportBundle\Entity\Event
-     *
-     * @ORM\ManyToOne(targetEntity="Jack\ImportBundle\Entity\Event")
-     * @ORM\JoinColumns({
-     * @ORM\JoinColumn(name="eventId", referencedColumnName="id")
-     * })
      */
     private $eventid;
 
@@ -86,7 +66,7 @@ class Earning
     /**
      * Set periodending
      *
-     * @param \DateTime $periodending
+     * @param string $periodending
      * @return Earning
      */
     public function setPeriodending($periodending)
@@ -99,7 +79,7 @@ class Earning
     /**
      * Get periodending
      *
-     * @return \DateTime
+     * @return string
      */
     public function getPeriodending()
     {

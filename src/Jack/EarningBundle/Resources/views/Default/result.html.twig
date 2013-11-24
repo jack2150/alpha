@@ -1,0 +1,117 @@
+{% extends "JackEarningBundle::layout.html.twig" %}
+
+{% block title %}Earning Bundle: Search Result{% endblock %}
+
+{% block content %}
+    <h3><span class="glyphicon glyphicon-calendar"></span> Earning: Result</h3>
+
+    <div class="panel panel-default" id="earning-underlying">
+        <div class="panel-heading">Earning - Underlying</div>
+
+        {% if earningUnderlyings %}
+
+            {% set countEarning = 0 %}
+            {% for underlyingKey, earningUnderlying in earningUnderlyings %}
+                {% set countEarning = countEarning + 1 %}
+
+                <table class="table">
+                    <tr>
+                        <th>ID</th>
+                        <th>Date</th>
+                        <th>Name</th>
+                        <th>Hour</th>
+                        <th>Season</th>
+                        <th>Estimate</th>
+                        <th>Actual</th>
+                    </tr>
+                    <tr>
+                        <td>{{ earningUnderlying.earning.id }}</td>
+                        <td>{{ underlyingKey }}</td>
+                        <td>Earning</td>
+                        {% if earningUnderlying.earning.marketHour == 'before' %}
+                            <td>Before Market Open</td>
+                        {% endif %}
+                        {% if earningUnderlying.earning.marketHour == 'during' %}
+                            <td>During Market Hour</td>
+                        {% endif %}
+                        {% if earningUnderlying.earning.marketHour == 'after' %}
+                            <td>After Market Close</td>
+                        {% endif %}
+                        <td>
+                            {% if earningUnderlying.earning.periodEnding == 'q1' %}
+                                Quarter 1 (Jan-Mar)
+                            {% elseif earningUnderlying.earning.periodEnding == 'q2' %}
+                                Quarter 2 (Apr-Jun)
+                            {% elseif earningUnderlying.earning.periodEnding == 'q3' %}
+                                Quarter 3 (Jul-Sep)
+                            {% else %}
+                                Quarter 4 (Oct-Dec)
+                            {% endif %}
+                        </td>
+                        <td>
+                            {{ earningUnderlying.earning.estimate|number_format(2, '.', ',') }}
+                        </td>
+                        <td>
+                            {% if earningUnderlying.earning.estimate > earningUnderlying.earning.actual %}
+                                <b style="color: red">{{ earningUnderlying.earning.actual|number_format(2, '.', ',') }}</b>
+                            {% else %}
+                                <b style="color: green">{{ earningUnderlying.earning.actual|number_format(2, '.', ',') }}</b>
+                            {% endif %}
+                        </td>
+                    </tr>
+                </table>
+
+
+                <ul class="list-group">
+                    <li class="list-group-item">
+
+                        <div>
+                            <a data-toggle="collapse" data-parent="#earning-underlying"
+                               href="#earning{{ countEarning }}">
+                                Earning Date: [ {{ underlyingKey }} ] , Underlying Data...
+                            </a>
+                        </div>
+
+                        <div id="earning{{ countEarning }}" class="panel-collapse collapse">
+                            <table class="table">
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Last</th>
+                                    <th>Change</th>
+                                    <th>Volume</th>
+                                    <th>Open</th>
+                                    <th>High</th>
+                                    <th>Low</th>
+                                </tr>
+                                {% for underlying in earningUnderlying.underlyings %}
+                                    <tr>
+                                        <td>{{ underlying.date|date('Y-m-d') }}</td>
+                                        <td>{{ underlying.last|number_format(2, '.', ',') }}</td>
+                                        <td>
+                                            {% if underlying.netChange >= 0 %}
+                                                <b style="color: green">+{{ underlying.netChange|number_format(2, '.', ',') }}</b>
+                                            {% else %}
+                                                <b style="color: red">{{ underlying.netChange|number_format(2, '.', ',') }}</b>
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ underlying.volume|number_format(0, '.', ',') }}</td>
+                                        <td>{{ underlying.open|number_format(2, '.', ',') }}</td>
+                                        <td>{{ underlying.high|number_format(2, '.', ',') }}</td>
+                                        <td>{{ underlying.low|number_format(2, '.', ',') }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </table>
+                        </div>
+
+                    </li>
+                </ul>
+            {% endfor %}
+        {% else %}
+            <div class="panel-body">
+                <div class="alert alert-warning"><b>EMPTY!</b> This underlying doesn't have any earning yet.</div>
+            </div>
+        {% endif %}
+
+    </div>
+
+{% endblock %}

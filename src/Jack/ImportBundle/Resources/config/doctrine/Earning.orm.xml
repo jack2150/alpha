@@ -1,19 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-<doctrine-mapping xmlns="http://doctrine-project.org/schemas/orm/doctrine-mapping"
-                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-                  xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping http://doctrine-project.org/schemas/orm/doctrine-mapping.xsd">
-    <entity name="Jack\ImportBundle\Entity\Earning" table="earning">
-        <id name="id" type="integer" column="id">
-            <generator strategy="IDENTITY"/>
-        </id>
-        <field name="markethour" type="string" column="marketHour" length="7" nullable="false"/>
-        <field name="periodending" type="date" column="periodEnding" nullable="false"/>
-        <field name="estimate" type="float" column="estimate" nullable="false"/>
-        <field name="actual" type="float" column="actual" nullable="false"/>
-        <many-to-one field="eventid" target-entity="Event">
-            <join-columns>
-                <join-column name="eventId" referenced-column-name="id"/>
-            </join-columns>
-        </many-to-one>
-    </entity>
+<doctrine-mapping xmlns="http://doctrine-project.org/schemas/orm/doctrine-mapping" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping http://doctrine-project.org/schemas/orm/doctrine-mapping.xsd">
+  <entity name="Jack\ImportBundle\Entity\Earning" table="earning">
+    <id name="id" type="integer" column="id">
+      <generator strategy="IDENTITY"/>
+    </id>
+    <field name="markethour" type="string" column="marketHour" length="7" nullable="false"/>
+    <field name="periodending" type="string" column="periodEnding" length="255" nullable="false"/>
+    <field name="estimate" type="float" column="estimate" nullable="false"/>
+    <field name="actual" type="float" column="actual" nullable="false"/>
+    <many-to-one field="eventid" target-entity="Event">
+      <join-columns>
+        <join-column name="eventId" referenced-column-name="id"/>
+      </join-columns>
+    </many-to-one>
+  </entity>
 </doctrine-mapping>

@@ -1,0 +1,7 @@
+parameters:
+#    jack_earning.example.class: Jack\EarningBundle\Example
+
+services:
+#    jack_earning.example:
+#        class: %jack_earning.example.class%
+#        arguments: [@service_id, "plain_value", %parameter%]

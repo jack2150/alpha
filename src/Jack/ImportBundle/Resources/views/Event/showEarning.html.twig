@@ -28,7 +28,19 @@
                         {% if earning.marketHour == 'after' %}
                             <td>After Market Close</td>
                         {% endif %}
-                        <td>{{ earning.periodEnding }}</td>
+
+                        <td>
+                            {% if earning.periodEnding == 'q1' %}
+                                Quarter 1 (Jan-Mar)
+                            {% elseif earning.periodEnding == 'q2' %}
+                                Quarter 2 (Apr-Jun)
+                            {% elseif earning.periodEnding == 'q3' %}
+                                Quarter 3 (Jul-Sep)
+                            {% else %}
+                                Quarter 4 (Oct-Dec)
+                            {% endif %}
+                        </td>
+
                         <td>${{ earning.estimate|number_format(2, '.', ',') }}</td>
                         <td>${{ earning.actual|number_format(2, '.', ',') }}</td>
                         <td><a href="{{ earning.delete }}">Remove Earning</a></td>
@@ -38,5 +50,5 @@
         </div>
     </div>
 {% else %}
-    <div class="alert alert-warning"><b>EMPTY!</b> This underlying have no earning inserted yet.</div>
+    <div class="alert alert-warning"><b>EMPTY!</b> This underlying doesn't have any earning yet.</div>
 {% endif %}

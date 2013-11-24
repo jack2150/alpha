@@ -1,0 +1,13 @@
+jack_earning_default_index:
+    pattern:  /default/index
+    defaults: { _controller: JackEarningBundle:Default:index }
+
+jack_earning_default_result:
+    pattern:  /default/result/{symbol}
+    defaults: { _controller: JackEarningBundle:Default:result }
+
+jack_earning_estimate_price_result:
+    pattern: /estimate/price/result/{symbol}
+    defaults: { _controller: JackEarningBundle:Estimate:estimateResult, action: price }
+
+

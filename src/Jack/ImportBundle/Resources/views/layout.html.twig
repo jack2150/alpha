@@ -1,11 +1,7 @@
 {% extends "JackDefaultBundle::layout.html.twig" %}
 
 {% block head %}
-    <link rel="icon" sizes="16x16" href="{{ asset('favicon.ico') }}"/>
-
     <link rel="stylesheet" href="{{ asset('bundles/bootstrap/css/datepicker.css') }}"/>
-
-
 {% endblock %}
 
 {% block extra_footer %}
@@ -18,11 +14,5 @@
             startDate: from_date,
             endDate: to_date
         });
-
-        $('#form_periodEnding').datepicker({
-            format: 'yyyy-mm-dd',
-            startView: 1
-        });
-
     </script>
 {% endblock %}

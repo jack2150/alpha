@@ -33,6 +33,7 @@ class SizzleController extends DefaultController
 
     /**
      * @param $symbol
+     * @param $sample
      */
     public function initSizzle($symbol, $sample)
     {
