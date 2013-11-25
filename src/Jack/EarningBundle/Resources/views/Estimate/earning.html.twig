@@ -1,0 +1,46 @@
+<table class="table">
+    <tr>
+        <th>ID</th>
+        <th>Date</th>
+        <th>Name</th>
+        <th>Hour</th>
+        <th>Season</th>
+        <th>Estimate</th>
+        <th>Actual</th>
+    </tr>
+    <tr>
+        <td>{{ earning.id }}</td>
+        <td>{{ date }}</td>
+        <td>Earning</td>
+        {% if earning.marketHour == 'before' %}
+            <td>Before Market Open</td>
+        {% endif %}
+        {% if earning.marketHour == 'during' %}
+            <td>During Market Hour</td>
+        {% endif %}
+        {% if earning.marketHour == 'after' %}
+            <td>After Market Close</td>
+        {% endif %}
+        <td>
+            {% if earning.periodEnding == 'q1' %}
+                Quarter 1 (Jan-Mar)
+            {% elseif earning.periodEnding == 'q2' %}
+                Quarter 2 (Apr-Jun)
+            {% elseif earning.periodEnding == 'q3' %}
+                Quarter 3 (Jul-Sep)
+            {% else %}
+                Quarter 4 (Oct-Dec)
+            {% endif %}
+        </td>
+        <td>
+            {{ earning.estimate|number_format(2, '.', ',') }}
+        </td>
+        <td>
+            {% if earning.estimate > earning.actual %}
+                <b style="color: red">{{ earning.actual|number_format(2, '.', ',') }}</b>
+            {% else %}
+                <b style="color: green">{{ earning.actual|number_format(2, '.', ',') }}</b>
+            {% endif %}
+        </td>
+    </tr>
+</table>

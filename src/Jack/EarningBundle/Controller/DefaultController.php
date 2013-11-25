@@ -57,7 +57,7 @@ class DefaultController extends FindController
             ->add('action', 'choice', array(
                 'choices' => array(
                     'searchUnderlying' => 'Search Earning Underlying',
-                    'estimateMovement' => 'Estimate Movement',
+                    'estimatePriceMove' => 'Estimate Movement',
                 ),
                 'required' => true,
                 'multiple' => false,
@@ -79,6 +79,12 @@ class DefaultController extends FindController
             switch ($action) {
                 case 'searchUnderlying':
                     $returnUrl = 'jack_earning_default_result';
+                    $params = array(
+                        'symbol' => strtolower($symbol)
+                    );
+                    break;
+                case 'estimatePriceMove':
+                    $returnUrl = 'jack_earning_estimate_price_result';
                     $params = array(
                         'symbol' => strtolower($symbol)
                     );

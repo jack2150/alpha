@@ -1,0 +1,54 @@
+<div class="panel panel-success">
+    <div class="panel-heading"><b>After Earning: Estimation Summary</b></div>
+    <div class="panel-body">
+        <div class="row">
+            {% for summaryName, summaryData in summaryReport %}
+                <div class="col-md-2">
+                    <ul class="list-group">
+                        <li class="list-group-item">
+                            <b>
+                                {% if summaryName == 'upDown' %}
+                                    Up or Down
+                                {% elseif summaryName == '1percent' %}
+                                    Range 1% Move
+                                {% elseif summaryName == '2percent' %}
+                                    Range 2% Move
+                                {% elseif summaryName == '3percent' %}
+                                    Range 3% Move
+                                {% elseif summaryName == '5percent' %}
+                                    Range 5% Move
+                                {% elseif summaryName == '10percent' %}
+                                    Range 10% Move
+                                {% else %}
+                                {% endif %}
+                            </b>
+                        </li>
+
+                        <li class="list-group-item">
+                            Bullish:
+                            {{ summaryData.bullish }}
+                        </li>
+
+                        <li class="list-group-item">
+                            SideWay:
+                            {{ summaryData.sideWay }}
+                        </li>
+
+                        <li class="list-group-item">
+                            Bearish:
+                            {{ summaryData.bearish }}
+                        </li>
+                    </ul>
+                </div>
+
+
+            {% endfor %}
+
+
+        </div>
+
+
+    </div>
+</div>
+
+

@@ -1,0 +1,150 @@
+{% extends "JackEarningBundle::layout.html.twig" %}
+
+{% block title %}Earning Bundle: Estimate Price Report{% endblock %}
+
+{% block content %}
+
+    {{ include('JackEarningBundle:Estimate:priceSummary.html.twig') }}
+
+
+    <div class="panel panel-info">
+        <div class="panel-heading"><b>After Earning: Price Estimation</b></div>
+        <div class="panel-body">
+
+            {% set countEarning = 0 %}
+            {% for dateKey, priceEstimate in priceEstimates %}
+                <table class="table table-striped">
+                    {% for toKey, toPriceEstimate in priceEstimate %}
+
+                        {% if toKey == 'last' %}
+                            <tr>
+                                <th></th>
+                                <th>TO LAST</th>
+                                <th>TO OPEN</th>
+                                <th>TO HIGH</th>
+                                <th>TO LOW</th>
+                                <th>AVERAGE</th>
+                                <th>REVERSE</th>
+                            </tr>
+                        {% endif %}
+
+
+                        {% if toKey == 'earning' %}
+                            {% set countEarning = countEarning + 1 %}
+                            <tr>
+                                <th colspan="7">{{ countEarning }}. Earning Estimation</th>
+                            </tr>
+                            <tr>
+                                <th>Earning</th>
+                                <td colspan="6">
+                                    {% include 'JackEarningBundle:Estimate:earning.html.twig'
+                                    with {'earning': toPriceEstimate, 'date': dateKey} %}
+                                </td>
+                            </tr>
+                        {% elseif toKey == 'volume' %}
+                            <tr>
+                                <th>{{ toKey|upper }}</th>
+                                <td colspan="6">
+                                    {{ toPriceEstimate.volume.value|number_format(0, '.', ',') }} /
+                                    {% if toPriceEstimate.volume.value >= 0 %}
+                                        <b style="color: green">
+                                            {{ "%+.2f"|format(toPriceEstimate.volume.percentage * 100) }}%
+                                        </b>
+                                    {% else %}
+                                        <b style="color: red">
+                                            {{ "%+.2f"|format(toPriceEstimate.volume.percentage * 100) }}%
+                                        </b>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% else %}
+                            <tr>
+                                <th>{{ toKey|upper }}</th>
+                                <td>
+                                    {{ "%+.2f"|format(toPriceEstimate.last.value) }} /
+                                    {% if toPriceEstimate.last.value >= 0 %}
+                                        <b style="color: green">
+                                            {{ "%+.2f"|format(toPriceEstimate.last.percentage * 100) }}%
+                                        </b>
+                                    {% else %}
+                                        <b style="color: red">
+                                            {{ "%+.2f"|format(toPriceEstimate.last.percentage * 100) }}%
+                                        </b>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {{ "%+.2f"|format(toPriceEstimate.open.value) }} /
+                                    {% if toPriceEstimate.open.value >= 0 %}
+                                        <b style="color: green">
+                                            {{ "%+.2f"|format(toPriceEstimate.open.percentage * 100) }}%
+                                        </b>
+                                    {% else %}
+                                        <b style="color: red">
+                                            {{ "%+.2f"|format(toPriceEstimate.open.percentage * 100) }}%
+                                        </b>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {{ "%+.2f"|format(toPriceEstimate.high.value) }} /
+                                    {% if toPriceEstimate.high.value >= 0 %}
+                                        <b style="color: green">
+                                            {{ "%+.2f"|format(toPriceEstimate.high.percentage * 100) }}%
+                                        </b>
+                                    {% else %}
+                                        <b style="color: red">
+                                            {{ "%+.2f"|format(toPriceEstimate.high.percentage * 100) }}%
+                                        </b>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {{ "%+.2f"|format(toPriceEstimate.low.value) }} /
+                                    {% if toPriceEstimate.low.value >= 0 %}
+                                        <b style="color: green">
+                                            {{ "%+.2f"|format(toPriceEstimate.low.percentage * 100) }}%
+                                        </b>
+                                    {% else %}
+                                        <b style="color: red">
+                                            {{ "%+.2f"|format(toPriceEstimate.low.percentage * 100) }}%
+                                        </b>
+                                    {% endif %}
+                                </td>
+
+                                <td>
+                                    {{ "%+.2f"|format(toPriceEstimate.average.value) }} /
+                                    {% if toPriceEstimate.average.value >= 0 %}
+                                        <b style="color: green">
+                                            {{ "%+.2f"|format(toPriceEstimate.average.percentage * 100) }}%
+                                        </b>
+                                    {% else %}
+                                        <b style="color: red">
+                                            {{ "%+.2f"|format(toPriceEstimate.average.percentage * 100) }}%
+                                        </b>
+                                    {% endif %}
+                                </td>
+
+                                <td>
+                                    {% if toPriceEstimate.reverse.value == 0 %}
+                                        -
+                                    {% else %}
+                                        {{ toPriceEstimate.reverse.value }} /
+                                        {{ "%d"|format(toPriceEstimate.reverse.percentage * 100) }}%
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endif %}
+
+                    {% endfor %}
+                </table>
+            {% endfor %}
+
+
+
+
+            <div class="col-md-3">
+
+
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

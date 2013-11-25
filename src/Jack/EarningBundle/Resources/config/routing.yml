@@ -7,7 +7,7 @@ jack_earning_default_result:
     defaults: { _controller: JackEarningBundle:Default:result }
 
 jack_earning_estimate_price_result:
-    pattern: /estimate/price/result/{symbol}
-    defaults: { _controller: JackEarningBundle:Estimate:estimateResult, action: price }
+    pattern: /estimate/price/report/{forward}/{backward}/{symbol}
+    defaults: { _controller: JackEarningBundle:Estimate:priceResult, forward: 0, backward: 0 }
 
 

@@ -6,3 +6,56 @@
     margin-bottom: 10px;
 }
 
+/* Common styles for all types */
+.bs-callout {
+    margin: 20px 0;
+    padding: 20px;
+    border-left: 3px solid #eee;
+}
+
+.bs-callout h4 {
+    margin-top: 0;
+    margin-bottom: 5px;
+}
+
+.bs-callout p:last-child {
+    margin-bottom: 0;
+}
+
+/* Variations */
+.bs-callout-danger {
+    background-color: #fdf7f7;
+    border-color: #eed3d7;
+}
+
+.bs-callout-danger h4 {
+    color: #b94a48;
+}
+
+.bs-callout-warning {
+    background-color: #faf8f0;
+    border-color: #faebcc;
+}
+
+.bs-callout-warning h4 {
+    color: #c09853;
+}
+
+.bs-callout-info {
+    background-color: #f4f8fa;
+    border-color: #bce8f1;
+}
+
+.bs-callout-info h4 {
+    color: #3a87ad;
+}
+
+.bs-callout-success {
+    /* background-color: rgb(223, 240, 216); */
+    background-color: #F0FFF0;
+    border-color: rgb(214, 233, 198);
+}
+
+.bs-callout-success h4 {
+    color: rgb(70, 136, 71);
+}
