@@ -4,12 +4,21 @@
 
 {% block content %}
 
+    {{ include('JackEarningBundle:Estimate:summaryForm.html.twig') }}
+
     {{ include('JackEarningBundle:Estimate:priceSummary.html.twig') }}
 
 
-    <div class="panel panel-info">
-        <div class="panel-heading"><b>After Earning: Price Estimation</b></div>
-        <div class="panel-body">
+    <div class="panel panel-default" id="priceEstimate">
+        <div class="panel-heading">
+            <b>
+                <a data-toggle="collapse" data-parent="#priceEstimate" href="#defaultPanel0" style="color: #000000">
+                    Start {{ startDate }} ~ End {{ endDate }} Earning: Price Estimation
+                </a>
+            </b>
+        </div>
+
+        <div id="defaultPanel0" class="panel-body panel-collapse collapse">
 
             {% set countEarning = 0 %}
             {% for dateKey, priceEstimate in priceEstimates %}
@@ -29,11 +38,15 @@
                         {% endif %}
 
 
-                        {% if toKey == 'earning' %}
+                        {% if toKey == 'date' %}
                             {% set countEarning = countEarning + 1 %}
                             <tr>
-                                <th colspan="7">{{ countEarning }}. Earning Estimation</th>
+                                <th colspan="7">
+                                    {{ countEarning }}. Earning Estimation
+                                    {{ toPriceEstimate.startDate }} until {{ toPriceEstimate.endDate }}
+                                </th>
                             </tr>
+                        {% elseif toKey == 'earning' %}
                             <tr>
                                 <th>Earning</th>
                                 <td colspan="6">
@@ -41,6 +54,9 @@
                                     with {'earning': toPriceEstimate, 'date': dateKey} %}
                                 </td>
                             </tr>
+
+
+
                         {% elseif toKey == 'volume' %}
                             <tr>
                                 <th>{{ toKey|upper }}</th>

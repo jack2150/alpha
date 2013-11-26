@@ -1,43 +1,113 @@
-<div class="panel panel-success">
-    <div class="panel-heading"><b>After Earning: Estimation Summary</b></div>
-    <div class="panel-body">
+<div class="panel panel-default" id="estimateSummary">
+
+    <div class="panel-heading">
+        <b>
+            <a data-toggle="collapse" data-parent="#estimateSummary" href="#defaultPanel1" style="color: #000000">
+                Start {{ startDate }} ~ End {{ endDate }} Earning: Estimation Summary
+            </a>
+
+        </b>
+    </div>
+
+    <div id="defaultPanel1" class="panel-body panel-collapse collapse in">
+        <h5 class="header">
+            Earning Price Analysis:
+            {{ startDate }} to {{ endDate }}, with
+            <b style="color: darkcyan">
+                {% if fromTiming == 'last' %}
+                    Close Price
+                {% elseif fromTiming == 'open' %}
+                    Open Price
+                {% elseif fromTiming == 'high' %}
+                    Day High
+                {% else %}
+                    Day Low
+                {% endif %}
+            </b>
+            to
+            <b style="color: darkcyan">
+                {% if toTiming == 'last' %}
+                    Close Price
+                {% elseif toTiming == 'open' %}
+                    Open Price
+                {% elseif toTiming == 'high' %}
+                    Day High
+                {% else %}
+                    Day Low
+                {% endif %}
+            </b>,
+            Before <b style="color: darkcyan">{{ backward }}</b> Days and After
+            <b style="color: darkcyan">{{ forward }}</b> of Earnings
+
+            <span>
+                (
+                Max: <b style="color: green">{{ "%.2f"|format(summaryMax * 100) }}%</b>,
+                Average: <b style="color: orange">{{ "%.2f"|format(summaryAverage * 100) }}%</b>,
+                Min <b style="color: red">{{ "%.2f"|format(summaryMin* 100) }}%</b>
+                )
+            </span>
+
+        </h5>
+
+
         <div class="row">
+
             {% for summaryName, summaryData in summaryReport %}
                 <div class="col-md-2">
+
                     <ul class="list-group">
                         <li class="list-group-item">
                             <b>
-                                {% if summaryName == 'upDown' %}
+                                {% if summaryName == 0 %}
                                     Up or Down
-                                {% elseif summaryName == '1percent' %}
-                                    Range 1% Move
-                                {% elseif summaryName == '2percent' %}
-                                    Range 2% Move
-                                {% elseif summaryName == '3percent' %}
-                                    Range 3% Move
-                                {% elseif summaryName == '5percent' %}
-                                    Range 5% Move
-                                {% elseif summaryName == '10percent' %}
-                                    Range 10% Move
                                 {% else %}
+                                    Range -/+ {{ "%.2f"|format(summaryName) }}%
                                 {% endif %}
                             </b>
                         </li>
 
                         <li class="list-group-item">
-                            Bullish:
-                            {{ summaryData.bullish }}
+                            <div>Bullish: <b style="color: green">{{ summaryData.bullish }}</b></div>
+
+
                         </li>
 
                         <li class="list-group-item">
-                            SideWay:
-                            {{ summaryData.sideWay }}
+                            <div>SideWay: <b style="color: orange">{{ summaryData.sideWay }}</b></div>
+
                         </li>
 
                         <li class="list-group-item">
-                            Bearish:
-                            {{ summaryData.bearish }}
+                            <div>Bearish: <b style="color: red">{{ summaryData.bearish }}</b></div>
+
                         </li>
+
+                        <li class="list-group-item">
+                            <h5>Bullish Records:</h5>
+
+                            {% for record in summaryData.bullishPool %}
+                                <small>{{ "%+.1f"|format(record * 100) }}%</small>
+                            {% endfor %}
+                        </li>
+
+                        <li class="list-group-item">
+                            <h5>SideWay Records:</h5>
+
+                            {% for record in summaryData.sideWayPool %}
+                                <small>{{ "%+.1f"|format(record * 100) }}%</small>
+                            {% endfor %}
+                        </li>
+
+
+                        <li class="list-group-item">
+                            <h5>Bearish Records:</h5>
+
+                            {% for record in summaryData.bearishPool %}
+                                <small>{{ "%+.1f"|format(record * 100) }}%</small>
+                            {% endfor %}
+                        </li>
+
+
                     </ul>
                 </div>
 

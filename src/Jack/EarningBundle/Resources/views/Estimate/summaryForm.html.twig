@@ -1,0 +1,76 @@
+<div class="panel panel-default">
+    <div class="panel-heading"><b>Price Estimation Analysis Form</b></div>
+    <div class="panel-body">
+
+        {{ form_start(summaryForm, {'attr': {'class': 'form-inline', 'role': 'form' }}) }}
+        {{ form_errors(summaryForm) }}
+
+        <div class="row marginbottom10px">
+            <div class="col-md-2">
+                <blockquote>
+                    <p>Analysis Data:</p>
+                </blockquote>
+            </div>
+
+            <div class="col-md-2">
+                <div class="form-group">
+                    {{ form_label(summaryForm.from, 'Start Day:') }}
+                    {{ form_errors(summaryForm.from) }}
+                    {{ form_widget(summaryForm.from, {'attr': {'class': 'form-control' }}) }}
+                </div>
+            </div>
+
+            <div class="col-md-2">
+                <div class="form-group">
+                    {{ form_label(summaryForm.to, 'End Day:') }}
+                    {{ form_errors(summaryForm.to) }}
+                    {{ form_widget(summaryForm.to, {'attr': {'class': 'form-control' }}) }}
+                </div>
+            </div>
+
+
+            <div class="col-md-2">
+                <div class="form-group">
+                    {{ form_label(summaryForm.backward, 'Backward Day:') }}
+                    {{ form_errors(summaryForm.backward) }}
+                    {{ form_widget(summaryForm.backward, {'attr': {'class': 'form-control' }}) }}
+                </div>
+            </div>
+
+            <div class="col-md-2">
+                <div class="form-group">
+                    {{ form_label(summaryForm.forward, 'Forward Day:') }}
+                    {{ form_errors(summaryForm.forward) }}
+                    {{ form_widget(summaryForm.forward, {'attr': {'class': 'form-control' }}) }}
+                </div>
+            </div>
+
+
+        </div>
+
+        <div class="row">
+            <div class="col-md-2">
+
+            </div>
+
+            <div class="col-md-6">
+                <div class="form-group">
+                    {{ form_label(summaryForm.format, 'Sideway Range Format:') }}
+                    {{ form_errors(summaryForm.format) }}
+                    {{ form_widget(summaryForm.format, {'attr': {'class': 'form-control' }}) }}
+                </div>
+            </div>
+
+
+            <div class="col-md-2">
+                <div class="form-group">
+                    <div><label>&nbsp;</label></div>
+                    {{ form_widget(summaryForm.generate,
+                    {'attr': {'class': 'btn btn-primary' }}) }}
+                </div>
+            </div>
+        </div>
+
+        {{ form_end(summaryForm) }}
+    </div>
+</div>

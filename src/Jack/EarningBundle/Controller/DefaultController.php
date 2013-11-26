@@ -38,7 +38,8 @@ class DefaultController extends FindController
 
 
     /**
-     * @return \Symfony\Component\HttpFoundation\Response
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse|\Symfony\Component\HttpFoundation\Response
      */
     public function indexAction(Request $request)
     {
@@ -57,7 +58,7 @@ class DefaultController extends FindController
             ->add('action', 'choice', array(
                 'choices' => array(
                     'searchUnderlying' => 'Search Earning Underlying',
-                    'estimatePriceMove' => 'Estimate Movement',
+                    'estimatePriceMove' => 'Estimate Earning Before/After Price Movement',
                 ),
                 'required' => true,
                 'multiple' => false,
