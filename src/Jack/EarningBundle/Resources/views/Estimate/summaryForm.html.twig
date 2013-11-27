@@ -1,6 +1,13 @@
-<div class="panel panel-default">
-    <div class="panel-heading"><b>Price Estimation Analysis Form</b></div>
-    <div class="panel-body">
+<div class="panel panel-default" id="summaryForm">
+    <div class="panel-heading">
+
+        <b>
+            <a data-toggle="collapse" data-parent="#summaryForm" href="#defaultPanel2" style="color: #000000">
+                Price Estimation Analysis Form
+            </a>
+        </b>
+    </div>
+    <div id="defaultPanel2" class="panel-body panel-collapse collapse">
 
         {{ form_start(summaryForm, {'attr': {'class': 'form-inline', 'role': 'form' }}) }}
         {{ form_errors(summaryForm) }}

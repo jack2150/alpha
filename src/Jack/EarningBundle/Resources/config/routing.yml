@@ -15,3 +15,11 @@ jack_earning_estimate_price_redirect:
     defaults: { _controller: JackEarningBundle:Estimate:resultRedirect }
 
 
+
+jack_earning_sweetspot_result:
+    pattern: /sweetspot/result/index/{symbol}
+    defaults: { _controller: JackEarningBundle:SweetSpot:sweetSpotResult }
+
+jack_earning_sweetspot_redirect:
+    pattern: /sweetspot/result/redirect
+    defaults: { _controller: JackEarningBundle:SweetSpot:redirect }

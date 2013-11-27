@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doctrine-mapping xmlns="http://doctrine-project.org/schemas/orm/doctrine-mapping"
+                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                  xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping http://doctrine-project.org/schemas/orm/doctrine-mapping.xsd">
+    <entity name="Jack\ImportBundle\Entity\Sizzle" table="sizzle">
+        <id name="id" type="integer" column="id">
+            <generator strategy="IDENTITY"/>
+        </id>
+        <field name="sample" type="integer" column="sample" nullable="false"/>
+        <field name="putindex" type="float" column="putIndex" nullable="false"/>
+        <field name="callindex" type="float" column="callIndex" nullable="false"/>
+        <field name="value" type="float" column="value" nullable="false"/>
+        <many-to-one field="underlyingid" target-entity="Underlying">
+            <join-columns>
+                <join-column name="underlyingId" referenced-column-name="id"/>
+            </join-columns>
+        </many-to-one>
+    </entity>
+</doctrine-mapping>

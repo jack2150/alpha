@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doctrine-mapping xmlns="http://doctrine-project.org/schemas/orm/doctrine-mapping"
+                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                  xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping http://doctrine-project.org/schemas/orm/doctrine-mapping.xsd">
+    <entity name="Jack\ImportBundle\Entity\Pcratio" table="pcratio">
+        <id name="id" type="integer" column="id">
+            <generator strategy="IDENTITY"/>
+        </id>
+        <field name="putvolume" type="integer" column="putVolume" nullable="false"/>
+        <field name="callvolume" type="integer" column="callVolume" nullable="false"/>
+        <field name="value" type="float" column="value" nullable="false"/>
+        <many-to-one field="underlyingid" target-entity="Underlying">
+            <join-columns>
+                <join-column name="UnderlyingId" referenced-column-name="id"/>
+            </join-columns>
+        </many-to-one>
+    </entity>
+</doctrine-mapping>

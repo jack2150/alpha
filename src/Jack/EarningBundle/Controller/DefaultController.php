@@ -57,8 +57,9 @@ class DefaultController extends FindController
             ))
             ->add('action', 'choice', array(
                 'choices' => array(
-                    'searchUnderlying' => 'Search Earning Underlying',
-                    'estimatePriceMove' => 'Estimate Earning Before/After Price Movement',
+                    'searchUnderlying' => 'Find earning/underlyings data',
+                    'estimatePriceMove' => 'Estimate price movement before/after earning',
+                    'earningSweetSpot' => 'Find the "Sweep Spot" before/after earning',
                 ),
                 'required' => true,
                 'multiple' => false,
@@ -86,6 +87,12 @@ class DefaultController extends FindController
                     break;
                 case 'estimatePriceMove':
                     $returnUrl = 'jack_earning_estimate_price_result';
+                    $params = array(
+                        'symbol' => strtolower($symbol)
+                    );
+                    break;
+                case 'earningSweetSpot':
+                    $returnUrl = 'jack_earning_sweetspot_result';
                     $params = array(
                         'symbol' => strtolower($symbol)
                     );
@@ -285,7 +292,7 @@ class DefaultController extends FindController
 
 
     /*
-    public function findUnderlyingByEarning($forward = 0, $backward = 0)
+    public function findUnderlyingByEarning2($forward = 0, $backward = 0)
     {
         $earningUnderlying = array();
 

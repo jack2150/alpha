@@ -3,7 +3,7 @@
     <div class="panel-heading">
         <b>
             <a data-toggle="collapse" data-parent="#estimateSummary" href="#defaultPanel1" style="color: #000000">
-                Start {{ startDate }} ~ End {{ endDate }} Earning: Estimation Summary
+                Start {{ startDate }} until End {{ endDate }} Earning: Estimation Summary
             </a>
 
         </b>
@@ -11,7 +11,7 @@
 
     <div id="defaultPanel1" class="panel-body panel-collapse collapse in">
         <h5 class="header">
-            Earning Price Analysis:
+            Data:
             {{ startDate }} to {{ endDate }}, with
             <b style="color: darkcyan">
                 {% if fromTiming == 'last' %}
@@ -61,7 +61,7 @@
                                 {% if summaryName == 0 %}
                                     Up or Down
                                 {% else %}
-                                    Range -/+ {{ "%.2f"|format(summaryName) }}%
+                                    Range +/- {{ "%.2f"|format(summaryName) }}%
                                 {% endif %}
                             </b>
                         </li>
