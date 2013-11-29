@@ -8,8 +8,8 @@ use Jack\ImportBundle\Entity\Earning;
 
 class SweetSpotController extends EstimateController
 {
-    protected static $maxBackward = 20;
-    protected static $maxForward = 20;
+    protected static $maxBackward = 5;
+    protected static $maxForward = 5;
 
 
     protected $matrixEarningPriceMove;
@@ -43,9 +43,14 @@ class SweetSpotController extends EstimateController
         // get the max min bullish from matrix data
         //$this->getMaxMinBullishEPM('last', 'last', $this->rangeSection);
 
-        // get the most bullish
+        // success: get the highest edge for bullish, bearish, sideway
         $sweetSpotType = 'bullish';
         $bullishRangeMaxEdge = $this->getSweetspotResult($sweetSpotType, 'last', 'last');
+
+        // next: get the highest chance of bullish, bearish, sideway
+        //$sweetSpotType = 'bullish';
+        //$bullishRangeMaxEdge = $this->getHighestChanceResult($sweetSpotType, 'last', 'last');
+
 
         return $this->render(
             'JackEarningBundle:SweetSpot:result.html.twig',
@@ -74,9 +79,6 @@ class SweetSpotController extends EstimateController
      */
     public function getSweetspotResult($searchType = 'bullish', $searchEnter, $searchExit)
     {
-        // rename search type
-        $directionName = $searchType . 'Edge';
-
         // put side way range into more readable
         $ranges = array();
         foreach ($this->rangeSection as $key => $rangeSection) {
@@ -90,11 +92,6 @@ class SweetSpotController extends EstimateController
         foreach ($this->matrixEarningPriceMove as $earningPriceMoveData) {
             // declare not found
             $found = 0;
-
-            // put enter exit into more readable variable
-            $currentBackward = $earningPriceMoveData['backward'];
-            $currentForward = $earningPriceMoveData['forward'];
-
 
             // put enter exit into more readable variable
             $currentEnter = $earningPriceMoveData['enter'];
@@ -219,6 +216,82 @@ class SweetSpotController extends EstimateController
 
         return $rangeMaxEdge;
     }
+
+
+    public function getHighestChanceResult($searchType = 'bullish', $searchEnter, $searchExit)
+    {
+
+        // put side way range into more readable
+        $ranges = array();
+        foreach ($this->rangeSection as $key => $rangeSection) {
+            $ranges[$key] = strval($rangeSection);
+        }
+
+        // new edge array
+        $bullishPercent = array();
+        $bearishPercent = array();
+        $sidewayPercent = array();
+
+
+        foreach ($this->matrixEarningPriceMove as $earningPriceMoveData) {
+            // declare not found
+            $found = 0;
+
+            // put enter exit into more readable variable
+            $currentEnter = $earningPriceMoveData['enter'];
+            $currentExit = $earningPriceMoveData['exit'];
+
+            // check is same enter and exit timing
+            if ($currentEnter == $searchEnter && $currentExit == $searchExit) {
+                $found = 1;
+            }
+
+            // save memory
+            unset($currentEnter, $currentExit);
+
+            // found the enter and exit timing data
+            if ($found) {
+                // create a new key
+                $searchKey = $earningPriceMoveData['backward'] . '-' . $earningPriceMoveData['forward'];
+
+                foreach ($ranges as $range) {
+                    if ($searchType == 'bullish') {
+                        $bullishPercent[$range][$searchKey] =
+                            $earningPriceMoveData['summary'][$range]['bullishPercent'];
+                    }
+
+                }
+            }
+        }
+
+        // get the max for bullish
+        $maxChangeArray = array();
+        foreach ($ranges as $range) {
+            // declare empty value
+            $highestChanceValue = 0;
+            $highestChanceKey = '';
+
+            // todo: next do bearish and sideway
+            // if bullish type
+            if ($searchType == 'bullish') {
+                // get the highest chance and get they day key
+                $highestChanceValue = max($bullishPercent[$range]);
+                $highestChanceKey = array_search(
+                    $highestChanceValue, $bullishPercent[$range]
+                );
+
+                $maxChangeKey = $searchEnter . '-' . $searchExit . '-' . $highestChanceKey;
+
+                $maxChangeArray[$range] = array(
+                    'edge' => $this->matrixEarningPriceMove[$maxChangeKey]['summary'][$range]['bullishEdge'],
+                    'data' => $this->matrixEarningPriceMove[$maxChangeKey]
+                );
+            }
+        }
+
+        return $maxChangeArray;
+    }
+
 
     public function getMaxMinBullishEPM($enter, $exit, $sideWayRange)
     {
