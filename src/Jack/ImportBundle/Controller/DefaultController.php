@@ -1025,7 +1025,7 @@ class DefaultController extends Controller
             }
 
             // set last update
-            $symbol->setImportdate(new \DateTime(time()));
+            $symbol->setImportdate(new \DateTime(date('Y-m-d')));
 
             $entityManager->flush();
         }

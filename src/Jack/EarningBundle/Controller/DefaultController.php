@@ -291,58 +291,6 @@ class DefaultController extends FindController
     }
 
 
-    /*
-    public function findUnderlyingByEarning2($forward = 0, $backward = 0)
-    {
-        $earningUnderlying = array();
-
-        $underlyingDateArray = array_keys($this->underlyings);
-
-
-        foreach ($this->earnings as $dateKey => $earning)
-        {
-            // error checking
-            if (!($earning instanceof Earning)) {
-                throw $this->createNotFoundException(
-                    'Error [ Earning ] object from entity manager'
-                );
-            }
-
-            $searchDate = $dateKey;
-
-            $marketHour = strtolower($earning->getMarkethour());
-
-            // find position in date array
-            $currentPosition = array_search($searchDate, $underlyingDateArray);
-            $startPosition = 0;
-            $arrayLength = 0;
-            switch ($marketHour)
-            {
-                case 'before':
-                    $startPosition = $currentPosition - $backward - 1;
-                    $arrayLength = $backward + $forward + 2;
-                    break;
-                case 'during':
-                    $startPosition = $currentPosition - $backward;
-                    $arrayLength = $backward + $forward + 1;
-
-                    break;
-                case 'after':
-                    $startPosition = $currentPosition - $backward;
-                    $arrayLength = $backward + $forward + 2;
-                    break;
-            }
-
-            // get the array of earning underlying
-            $earningUnderlying[$searchDate] = array_slice($this->underlyings, $startPosition, $arrayLength);
-        }
-
-
-        return $earningUnderlying;
-    }
-    */
-
-
     /**
      * @param $dateArray
      * @return array

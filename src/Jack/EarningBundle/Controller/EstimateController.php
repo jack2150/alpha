@@ -410,16 +410,18 @@ class EstimateController extends DefaultController
 
     public function calculateSummary($sideWayPercent, $base = 'last', $to = 'last')
     {
+        // set the total earning
+        $countEarning = count($this->earnings);
+
         // declare variable
         $bullishCount = 0;
         $bearishCount = 0;
         $sideWayCount = 0;
 
-        $percentagePool = array(
-            'bullish' => array(),
-            'sideWay' => array(),
-            'bearish' => array()
-        );
+        // declare pool variable
+        $bullishPool = array();
+        $bearishPool = array();
+        $sideWayPool = array();
 
         $percentageList = array();
         foreach ($this->priceEstimates as $priceEstimate) {
@@ -429,13 +431,13 @@ class EstimateController extends DefaultController
 
             // direction analysis
             if ($percentageValue >= $sideWayPercent) {
-                $percentagePool['bullish'][] = $percentageValue;
+                $bullishPool[] = $percentageValue;
                 $bullishCount++;
             } elseif ($percentageValue < -$sideWayPercent) {
-                $percentagePool['bearish'][] = $percentageValue;
+                $bearishPool[] = $percentageValue;
                 $bearishCount++;
             } else {
-                $percentagePool['sideWay'][] = $percentageValue;
+                $sideWayPool[] = $percentageValue;
                 $sideWayCount++;
             }
 
@@ -443,23 +445,65 @@ class EstimateController extends DefaultController
             $percentageList[] = $percentageValue;
         }
 
-        if (!empty($percentagePool['sideWay'])) {
-            sort($percentagePool['sideWay']);
+        // declare average
+        $sideWayAverage = 0;
+        $bullishAverage = 0;
+        $bearishAverage = 0;
+
+        // declare percent
+        $sideWayPercent = 0;
+        $bullishPercent = 0;
+        $bearishPercent = 0;
+
+        // entry long edge
+        $sideWayEdge = 0;
+        $bullishEdge = 0;
+        $bearishEdge = 0;
+
+        if (!empty($sideWayPool)) {
+            sort($sideWayPool);
+            $sideWayAverage = number_format(array_sum($sideWayPool) / count($sideWayPool), 4);
+            $sideWayPercent = number_format($sideWayCount / $countEarning, 4);
+            $sideWayEdge = number_format($sideWayPercent * $sideWayAverage, 4);
+
+            // explanation
+            // sideway average mean: every time it stay in sideway range, it will move average price
+            // sideway percent mean: percent every time it will stay in sideway range
+            // sideway edge:
         }
-        if (!empty($percentagePool['bullish'])) {
-            rsort($percentagePool['bullish']);
+        if (!empty($bullishPool)) {
+            rsort($bullishPool);
+            $bullishAverage = number_format(array_sum($bullishPool) / count($bullishPool), 4);
+            $bullishPercent = number_format($bullishCount / $countEarning, 4);
+            $bullishEdge = number_format($bullishPercent * $bullishAverage, 4);
         }
-        if (!empty($percentagePool['bearish'])) {
-            rsort($percentagePool['bearish']);
+        if (!empty($bearishPool)) {
+            rsort($bearishPool);
+            $bearishAverage = number_format(array_sum($bearishPool) / count($bearishPool), 4);
+            $bearishPercent = number_format($bearishCount / $countEarning, 4);
+            $bearishEdge = number_format($bearishPercent * $bearishAverage, 4);
         }
+
 
         return array(
             'bullish' => $bullishCount,
-            'bullishPool' => $percentagePool['bullish'],
+            'bullishPool' => $bullishPool,
+            'bullishAvg' => floatval($bullishAverage),
+            'bullishPercent' => floatval($bullishPercent),
+            'bullishEdge' => floatval($bullishEdge),
+
+
             'sideWay' => $sideWayCount,
-            'sideWayPool' => $percentagePool['sideWay'],
+            'sideWayPool' => $sideWayPool,
+            'sideWayAvg' => floatval($sideWayAverage),
+            'sideWayPercent' => floatval($sideWayPercent),
+            'sideWayEdge' => floatval($sideWayEdge),
+
             'bearish' => $bearishCount,
-            'bearishPool' => $percentagePool['bearish']
+            'bearishPool' => $bearishPool,
+            'bearishAvg' => floatval($bearishAverage),
+            'bearishPercent' => floatval($bearishPercent),
+            'bearishEdge' => floatval($bearishEdge),
         );
     }
 

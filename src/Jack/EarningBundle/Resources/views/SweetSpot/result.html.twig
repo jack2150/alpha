@@ -1,7 +1,101 @@
-{% extends "::base.html.twig" %}
+{% extends "JackEarningBundle::layout.html.twig" %}
 
-{% block title %}JackEarningBundle:SweetSpot:result{% endblock %}
+{% block title %}Earning Bundle: Estimate Result{% endblock %}
 
-{% block body %}
-    <h1>Welcome to the SweetSpot:result page</h1>
+{% block content %}
+
+    {% for edgeSidewayRange, maxEdge in bullishRangeMaxEdge %}
+        <h4>
+            For {{ edgeSidewayRange|number_format(2) }}% Sideway Range,
+            Total <b style="color: green">{{ sweetSpotType|upper }}</b>
+            Edge: {{ (maxEdge.edge * 100)|number_format(2) }}%
+        </h4>
+
+
+        <h4>
+            <b style="color: darkcyan">
+                {% if maxEdge.data.enter == 'last' %}
+                    Close Price
+                {% elseif maxEdge.data.enter == 'open' %}
+                    Open Price
+                {% elseif maxEdge.data.enter == 'high' %}
+                    Day High
+                {% else %}
+                    Day Low
+                {% endif %}
+            </b>
+            to
+            <b style="color: darkcyan">
+                {% if maxEdge.data.exit == 'last' %}
+                    Close Price
+                {% elseif maxEdge.data.exit == 'open' %}
+                    Open Price
+                {% elseif maxEdge.data.exit == 'high' %}
+                    Day High
+                {% else %}
+                    Day Low
+                {% endif %}
+            </b>,
+
+            Before <b style="color: darkcyan">{{ maxEdge.data.backward }}</b> Days and After
+            <b style="color: darkcyan">{{ maxEdge.data.forward }}</b> of Earnings
+
+        <span>
+            (Max: <b style="color: green">{{ "%.2f"|format(maxEdge.data.max * 100) }}%</b>,
+            Average: <b style="color: orange">{{ "%.2f"|format(maxEdge.data.average * 100) }}%</b>,
+            Min <b style="color: red">{{ "%.2f"|format(maxEdge.data.min * 100) }}%</b>)
+
+        </span>
+        </h4>
+
+
+
+
+
+
+
+
+
+        {% for summaryName, summaryData in maxEdge.data.summary %}
+            {% if summaryName == edgeSidewayRange %}
+                <h4>
+                    {% if searchType == 'bullish' %}
+
+                        Bullish Play Above {{ edgeSidewayRange|number_format(2) }}%: You have
+                        <b>{{ (summaryData.bullishPercent * 100)|number_format(2) }}%</b>
+                        ({{ summaryData.bullish }} Times Out of {{ countEarning }})
+                        to earn a minimum of
+                        <b>{{ (summaryData.bullishAvg * 100)|number_format(2) }}%</b>
+                        each time <b>{{ symbol|upper }}</b> move up!
+
+                    {% elseif searchType == 'bearish' %}
+
+                        Bullish Play Above {{ edgeSidewayRange|number_format(2) }}%: You have
+                        <b>{{ (summaryData.bearishPercent * 100)|number_format(2) }}%</b>
+                        ({{ summaryData.bearish }} Times Out of {{ countEarning }})
+                        to earn a minimum of
+                        <b>{{ (summaryData.bearishAvg * 100)|number_format(2) }}%</b>
+                        each time <b>{{ symbol|upper }}</b> move down!
+
+                    {% elseif searchType == 'sideway' %}
+                        Bullish Play Above {{ edgeSidewayRange|number_format(2) }}%: You have
+                        <b>{{ (summaryData.sideWayPercent * 100)|number_format(2) }}%</b>
+                        ({{ summaryData.sideWay }} Times Out of {{ countEarning }})
+                        to earn a minimum of
+                        <b>{{ (summaryData.sideWayAvg * 100)|number_format(2) }}%</b>
+                        each time <b>{{ symbol|upper }}</b> move up or down!
+                    {% endif %}
+
+
+                </h4>
+            {% endif %}
+
+
+        {% endfor %}
+
+        <hr/>
+
+
+    {% endfor %}
+
 {% endblock %}
