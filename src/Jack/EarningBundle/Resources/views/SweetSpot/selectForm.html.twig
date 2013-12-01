@@ -1,0 +1,66 @@
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <b>
+            Analysis Form
+        </b>
+    </div>
+    <div class="panel-body a">
+
+        {{ form_start(summaryForm, {'attr': {'class': 'form-inline', 'role': 'form' }}) }}
+        {{ form_errors(summaryForm) }}
+
+        <div class="form-group">
+            {{ form_label(summaryForm.type, 'Type:') }}
+            {{ form_errors(summaryForm.type) }}
+            {{ form_widget(summaryForm.type, {'attr': {'class': 'form-control' }}) }}
+        </div>
+
+        <div class="form-group">
+            {{ form_label(summaryForm.strategy, 'Strategy:') }}
+            {{ form_errors(summaryForm.strategy) }}
+            {{ form_widget(summaryForm.strategy, {'attr': {'class': 'form-control' }}) }}
+        </div>
+
+        <div class="form-group">
+            {{ form_label(summaryForm.enter, 'Start Day:') }}
+            {{ form_errors(summaryForm.enter) }}
+            {{ form_widget(summaryForm.enter, {'attr': {'class': 'form-control' }}) }}
+        </div>
+
+
+        <div class="form-group">
+            {{ form_label(summaryForm.exit, 'End Day:') }}
+            {{ form_errors(summaryForm.exit) }}
+            {{ form_widget(summaryForm.exit, {'attr': {'class': 'form-control' }}) }}
+        </div>
+
+
+        <div class="form-group">
+            {{ form_label(summaryForm.backward, 'Backward Day:') }}
+            {{ form_errors(summaryForm.backward) }}
+            {{ form_widget(summaryForm.backward, {'attr': {'class': 'form-control' }}) }}
+        </div>
+
+        <div class="form-group">
+            {{ form_label(summaryForm.forward, 'Forward Day:') }}
+            {{ form_errors(summaryForm.forward) }}
+            {{ form_widget(summaryForm.forward, {'attr': {'class': 'form-control' }}) }}
+        </div>
+
+
+        <div class="marginbottom10px">
+            <div class="form-group">
+                {{ form_label(summaryForm.format, 'Format:') }}
+                {{ form_errors(summaryForm.format) }}
+                {{ form_widget(summaryForm.format, {'attr': {'class': 'form-control' }}) }}
+            </div>
+        </div>
+
+        <div class="form-group">
+            {{ form_widget(summaryForm.generate,
+            {'attr': {'class': 'btn btn-primary' }}) }}
+        </div>
+
+        {{ form_end(summaryForm) }}
+    </div>
+</div>

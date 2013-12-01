@@ -8,10 +8,6 @@ use Jack\ImportBundle\Entity\Earning;
 
 class SweetSpotController extends EstimateController
 {
-    protected static $maxBackward = 5;
-    protected static $maxForward = 5;
-
-
     protected $matrixEarningPriceMove;
 
     protected $rangeSection;
@@ -19,55 +15,105 @@ class SweetSpotController extends EstimateController
 
     /**
      * @param $symbol
+     * @param string $type
+     * @param string $strategy
+     * @param string $enter
+     * @param string $exit
+     * @param int $forward
+     * @param int $backward
+     * @param string $format
      * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function sweetSpotResultAction($symbol)
+    public function sweetSpotResultAction(
+        $symbol,
+        $type = 'maxEdge', $strategy = 'bullish',
+        $enter = 'last', $exit = 'last',
+        $forward = 1, $backward = 1,
+        $format = 'medium'
+    )
     {
         // increase the max time running
-        set_time_limit(600);
+        set_time_limit(1200);
 
         // init the function
         $this->initEarning($symbol);
 
         // use sideway range
         //$this->rangeSection = array(0, 1.25, 2.5, 5, 7.5, 10);
-        $this->rangeSection = array(0, 2, 4, 6, 8, 10);
-
+        switch ($format) {
+            case 'smallest':
+                $this->rangeSection = array(0, 0.25, 0.75, 1.25, 1.75, 2.25);
+                break;
+            case 'smaller':
+                $this->rangeSection = array(0, 0.5, 1, 1.5, 2, 2.5);
+                break;
+            case 'small':
+                $this->rangeSection = array(0, 1, 2, 3, 4, 5);
+                break;
+            case 'large':
+                $this->rangeSection = array(0, 2.5, 5, 7.5, 10, 12.5);
+                break;
+            case 'larger':
+                $this->rangeSection = array(0, 3, 6, 9, 12, 15);
+                break;
+            case 'largest':
+                $this->rangeSection = array(0, 4, 8, 12, 16, 20);
+                break;
+            case 'medium':
+            default:
+                $this->rangeSection = array(0, 2, 4, 6, 8, 10);
+        }
 
         // generate a list of enter to exit, backward to forward day matrix
-        $this->setMatrixEarningPriceMovementSummary($this->rangeSection);
+        $this->setMatrixEarningPriceMovementSummary($this->rangeSection, $backward, $forward);
 
-        // get best max min average from matrix data
-        //list($minAverage, $maxAverage) = $this->getMaxMinAverageEPM('last', 'last');
+        $sweetSpotType = '';
+        $movement = '';
+        $sweetSpotResult = array();
+        switch ($type) {
+            case 'chance':
+                $sweetSpotType = 'highestChance';
+                $movement = $strategy;
+                $sweetSpotResult = $this->getHighestChanceResult($movement, $enter, $exit);
+                break;
+            case 'average':
+                break;
+            case 'edge':
+            default:
+                // next: get the highest chance of bullish, bearish, sideway
+                $sweetSpotType = 'maxEdge';
+                $movement = $strategy;
+                $sweetSpotResult = $this->getMaxEdgeResult($movement, $enter, $exit);
 
-        // get the max min bullish from matrix data
-        //$this->getMaxMinBullishEPM('last', 'last', $this->rangeSection);
+        }
 
-        // success: get the highest edge for bullish, bearish, sideway
-        $sweetSpotType = 'bullish';
-        $bullishRangeMaxEdge = $this->getSweetspotResult($sweetSpotType, 'last', 'last');
-
-        // next: get the highest chance of bullish, bearish, sideway
-        //$sweetSpotType = 'bullish';
-        //$bullishRangeMaxEdge = $this->getHighestChanceResult($sweetSpotType, 'last', 'last');
-
-
-        return $this->render(
+        // render page
+        $render = $this->render(
             'JackEarningBundle:SweetSpot:result.html.twig',
             array(
                 'symbol' => $symbol,
                 'countEarning' => count($this->earnings),
-                'searchType' => $sweetSpotType,
+
+                'backward' => $backward,
+                'forward' => $forward,
+
                 'sweetSpotType' => $sweetSpotType,
-                'bullishRangeMaxEdge' => $bullishRangeMaxEdge
+                'movement' => $movement,
+
+                'bullishRangeMaxEdge' => $sweetSpotResult,
+
+                'summaryForm' => $this->createSummaryForm(
+                    $type, $strategy, $enter, $exit, $forward, $backward, $format
+                )
             )
         );
 
+        // debug use only
+        //file_put_contents("sweetspot.html", $render);
 
-    }
 
-    public function redirectAction()
-    {
+        // return the render page
+        return $render;
     }
 
 
@@ -77,7 +123,7 @@ class SweetSpotController extends EstimateController
      * @param $searchExit
      * @return array
      */
-    public function getSweetspotResult($searchType = 'bullish', $searchEnter, $searchExit)
+    public function getMaxEdgeResult($searchType = 'bullish', $searchEnter, $searchExit)
     {
         // put side way range into more readable
         $ranges = array();
@@ -86,7 +132,7 @@ class SweetSpotController extends EstimateController
         }
 
         // new edge array
-        $dailyEdgeArray = array();
+        $edgeArray = array();
 
 
         foreach ($this->matrixEarningPriceMove as $earningPriceMoveData) {
@@ -114,58 +160,27 @@ class SweetSpotController extends EstimateController
 
                 // create a new array for every sideway range
                 foreach ($ranges as $range) {
+                    // set edge data
                     $bullishEdge = $earningPriceMoveData['summary'][$range]['bullishEdge'];
                     $bearishEdge = $earningPriceMoveData['summary'][$range]['bearishEdge'];
-                    $sideWayEdge = $earningPriceMoveData['summary'][$range]['sideWayEdge'];
-
-                    // todo: bullish, bearish, sideway method
+                    $sidewayEdge = $earningPriceMoveData['summary'][$range]['sideWayEdge'];
 
                     if ($searchType == 'bullish') {
-                        $dailyEdgeArray[$range][$searchKey] = floatval(number_format(
+                        $edgeArray[$range][$searchKey] = floatval(number_format(
                             $bullishEdge, 4
                         ));
+
                     } elseif ($searchType == 'bearish') {
-                        $dailyEdgeArray[$range][$searchKey] = floatval(number_format(
+                        $edgeArray[$range][$searchKey] = floatval(number_format(
                             $bearishEdge, 4
                         ));
+
                     } else {
-                        $dailyEdgeArray[$range][$searchKey] = floatval(number_format(
-                            $sideWayEdge, 4
+                        $edgeArray[$range][$searchKey] = floatval(number_format(
+                            $sidewayEdge, 4
                         ));
+
                     }
-
-
-                    // real edge
-                    /*
-                    if ($searchType == 'bullish') {
-                        // make all positive, bearish must
-                        $bearishEdge = $bearishEdge > 0 ? $bearishEdge : -$bearishEdge;
-                        $sideWayEdge = $sideWayEdge > 0 ? $sideWayEdge : -$sideWayEdge;
-
-                        // do calculation
-                        $realEdge = $bullishEdge - $bearishEdge - $sideWayEdge;
-                    }
-                    elseif ($searchType == 'bearish') {
-                        // make all positive, bearish must
-                        $bullishEdge = $bullishEdge < 0 ? $bullishEdge : -$bullishEdge;
-                        $sideWayEdge = $sideWayEdge < 0 ? $sideWayEdge : -$sideWayEdge;
-
-                        // do calculation
-                        $realEdge = $bearishEdge + $bullishEdge + $sideWayEdge;
-                    }
-                    else {
-                        // make all positive, bearish must
-                        $bullishEdge = $bullishEdge > 0 ? $bullishEdge : -$bullishEdge;
-                        $bearishEdge = $bearishEdge > 0 ? $bearishEdge : -$bearishEdge;
-
-                        // do calculation
-                        $realEdge = $sideWayEdge - $bullishEdge - $bearishEdge;
-                    }
-
-                    $dailyEdgeArray[$range][$searchKey] = floatval(number_format(
-                        $realEdge, 4
-                    ));
-                    */
                 }
             }
 
@@ -180,18 +195,18 @@ class SweetSpotController extends EstimateController
             // get maximum edge
             if ($searchType == 'bullish') {
                 // maximum value
-                $maxEdge = max($dailyEdgeArray[$range]);
-                $maxEdgeKey = $searchEnter . '-' . $searchExit . '-' . array_search($maxEdge, $dailyEdgeArray[$range]);
+                $maxEdge = max($edgeArray[$range]);
+                $maxEdgeKey = $searchEnter . '-' . $searchExit . '-' . array_search($maxEdge, $edgeArray[$range]);
             } elseif ($searchType == 'bearish') {
                 // minimum value
-                $maxEdge = min($dailyEdgeArray[$range]);
-                $maxEdgeKey = $searchEnter . '-' . $searchExit . '-' . array_search($maxEdge, $dailyEdgeArray[$range]);
+                $maxEdge = min($edgeArray[$range]);
+                $maxEdgeKey = $searchEnter . '-' . $searchExit . '-' . array_search($maxEdge, $edgeArray[$range]);
             } else {
                 // closest to 0
                 // create a list of no negative value
                 // sort the new array, and get the first item key
                 $newKeyArray = array();
-                foreach ($dailyEdgeArray[$range] as $key => $dailyEdge) {
+                foreach ($edgeArray[$range] as $key => $dailyEdge) {
                     if ($dailyEdge < 0) {
                         $newKeyArray[$key] = -$dailyEdge;
                     } else {
@@ -203,10 +218,9 @@ class SweetSpotController extends EstimateController
                 $closestZeroKey = array_search($closestZeroValue, $newKeyArray);
 
                 // use the current because it is smaller
-                $maxEdge = $dailyEdgeArray[$range][$closestZeroKey];
-                $maxEdgeKey = $searchEnter . '-' . $searchExit . '-' . array_search($maxEdge, $dailyEdgeArray[$range]);
+                $maxEdge = $edgeArray[$range][$closestZeroKey];
+                $maxEdgeKey = $searchEnter . '-' . $searchExit . '-' . array_search($maxEdge, $edgeArray[$range]);
             }
-
 
             $rangeMaxEdge[$range] = array(
                 'edge' => $maxEdge,
@@ -218,6 +232,12 @@ class SweetSpotController extends EstimateController
     }
 
 
+    /**
+     * @param string $searchType
+     * @param $searchEnter
+     * @param $searchExit
+     * @return array
+     */
     public function getHighestChanceResult($searchType = 'bullish', $searchEnter, $searchExit)
     {
 
@@ -227,10 +247,15 @@ class SweetSpotController extends EstimateController
             $ranges[$key] = strval($rangeSection);
         }
 
-        // new edge array
+        // declare percent array
         $bullishPercent = array();
         $bearishPercent = array();
         $sidewayPercent = array();
+
+        // declare edge array
+        $bullishEdge = array();
+        $bearishEdge = array();
+        $sidewayEdge = array();
 
 
         foreach ($this->matrixEarningPriceMove as $earningPriceMoveData) {
@@ -255,10 +280,15 @@ class SweetSpotController extends EstimateController
                 $searchKey = $earningPriceMoveData['backward'] . '-' . $earningPriceMoveData['forward'];
 
                 foreach ($ranges as $range) {
-                    if ($searchType == 'bullish') {
-                        $bullishPercent[$range][$searchKey] =
-                            $earningPriceMoveData['summary'][$range]['bullishPercent'];
-                    }
+                    // set all percent data into array
+                    $bullishPercent[$range][$searchKey] = $earningPriceMoveData['summary'][$range]['bullishPercent'];
+                    $bearishPercent[$range][$searchKey] = $earningPriceMoveData['summary'][$range]['bearishPercent'];
+                    $sidewayPercent[$range][$searchKey] = $earningPriceMoveData['summary'][$range]['sideWayPercent'];
+
+                    // set all edge data into array
+                    $bullishEdge[$range][$searchKey] = $earningPriceMoveData['summary'][$range]['bullishEdge'];
+                    $bearishEdge[$range][$searchKey] = $earningPriceMoveData['summary'][$range]['bearishEdge'];
+                    $sidewayEdge[$range][$searchKey] = $earningPriceMoveData['summary'][$range]['sideWayEdge'];
 
                 }
             }
@@ -267,126 +297,120 @@ class SweetSpotController extends EstimateController
         // get the max for bullish
         $maxChangeArray = array();
         foreach ($ranges as $range) {
-            // declare empty value
-            $highestChanceValue = 0;
-            $highestChanceKey = '';
-
-            // todo: next do bearish and sideway
-            // if bullish type
             if ($searchType == 'bullish') {
+                // use bullish array
+                $movementChanceArray = $bullishPercent[$range];
+                $movementEdgeArray = $bullishEdge[$range];
+            } elseif ($searchType == 'bearish') {
                 // get the highest chance and get they day key
-                $highestChanceValue = max($bullishPercent[$range]);
-                $highestChanceKey = array_search(
-                    $highestChanceValue, $bullishPercent[$range]
-                );
-
-                $maxChangeKey = $searchEnter . '-' . $searchExit . '-' . $highestChanceKey;
-
-                $maxChangeArray[$range] = array(
-                    'edge' => $this->matrixEarningPriceMove[$maxChangeKey]['summary'][$range]['bullishEdge'],
-                    'data' => $this->matrixEarningPriceMove[$maxChangeKey]
-                );
+                $movementChanceArray = $bearishPercent[$range];
+                $movementEdgeArray = $bearishEdge[$range];
+            } else {
+                // get the highest chance and get they day key
+                $movementChanceArray = $sidewayPercent[$range];
+                $movementEdgeArray = $sidewayEdge[$range];
             }
+
+            // -----------------------------------------------------------
+
+            // get a list of highest chance and key
+            $highestChanceEdgeArray = array();
+            if (count($movementChanceArray)) {
+                $highestChanceValue = max($movementChanceArray);
+
+                // create new array with only max highest key
+
+                foreach ($movementChanceArray as $searchKey => $percentValue) {
+                    if ($percentValue == $highestChanceValue) {
+                        $highestChanceEdgeArray[$searchKey] = $movementEdgeArray[$searchKey];
+                    }
+                }
+            }
+
+            // check for max edge for every key above
+            if ($searchType == 'bullish') {
+                $highestChanceWithMaxEdgeValue = max($highestChanceEdgeArray);
+            } elseif ($searchType == 'bearish') {
+                // get the most lowest negative value
+                $highestChanceWithMaxEdgeValue = min($highestChanceEdgeArray);
+            } else {
+                // convert all negative value to positive
+                $sortHighestChanceEdgeArray = array();
+                foreach ($highestChanceEdgeArray as $key => $highestChanceEdgeValue) {
+                    if ($highestChanceEdgeValue < 0) {
+                        $sortHighestChanceEdgeArray[$key] = -$highestChanceEdgeValue;
+                    } else {
+                        $sortHighestChanceEdgeArray[$key] = $highestChanceEdgeValue;
+                    }
+                }
+                unset($key, $highestChanceEdgeValue);
+
+                // sort the array low to high
+                asort($sortHighestChanceEdgeArray);
+
+                // get the array where the edge value is lowest
+                $highestChanceWithMaxEdgeValue = current($sortHighestChanceEdgeArray);
+            }
+
+            $highestChanceWithMaxEdgeKey = array_search(
+                $highestChanceWithMaxEdgeValue, $highestChanceEdgeArray
+            );
+
+            if (!$highestChanceWithMaxEdgeKey) {
+                $highestChanceWithMaxEdgeKey = '0-0';
+            }
+
+
+            // -----------------------------------------------------------
+
+
+            // set the key for matrix data
+            $maxChangeKey = $searchEnter . '-' . $searchExit . '-' . $highestChanceWithMaxEdgeKey;
+
+            // set the data to array
+            $maxChangeArray[$range] = array(
+                'edge' => $highestChanceWithMaxEdgeValue,
+                'data' => $this->matrixEarningPriceMove[$maxChangeKey]
+            );
+
         }
 
         return $maxChangeArray;
     }
 
-
-    public function getMaxMinBullishEPM($enter, $exit, $sideWayRange)
+    /**
+     * @param string $searchType
+     * @param $searchEnter
+     * @param $searchExit
+     */
+    public function getBestAverageResult($searchType = 'bullish', $searchEnter, $searchExit)
     {
-        $bullishArray = null;
-
-        $range0 = strval($sideWayRange[0]);
-        $range1 = strval($sideWayRange[1]);
-        $range2 = strval($sideWayRange[2]);
-        $range3 = strval($sideWayRange[3]);
-        $range4 = strval($sideWayRange[4]);
-        $range5 = strval($sideWayRange[5]);
+        // todo: next, bullish max average, bearish min average, sideway closest 0
 
 
-        foreach ($this->matrixEarningPriceMove as $earningPriceMoveData) {
-            $useKey = $earningPriceMoveData['backward'] . '-' . $earningPriceMoveData['forward'];
-
-            if ($earningPriceMoveData['enter'] == $enter &&
-                $earningPriceMoveData['exit'] == $exit
-            ) {
-                // generate an max array
-                //$maxArray[$useKey] = $earningPriceMoveData['max'];
-
-                //$minArray[$useKey] = $earningPriceMoveData['min'];
-
-                $bullishArray[$range0][$useKey] = $earningPriceMoveData['summary'][$range0]['bullish'];
-                $bullishArray[$range1][$useKey] = $earningPriceMoveData['summary'][$range1]['bullish'];
-                $bullishArray[$range2][$useKey] = $earningPriceMoveData['summary'][$range2]['bullish'];
-                $bullishArray[$range3][$useKey] = $earningPriceMoveData['summary'][$range3]['bullish'];
-                $bullishArray[$range4][$useKey] = $earningPriceMoveData['summary'][$range4]['bullish'];
-                $bullishArray[$range5][$useKey] = $earningPriceMoveData['summary'][$range5]['bullish'];
-            }
-        }
-
-    }
-
-    public function getMaxMinAverageEPM($enter, $exit)
-    {
-        $averageArray = null;
-        //$maxArray = null;
-        //$minArray = null;
-
-        foreach ($this->matrixEarningPriceMove as $earningPriceMoveData) {
-            $useKey = $earningPriceMoveData['backward'] . '-' . $earningPriceMoveData['forward'];
-
-            if ($earningPriceMoveData['enter'] == $enter &&
-                $earningPriceMoveData['exit'] == $exit
-            ) {
-                // generate an max array
-                //$maxArray[$useKey] = $earningPriceMoveData['max'];
-
-                //$minArray[$useKey] = $earningPriceMoveData['min'];
-
-                $averageArray[$useKey] = $earningPriceMoveData['average'];
-            }
-
-        }
-
-        // minimum average price move
-        $minAverage['value'] = min($averageArray);
-        list($minAverage['backward'], $minAverage['forward']) =
-            explode('-', array_search($minAverage['value'], $averageArray));
-        $minAverageKey = $enter . '-' . $exit . '-' . $minAverage['backward'] . '-' . $minAverage['forward'];
-
-        // maximum average price move
-        $maxAverage['value'] = max($averageArray);
-        list($maxAverage['backward'], $maxAverage['forward']) =
-            explode('-', array_search($maxAverage['value'], $averageArray));
-        $maxAverageKey = $enter . '-' . $exit . '-' . $maxAverage['backward'] . '-' . $maxAverage['forward'];
-
-        // save memory
-        unset($averageArray, $minAverage, $maxAverage);
-
-        // return both max and min average
-        return array(
-            0 => $this->matrixEarningPriceMove[$minAverageKey],
-            1 => $this->matrixEarningPriceMove[$maxAverageKey]
-        );
     }
 
 
     /**
      * @param $sideWayRange
+     * @param $backward
+     * @param $forward
      */
-    public function setMatrixEarningPriceMovementSummary($sideWayRange)
+    public function setMatrixEarningPriceMovementSummary($sideWayRange, $backward, $forward)
     {
         // for entry and exit data
         $enters = array('last', 'open', 'high', 'low');
         $exits = array('last', 'open', 'high', 'low');
 
+        $maxBackward = $backward + 1;
+        $maxForward = $forward + 1;
+
         // generate matrix summary result
         $matrixEarningPriceMove = array();
         foreach ($enters as $enter) {
             foreach ($exits as $exit) {
-                for ($backward = 0; $backward < self::$maxBackward; $backward++) {
-                    for ($forward = 0; $forward < self::$maxForward; $forward++) {
+                for ($backward = 0; $backward < $maxBackward; $backward++) {
+                    for ($forward = 0; $forward < $maxForward; $forward++) {
 
                         // calculate the summary result
                         list($max, $min, $average, $summary) =
@@ -416,6 +440,150 @@ class SweetSpotController extends EstimateController
         $this->matrixEarningPriceMove = $matrixEarningPriceMove;
     }
 
+    /**
+     * @param string $type
+     * @param string $strategy
+     * @param string $enter
+     * @param string $exit
+     * @param int $forward
+     * @param int $backward
+     * @param string $format
+     * @return \Symfony\Component\Form\FormView
+     */
+    public function createSummaryForm(
+        $type = 'maxEdge', $strategy = 'bullish', $enter = 'last', $exit = 'last',
+        $forward = 0, $backward = 0, $format = 'medium'
+    )
+    {
+        $summaryFormData = array(
+            'type' => $type,
+            'strategy' => $strategy,
+            'enter' => $enter,
+            'exit' => $exit,
+            'forward' => $forward,
+            'backward' => $backward,
+            'format' => $format,
+            'symbol' => $this->symbol
+        );
+
+        $summarySelectForm = $this->createFormBuilder($summaryFormData)
+            ->setAction($this->generateUrl(
+                'jack_earning_sweetspot_redirect'
+            ))
+            ->add('type', 'choice', array(
+                'choices' => array(
+                    'edge' => 'Max Edge',
+                    'chance' => 'Max Chance',
+                    'average' => 'Max Average'
+                ),
+                'required' => true,
+                'multiple' => false,
+            ))
+            ->add('strategy', 'choice', array(
+                'choices' => array(
+                    'bullish' => 'Bullish',
+                    'sideway' => 'Sideway',
+                    'bearish' => 'Bearish'
+                ),
+                'required' => true,
+                'multiple' => false,
+            ))
+
+
+            ->add('enter', 'choice', array(
+                'choices' => array(
+                    'last' => 'Close Price',
+                    'open' => 'Open Price',
+                    'high' => 'Day High',
+                    'low' => 'Day Low',
+                ),
+                'required' => true,
+                'multiple' => false,
+            ))
+            ->add('exit', 'choice', array(
+                'choices' => array(
+                    'last' => 'Close Price',
+                    'open' => 'Open Price',
+                    'high' => 'Day High',
+                    'low' => 'Day Low',
+                ),
+                'required' => true,
+                'multiple' => false,
+            ))
+
+            ->add('forward', 'choice', array(
+                'choices' => $this->createSelectDayArray('Forward', 30),
+                'required' => true,
+                'multiple' => false,
+            ))
+            ->add('backward', 'choice', array(
+                'choices' => $this->createSelectDayArray('Backward', 30),
+                'required' => true,
+                'multiple' => false,
+            ))
+
+            ->add('format', 'choice', array(
+                'choices' => array(
+                    'smallest' => 'Smallest',
+                    'smaller' => 'Smaller',
+                    'small' => 'Small',
+                    'medium' => 'Medium',
+                    'large' => 'Large',
+                    'larger' => 'Larger',
+                    'largest' => 'Largest',
+                ),
+                'required' => true,
+                'multiple' => false,
+            ))
+
+            ->add('symbol', 'hidden')
+
+            ->add('generate', 'submit')
+            ->getForm();
+
+
+        return $summarySelectForm->createView();
+    }
+
+
+    /**
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse
+     */
+    public function redirectAction()
+    {
+        $formData = $this->getRequest()->get('form');
+
+        $type = $formData['type'];
+        $strategy = $formData['strategy'];
+
+        $enter = $formData['enter'];
+        $exit = $formData['exit'];
+
+        // integer only
+        $forward = $formData['forward'];
+        $backward = $formData['backward'];
+
+        // smallest to largest
+        $format = $formData['format'];
+
+        // must exist
+        $symbol = $formData['symbol'];
+
+        return $this->redirect(
+            $this->generateUrl('jack_earning_sweetspot_result',
+                array(
+                    'symbol' => $symbol,
+                    'type' => $type,
+                    'strategy' => $strategy,
+                    'enter' => $enter,
+                    'exit' => $exit,
+                    'forward' => $forward,
+                    'backward' => $backward,
+                    'format' => $format
+                )
+            ));
+
+    }
 
     /**
      * @param $sideWayRange

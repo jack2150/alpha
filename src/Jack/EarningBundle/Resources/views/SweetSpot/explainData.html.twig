@@ -1,0 +1,73 @@
+<p>
+    {% if sweetSpotType == 'maxEdge' %}
+        {% set search = "Maximum Edge (Probability times Return)" %}
+        {% set desc = "maximum return each time %s strategy success"|format(movement) %}
+    {% elseif sweetSpotType == 'highestChance' %}
+        {% set search = "Highest Probability" %}
+        {% set desc = "highest chance of success for %s strategy"|format(movement) %}
+    {% endif %}
+
+    {% if maxEdge.data.enter == 'last' %}
+        {% set enter = 'at market close' %}
+    {% elseif maxEdge.data.enter == 'open' %}
+        {% set enter = 'at market open' %}
+    {% elseif maxEdge.data.enter == 'high' %}
+        {% set enter = 'when high of the day' %}
+    {% else %}
+        {% set enter = 'when low of the day' %}
+    {% endif %}
+
+    {% if maxEdge.data.exit == 'last' %}
+        {% set exit = 'at market close' %}
+    {% elseif maxEdge.data.exit == 'open' %}
+        {% set exit = 'at market open' %}
+    {% elseif maxEdge.data.exit == 'high' %}
+        {% set exit = 'when high of the day' %}
+    {% else %}
+        {% set exit = 'when low of the day' %}
+    {% endif %}
+
+    {% if movement == 'bullish' %}
+        {% set percent = summaryData.bullishPercent * 100 %}
+        {% set average = summaryData.bullishAvg * 100 %}
+    {% elseif movement == 'bearish' %}
+        {% set percent = summaryData.bearishPercent * 100 %}
+        {% set average = summaryData.bearishAvg * 100 %}
+    {% else %}
+        {% set percent = summaryData.sideWayPercent * 100 %}
+        {% set average = summaryData.bearishAvg * 100 %}
+    {% endif %}
+
+    Explain: This result data is based on "{{ search }}" which will select
+    the {{ desc }}. Set include of total {{ (backward + 1) * (forward + 1) }}
+    data where using the earning report as starting point before and after
+    earning date. strategy only. If you want to trade using this data, the
+    result suggest best timing is to enter "{{ maxEdge.data.backward }} days
+    {{ enter }}" before earnings date and exit "{{ maxEdge.data.forward }}
+    days {{ exit }}" after earnings have release. Using this timing, enter a
+    {{ movement }} strategy have {{ percent|number_format(2) }}%
+    probability of success and each times this strategy correct return a minimum
+    of {{ "%+.2f"|format(average) }}%. As the data suggest,
+    continuously enter {{ movement }} strategy using this timing for {{ countEarning }}
+    times, trading {{ symbol }} will
+    {% if movement == 'bullish' %}
+        still make
+        {% if maxEdge.data.average > 0 %}
+            profit
+        {% else %}
+            loss
+        {% endif %}
+        {{ "%+.2f"|format(maxEdge.data.average * 100) }}% each times.
+    {% elseif movement == 'bearish' %}
+        still make
+        {% if maxEdge.data.average > 0 %}
+            loss
+        {% else %}
+            profit
+        {% endif %}
+        {{ "%+.2f"|format(maxEdge.data.average * 100) }}% each times.
+    {% else %}
+        skew about {{ "%+.2f"|format(maxEdge.data.average * 100) }}% each times.
+    {% endif %}
+
+</p>

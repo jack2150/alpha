@@ -14,11 +14,9 @@ jack_earning_estimate_price_redirect:
     pattern: /estimate/price/report/redirect
     defaults: { _controller: JackEarningBundle:Estimate:resultRedirect }
 
-
-
 jack_earning_sweetspot_result:
-    pattern: /sweetspot/result/index/{symbol}
-    defaults: { _controller: JackEarningBundle:SweetSpot:sweetSpotResult }
+    pattern: /sweetspot/result/index/{type}/{strategy}/{enter}/{exit}/{backward}/{forward}/{format}/{symbol}
+    defaults: { _controller: JackEarningBundle:SweetSpot:sweetSpotResult, type: 'edge', strategy: 'bullish', enter: 'last', exit: 'last', forward: 0, backward: 0, format: 'medium' }
 
 jack_earning_sweetspot_redirect:
     pattern: /sweetspot/result/redirect

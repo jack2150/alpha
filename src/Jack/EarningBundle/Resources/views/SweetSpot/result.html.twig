@@ -3,99 +3,177 @@
 {% block title %}Earning Bundle: Estimate Result{% endblock %}
 
 {% block content %}
+    <div class="row">
+        <div class="col-md-10">
 
-    {% for edgeSidewayRange, maxEdge in bullishRangeMaxEdge %}
-        <h4>
-            For {{ edgeSidewayRange|number_format(2) }}% Sideway Range,
-            Total <b style="color: green">{{ sweetSpotType|upper }}</b>
-            Edge: {{ (maxEdge.edge * 100)|number_format(2) }}%
-        </h4>
-
-
-        <h4>
-            <b style="color: darkcyan">
-                {% if maxEdge.data.enter == 'last' %}
-                    Close Price
-                {% elseif maxEdge.data.enter == 'open' %}
-                    Open Price
-                {% elseif maxEdge.data.enter == 'high' %}
-                    Day High
-                {% else %}
-                    Day Low
-                {% endif %}
-            </b>
-            to
-            <b style="color: darkcyan">
-                {% if maxEdge.data.exit == 'last' %}
-                    Close Price
-                {% elseif maxEdge.data.exit == 'open' %}
-                    Open Price
-                {% elseif maxEdge.data.exit == 'high' %}
-                    Day High
-                {% else %}
-                    Day Low
-                {% endif %}
-            </b>,
-
-            Before <b style="color: darkcyan">{{ maxEdge.data.backward }}</b> Days and After
-            <b style="color: darkcyan">{{ maxEdge.data.forward }}</b> of Earnings
-
-        <span>
-            (Max: <b style="color: green">{{ "%.2f"|format(maxEdge.data.max * 100) }}%</b>,
-            Average: <b style="color: orange">{{ "%.2f"|format(maxEdge.data.average * 100) }}%</b>,
-            Min <b style="color: red">{{ "%.2f"|format(maxEdge.data.min * 100) }}%</b>)
-
-        </span>
-        </h4>
-
-
-
-
-
-
-
-
-
-        {% for summaryName, summaryData in maxEdge.data.summary %}
-            {% if summaryName == edgeSidewayRange %}
-                <h4>
-                    {% if searchType == 'bullish' %}
-
-                        Bullish Play Above {{ edgeSidewayRange|number_format(2) }}%: You have
-                        <b>{{ (summaryData.bullishPercent * 100)|number_format(2) }}%</b>
-                        ({{ summaryData.bullish }} Times Out of {{ countEarning }})
-                        to earn a minimum of
-                        <b>{{ (summaryData.bullishAvg * 100)|number_format(2) }}%</b>
-                        each time <b>{{ symbol|upper }}</b> move up!
-
-                    {% elseif searchType == 'bearish' %}
-
-                        Bullish Play Above {{ edgeSidewayRange|number_format(2) }}%: You have
-                        <b>{{ (summaryData.bearishPercent * 100)|number_format(2) }}%</b>
-                        ({{ summaryData.bearish }} Times Out of {{ countEarning }})
-                        to earn a minimum of
-                        <b>{{ (summaryData.bearishAvg * 100)|number_format(2) }}%</b>
-                        each time <b>{{ symbol|upper }}</b> move down!
-
-                    {% elseif searchType == 'sideway' %}
-                        Bullish Play Above {{ edgeSidewayRange|number_format(2) }}%: You have
-                        <b>{{ (summaryData.sideWayPercent * 100)|number_format(2) }}%</b>
-                        ({{ summaryData.sideWay }} Times Out of {{ countEarning }})
-                        to earn a minimum of
-                        <b>{{ (summaryData.sideWayAvg * 100)|number_format(2) }}%</b>
-                        each time <b>{{ symbol|upper }}</b> move up or down!
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    {% if sweetSpotType == 'maxEdge' %}
+                        Find Maximum Edge In Earning Price Move Data For
+                        {{ movement|capitalize }} Strategy
+                        Before {{ backward }} After {{ forward }} Days
+                    {% elseif sweetSpotType == 'highestChance' %}
+                        Find Highest Chance of Success In Earning Price Move Data For
+                        {{ movement|capitalize }} Strategy
+                        Before {{ backward }} After {{ forward }} Days
                     {% endif %}
+                </div>
+                <div class="panel-body">
+
+                    {% for edgeSidewayRange, maxEdge in bullishRangeMaxEdge %}
+
+                        <table class="table table-bordered">
+                            <tr>
+                                <td rowspan="4" style="text-align: center; vertical-align: middle; width: 100px">
+                                    <small>RANGE</small>
+                                    <h2>{{ edgeSidewayRange }}%</h2>
+                                </td>
+                                <th style="width: 100px">Analysis:</th>
+                                <td style="width: 100px">Earning</td>
+                                <th style="width: 100px">Result:</th>
+                                <td style="width: 100px">
+                                    {% if sweetSpotType == 'maxEdge' %}
+                                        Max Edge
+                                    {% elseif sweetSpotType == 'highestChance' %}
+                                        Max Chance
+                                    {% endif %}
+
+                                </td>
+                                <th style="width: 100px">Strategy:</th>
+                                <td style="width: 100px">
+                                    {% if movement == 'bullish' %}
+                                        <span style="background-color: #E3FFE3">
+                                    {{ movement|capitalize }}
+                                </span>
+                                    {% elseif movement == 'bearish' %}
+                                        <span style="background-color: #FFE8EB">
+                                    {{ movement|capitalize }}
+                                </span>
+                                    {% else %}
+                                        <span style="background-color: lightyellow">
+                                    {{ movement|capitalize }}
+                                </span>
+                                    {% endif %}
 
 
-                </h4>
-            {% endif %}
+                                </td>
+                                <th style="width: 100px">Edge:</th>
+                                <td>
+                            <span style="background-color: lightyellow">
+                                <span class="glyphicon glyphicon-map-marker"></span>
+                                {{ (maxEdge.edge * 100)|number_format(2) }}%
+                            </span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Enter:</th>
+                                <td>
+                                    {% if maxEdge.data.enter == 'last' %}
+                                        Close Price
+                                    {% elseif maxEdge.data.enter == 'open' %}
+                                        Open Price
+                                    {% elseif maxEdge.data.enter == 'high' %}
+                                        Day High
+                                    {% else %}
+                                        Day Low
+                                    {% endif %}
+                                </td>
+                                <th>Exit:</th>
+                                <td>
+                                    {% if maxEdge.data.exit == 'last' %}
+                                        Close Price
+                                    {% elseif maxEdge.data.exit == 'open' %}
+                                        Open Price
+                                    {% elseif maxEdge.data.exit == 'high' %}
+                                        Day High
+                                    {% else %}
+                                        Day Low
+                                    {% endif %}
+                                </td>
+                                <th>Before:</th>
+                                <td>{{ maxEdge.data.backward }} Day</td>
+                                <th>After:</th>
+                                <td>{{ maxEdge.data.forward }} Day</td>
+                            </tr>
+                            <tr>
+                                <th>Highest:</th>
+                                <td>
+
+                                    {{ "%+.2f"|format(maxEdge.data.max * 100) }}%
+                                </td>
+                                <th>Average:</th>
+                                <td>
+                            <span style="color: darkorange">
+                            {{ "%+.2f"|format(maxEdge.data.average * 100) }}%
+                            </span>
+                                </td>
+                                <th>Lowest:</th>
+                                <td>
+                                    {{ "%+.2f"|format(maxEdge.data.min * 100) }}%
+                                </td>
+                                <td colspan="2" rowspan="2"></td>
+                            </tr>
+                            {% for summaryName, summaryData in maxEdge.data.summary %}
+                                {% if summaryName == edgeSidewayRange %}
+                                    <tr>
+                                        <th>Chance:</th>
+                                        <td>
+                                            <b style="color: dodgerblue">
+                                                {% if movement == 'bullish' %}
+                                                    {{ (summaryData.bullishPercent * 100)|number_format(2) }}%
+                                                {% elseif movement == 'bearish' %}
+                                                    {{ (summaryData.bearishPercent * 100)|number_format(2) }}%
+                                                {% elseif movement == 'sideway' %}
+                                                    {{ (summaryData.sideWayPercent * 100)|number_format(2) }}%
+                                                {% endif %}
+                                            </b>
+                                        </td>
+                                        <th>Where:</th>
+                                        <td>
+                                            {% if movement == 'bullish' %}
+                                                {{ summaryData.bullish }}/{{ countEarning }}
+                                            {% elseif movement == 'bearish' %}
+                                                {{ summaryData.bearish }}/{{ countEarning }}
+                                            {% elseif movement == 'sideway' %}
+                                                {{ summaryData.sideWay }}/{{ countEarning }}
+                                            {% endif %}
+                                        </td>
+                                        <th>Return:</th>
+                                        <td>
+                                            <b style="color: dodgerblue">
+                                                {% if movement == 'bullish' %}
+                                                    {{ "%+.2f"|format(summaryData.bullishAvg * 100) }}%
+                                                {% elseif movement == 'bearish' %}
+                                                    {{ "%+.2f"|format(summaryData.bearishAvg * 100) }}%
+                                                {% elseif movement == 'sideway' %}
+                                                    {{ "%+.2f"|format(summaryData.sideWayAvg * 100) }}%
+                                                {% endif %}
+                                            </b>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="9">
+                                            {{ include('JackEarningBundle:SweetSpot:explainData.html.twig') }}
+
+                                        </td>
+                                    </tr>
+                                {% endif %}
+                            {% endfor %}
+                        </table>
+
+                    {% endfor %}
+
+                </div>
+            </div>
 
 
-        {% endfor %}
+        </div>
 
-        <hr/>
+        <div class="col-md-2">
 
+            {{ include('JackEarningBundle:SweetSpot:selectForm.html.twig') }}
 
-    {% endfor %}
+        </div>
+    </div>
 
 {% endblock %}

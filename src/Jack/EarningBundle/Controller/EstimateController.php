@@ -10,7 +10,6 @@ class EstimateController extends DefaultController
 {
     protected $priceEstimates;
 
-    // todo: sweet spot function, from last to low, from 60 backward to 60 forward
     // from smallest to largest search every corner for max, average, min price
     // best bullish to best bearish to best sideway range
 
@@ -46,7 +45,7 @@ class EstimateController extends DefaultController
                 $sideWayRange = array(0, 0.5, 1, 2, 3, 5);
                 break;
             case 'large':
-                $sideWayRange = array(0, 3, 6, 9, 12);
+                $sideWayRange = array(0, 3, 6, 9, 12, 15);
                 break;
             case 'larger':
                 $sideWayRange = array(0, 2.5, 5, 10, 15, 20);
@@ -277,13 +276,13 @@ class EstimateController extends DefaultController
      * @return array
      * return a list of form selection
      */
-    private function createSelectDayArray($str, $maxDay = 60)
+    public function createSelectDayArray($str, $maxDay = 60)
     {
         $dayArray = array();
 
         $dayArray[] = "Earning Day";
         for ($day = 1; $day <= $maxDay; $day++) {
-            $dayArray[] = "$day Day $str";
+            $dayArray[] = "$day Days";
         }
 
         return $dayArray;
