@@ -5,6 +5,9 @@
     {% elseif sweetSpotType == 'highestChance' %}
         {% set search = "Highest Probability" %}
         {% set desc = "highest chance of success for %s strategy"|format(movement) %}
+    {% elseif sweetSpotType == 'bestAverage' %}
+        {% set search = "Best Average" %}
+        {% set desc = "best result for continue trading %s strategy for %s times"|format(movement, countEarning) %}
     {% endif %}
 
     {% if maxEdge.data.enter == 'last' %}

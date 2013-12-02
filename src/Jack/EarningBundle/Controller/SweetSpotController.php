@@ -1,6 +1,5 @@
 <?php
 
-
 namespace Jack\EarningBundle\Controller;
 
 use Jack\ImportBundle\Entity\Underlying;
@@ -12,6 +11,8 @@ class SweetSpotController extends EstimateController
 
     protected $rangeSection;
 
+    // todo: daily return in matrix data
+    // todo: matrix enter exit timing loop and compare result
 
     /**
      * @param $symbol
@@ -77,6 +78,9 @@ class SweetSpotController extends EstimateController
                 $sweetSpotResult = $this->getHighestChanceResult($movement, $enter, $exit);
                 break;
             case 'average':
+                $sweetSpotType = 'bestAverage';
+                $movement = $strategy;
+                $sweetSpotResult = $this->getBestAverageResult($movement, $enter, $exit);
                 break;
             case 'edge':
             default:
@@ -378,16 +382,107 @@ class SweetSpotController extends EstimateController
         return $maxChangeArray;
     }
 
+
     /**
      * @param string $searchType
      * @param $searchEnter
      * @param $searchExit
+     * @return array
      */
     public function getBestAverageResult($searchType = 'bullish', $searchEnter, $searchExit)
     {
-        // todo: next, bullish max average, bearish min average, sideway closest 0
+        // put side way range into more readable
+        $ranges = array();
+        foreach ($this->rangeSection as $key => $rangeSection) {
+            $ranges[$key] = strval($rangeSection);
+        }
+
+        // declare percent array
+        $bullishPercent = array();
+        $bearishPercent = array();
+        $sidewayPercent = array();
+
+        // declare edge array
+        $averages = array();
+
+        foreach ($this->matrixEarningPriceMove as $earningPriceMoveData) {
+            // declare not found
+            $found = 0;
+
+            // put enter exit into more readable variable
+            $currentEnter = $earningPriceMoveData['enter'];
+            $currentExit = $earningPriceMoveData['exit'];
+
+            // check is same enter and exit timing
+            if ($currentEnter == $searchEnter && $currentExit == $searchExit) {
+                $found = 1;
+            }
+
+            // save memory
+            unset($currentEnter, $currentExit);
+
+            // found the enter and exit timing data
+            if ($found) {
+                // create a new key
+                $searchKey = $earningPriceMoveData['backward'] . '-' . $earningPriceMoveData['forward'];
+
+                $averages[$searchKey] = $earningPriceMoveData['average'];
+            }
+        }
 
 
+        if ($searchType == 'bullish') {
+            // get the max value for bullish
+            $bestAverageValue = max($averages);
+
+            // set the edge key
+            $edgeKey = 'bullishEdge';
+        } else if ($searchType == 'bearish') {
+            // get the min value for bearish
+            $bestAverageValue = min($averages);
+
+            // set the edge key
+            $edgeKey = 'bearishEdge';
+        } else {
+            // convert all negative value to positive
+            array_walk($averages, function (&$item1, $key) {
+                if ($item1 < 0) {
+                    $item1 = -$item1;
+                }
+            });
+
+            // sort the array remain key
+            asort($averages);
+
+            // get the closest to zero value for sideway
+            $bestAverageValue = current($averages);
+
+            // set the edge key
+            $edgeKey = 'sideWayEdge';
+        }
+
+        $bestAverageKey = array_search(
+            $bestAverageValue, $averages
+        );
+
+        unset($bestAverageValue, $averages);
+
+        //
+        // get the max for bullish
+        $maxChangeArray = array();
+        // set the key for matrix data
+        $maxChangeKey = $searchEnter . '-' . $searchExit . '-' . $bestAverageKey;
+
+        // loop for range data
+        foreach ($ranges as $range) {
+            // set the data to array
+            $maxChangeArray[$range] = array(
+                'edge' => $this->matrixEarningPriceMove[$maxChangeKey]['summary'][$range][$edgeKey],
+                'data' => $this->matrixEarningPriceMove[$maxChangeKey]
+            );
+        }
+
+        return $maxChangeArray;
     }
 
 
@@ -512,12 +607,12 @@ class SweetSpotController extends EstimateController
             ))
 
             ->add('forward', 'choice', array(
-                'choices' => $this->createSelectDayArray('Forward', 30),
+                'choices' => $this->createSelectDayArray('Forward', 60),
                 'required' => true,
                 'multiple' => false,
             ))
             ->add('backward', 'choice', array(
-                'choices' => $this->createSelectDayArray('Backward', 30),
+                'choices' => $this->createSelectDayArray('Backward', 60),
                 'required' => true,
                 'multiple' => false,
             ))

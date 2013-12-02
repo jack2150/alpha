@@ -16,6 +16,10 @@
                         Find Highest Chance of Success In Earning Price Move Data For
                         {{ movement|capitalize }} Strategy
                         Before {{ backward }} After {{ forward }} Days
+                    {% elseif sweetSpotType == 'bestAverage' %}
+                        Find Best Average Percentage In Earning Price Move Data For
+                        {{ movement|capitalize }} Strategy
+                        Before {{ backward }} After {{ forward }} Days
                     {% endif %}
                 </div>
                 <div class="panel-body">
@@ -36,6 +40,8 @@
                                         Max Edge
                                     {% elseif sweetSpotType == 'highestChance' %}
                                         Max Chance
+                                    {% elseif sweetSpotType == 'bestAverage' %}
+                                        Average
                                     {% endif %}
 
                                 </td>
