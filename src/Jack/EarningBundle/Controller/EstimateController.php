@@ -58,23 +58,29 @@ class EstimateController extends DefaultController
                 $sideWayRange = array(0, 1.25, 2.5, 5, 7.5, 10);
         }
 
+
         // get underlying date using earning
         $this->earningUnderlyings = $this->findUnderlyingByEarning($forward, $backward);
 
         // get price estimates for all
         list($this->priceEstimates, $dateArray) = $this->getPriceEstimates();
 
+        // set total day
+        //$totalDays = $forward + $backward + 2;
+        $totalDays = $this->countEarningDays();
+
         // calculate the min, max and average
-        list($max, $min, $average) = $this->getMinMaxAverage($from, $to);
+        list($max, $min, $average, $daily) = $this->getMinMaxAverage($from, $to, $totalDays);
+
 
         // summary calculation
         $summaryReport = array(
-            strval($sideWayRange[0]) => $this->calculateSummary($sideWayRange[0], $from, $to),
-            strval($sideWayRange[1]) => $this->calculateSummary($sideWayRange[1] / 100, $from, $to),
-            strval($sideWayRange[2]) => $this->calculateSummary($sideWayRange[2] / 100, $from, $to),
-            strval($sideWayRange[3]) => $this->calculateSummary($sideWayRange[3] / 100, $from, $to),
-            strval($sideWayRange[4]) => $this->calculateSummary($sideWayRange[4] / 100, $from, $to),
-            strval($sideWayRange[5]) => $this->calculateSummary($sideWayRange[5] / 100, $from, $to)
+            strval($sideWayRange[0]) => $this->calculateSummary($sideWayRange[0], $from, $to, $totalDays),
+            strval($sideWayRange[1]) => $this->calculateSummary($sideWayRange[1] / 100, $from, $to, $totalDays),
+            strval($sideWayRange[2]) => $this->calculateSummary($sideWayRange[2] / 100, $from, $to, $totalDays),
+            strval($sideWayRange[3]) => $this->calculateSummary($sideWayRange[3] / 100, $from, $to, $totalDays),
+            strval($sideWayRange[4]) => $this->calculateSummary($sideWayRange[4] / 100, $from, $to, $totalDays),
+            strval($sideWayRange[5]) => $this->calculateSummary($sideWayRange[5] / 100, $from, $to, $totalDays)
         );
 
         // todo: next best quarter, estimate vs actual summary
@@ -98,6 +104,8 @@ class EstimateController extends DefaultController
                 'summaryMax' => $max,
                 'summaryMin' => $min,
                 'summaryAverage' => $average,
+                'summaryDaily' => $daily,
+
                 'summaryReport' => $summaryReport,
 
                 'priceEstimates' => $this->priceEstimates
@@ -288,7 +296,14 @@ class EstimateController extends DefaultController
         return $dayArray;
     }
 
-    public function getMinMaxAverage($base = 'last', $to = 'last')
+
+    /**
+     * @param string $base
+     * @param string $to
+     * @param int $days
+     * @return array
+     */
+    public function getMinMaxAverage($base = 'last', $to = 'last', $days = 1)
     {
         $percentageList = array();
         foreach ($this->priceEstimates as $priceEstimate) {
@@ -302,22 +317,28 @@ class EstimateController extends DefaultController
         $maxPercentage = 0;
         $minPercentage = 0;
         $averagePercentage = 0;
+        $dailyPercentage = 0;
 
         $countList = count($percentageList);
         if ($countList) {
             $maxPercentage = max($percentageList);
             $minPercentage = min($percentageList);
             $averagePercentage = array_sum($percentageList) / $countList;
+            $dailyPercentage = $averagePercentage / $days;
         }
 
         return array(
             0 => $maxPercentage,
             1 => $minPercentage,
             2 => $averagePercentage,
+            3 => $dailyPercentage
         );
 
     }
 
+    /**
+     * @return array
+     */
     public function getPriceEstimates()
     {
         // get the data from object array
@@ -407,7 +428,14 @@ class EstimateController extends DefaultController
 
     }
 
-    public function calculateSummary($sideWayPercent, $base = 'last', $to = 'last')
+    /**
+     * @param $sideWayPercent
+     * @param string $base
+     * @param string $to
+     * @param int $days
+     * @return array
+     */
+    public function calculateSummary($sideWayPercent, $base = 'last', $to = 'last', $days = 1)
     {
         // set the total earning
         $countEarning = count($this->earnings);
@@ -459,28 +487,31 @@ class EstimateController extends DefaultController
         $bullishEdge = 0;
         $bearishEdge = 0;
 
+        // daily return
+        $bullishDailyReturn = 0;
+        $sideWayDailyReturn = 0;
+        $bearishDailyReturn = 0;
+
         if (!empty($sideWayPool)) {
             sort($sideWayPool);
             $sideWayAverage = number_format(array_sum($sideWayPool) / count($sideWayPool), 4);
             $sideWayPercent = number_format($sideWayCount / $countEarning, 4);
             $sideWayEdge = number_format($sideWayPercent * $sideWayAverage, 4);
-
-            // explanation
-            // sideway average mean: every time it stay in sideway range, it will move average price
-            // sideway percent mean: percent every time it will stay in sideway range
-            // sideway edge:
+            $sideWayDailyReturn = number_format($sideWayAverage / $days, 4);
         }
         if (!empty($bullishPool)) {
             rsort($bullishPool);
             $bullishAverage = number_format(array_sum($bullishPool) / count($bullishPool), 4);
             $bullishPercent = number_format($bullishCount / $countEarning, 4);
             $bullishEdge = number_format($bullishPercent * $bullishAverage, 4);
+            $bullishDailyReturn = number_format($bullishAverage / $days, 4);
         }
         if (!empty($bearishPool)) {
             rsort($bearishPool);
             $bearishAverage = number_format(array_sum($bearishPool) / count($bearishPool), 4);
             $bearishPercent = number_format($bearishCount / $countEarning, 4);
             $bearishEdge = number_format($bearishPercent * $bearishAverage, 4);
+            $bearishDailyReturn = number_format($bearishAverage / $days, 4);
         }
 
 
@@ -490,6 +521,7 @@ class EstimateController extends DefaultController
             'bullishAvg' => floatval($bullishAverage),
             'bullishPercent' => floatval($bullishPercent),
             'bullishEdge' => floatval($bullishEdge),
+            'bullishDaily' => floatval($bullishDailyReturn),
 
 
             'sideWay' => $sideWayCount,
@@ -497,12 +529,14 @@ class EstimateController extends DefaultController
             'sideWayAvg' => floatval($sideWayAverage),
             'sideWayPercent' => floatval($sideWayPercent),
             'sideWayEdge' => floatval($sideWayEdge),
+            'sideWayDaily' => floatval($sideWayDailyReturn),
 
             'bearish' => $bearishCount,
             'bearishPool' => $bearishPool,
             'bearishAvg' => floatval($bearishAverage),
             'bearishPercent' => floatval($bearishPercent),
             'bearishEdge' => floatval($bearishEdge),
+            'bearishDaily' => floatval($bearishDailyReturn),
         );
     }
 
@@ -606,6 +640,16 @@ class EstimateController extends DefaultController
         $temp['reverse']['percentage'] = $temp['reverse']['value'] / 3;
 
         return $temp;
+    }
+
+    /**
+     * @return int
+     */
+    public function countEarningDays()
+    {
+        $firstEarningUnderlyings = end($this->earningUnderlyings);
+
+        return count($firstEarningUnderlyings['underlyings']);
     }
 
 

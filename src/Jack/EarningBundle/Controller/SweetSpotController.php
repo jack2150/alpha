@@ -11,9 +11,6 @@ class SweetSpotController extends EstimateController
 
     protected $rangeSection;
 
-    // todo: daily return in matrix data
-    // todo: matrix enter exit timing loop and compare result
-
     /**
      * @param $symbol
      * @param string $type
@@ -68,26 +65,38 @@ class SweetSpotController extends EstimateController
         // generate a list of enter to exit, backward to forward day matrix
         $this->setMatrixEarningPriceMovementSummary($this->rangeSection, $backward, $forward);
 
-        $sweetSpotType = '';
-        $movement = '';
-        $sweetSpotResult = array();
         switch ($type) {
-            case 'chance':
-                $sweetSpotType = 'highestChance';
-                $movement = $strategy;
-                $sweetSpotResult = $this->getHighestChanceResult($movement, $enter, $exit);
-                break;
             case 'average':
                 $sweetSpotType = 'bestAverage';
                 $movement = $strategy;
-                $sweetSpotResult = $this->getBestAverageResult($movement, $enter, $exit);
+                if ($enter == 'open+last' || $exit == 'open+last') {
+                    $sweetSpotResult = $this->getBestAverageEnterExitResult($movement, $enter, $exit);
+                } else {
+                    $sweetSpotResult = $this->getBestAverageResult($movement, $enter, $exit);
+                }
+
+                break;
+            case 'chance':
+                $sweetSpotType = 'highestChance';
+                $movement = $strategy;
+                if ($enter == 'open+last' || $exit == 'open+last') {
+                    $sweetSpotResult = $this->getHighestChanceEnterExitResult($movement, $enter, $exit);
+                } else {
+                    $sweetSpotResult = $this->getHighestChanceResult($movement, $enter, $exit);
+                }
+
                 break;
             case 'edge':
             default:
                 // next: get the highest chance of bullish, bearish, sideway
                 $sweetSpotType = 'maxEdge';
                 $movement = $strategy;
-                $sweetSpotResult = $this->getMaxEdgeResult($movement, $enter, $exit);
+
+                if ($enter == 'open+last' || $exit == 'open+last') {
+                    $sweetSpotResult = $this->getMaxEdgeEnterExitResult($movement, $enter, $exit);
+                } else {
+                    $sweetSpotResult = $this->getMaxEdgeResult($movement, $enter, $exit);
+                }
 
         }
 
@@ -118,6 +127,298 @@ class SweetSpotController extends EstimateController
 
         // return the render page
         return $render;
+    }
+
+    /**
+     * @param string $movement
+     * @param $enters
+     * @param $exits
+     * @return array
+     */
+    public function getBestAverageEnterExitResult($movement = 'bullish', $enters, $exits)
+    {
+        // put side way range into more readable
+        $ranges = array();
+        foreach ($this->rangeSection as $key => $rangeSection) {
+            $ranges[$key] = strval($rangeSection);
+        }
+
+        // create a max edge result array
+        $bestAverageDataArray = array();
+        if ($enters == 'open+last') {
+            if ($exits == 'open+last') {
+                $bestAverageDataArray['open-open'] = $this->getBestAverageResult($movement, 'open', 'open');
+                $bestAverageDataArray['open-last'] = $this->getBestAverageResult($movement, 'open', 'last');
+                $bestAverageDataArray['last-open'] = $this->getBestAverageResult($movement, 'last', 'open');
+                $bestAverageDataArray['last-last'] = $this->getBestAverageResult($movement, 'last', 'last');
+            } else {
+                $bestAverageDataArray['open-' . $exits] =
+                    $this->getBestAverageResult($movement, 'open', $exits);
+                $bestAverageDataArray['last-' . $exits] =
+                    $this->getBestAverageResult($movement, 'last', $exits);
+            }
+        } else {
+            if ($exits == 'open+last') {
+                $bestAverageDataArray[$enters . '-open'] =
+                    $this->getBestAverageResult($movement, $enters, 'open');
+                $bestAverageDataArray[$enters . '-last'] =
+                    $this->getBestAverageResult($movement, $enters, 'last');
+            }
+        }
+
+        // get highest chance from data array
+        $rangeBestAverage = array();
+        foreach ($ranges as $range) {
+            $averageValueArray = array();
+            foreach ($bestAverageDataArray as $enterExitKey => $bestAverageData) {
+                // assign 'average' data into array
+                $averageValueArray[$enterExitKey] =
+                    $bestAverageData[$range]['data']['average'];
+
+                // save memory
+                unset($bestAverageData, $enterExitKey);
+            }
+
+            // get the max value for array
+            if ($movement == 'bullish') {
+                // get the max value for bullish
+                $rangeBestAverageValue = max($averageValueArray);
+            } else if ($movement == 'bearish') {
+                // get the min value for bearish
+                $rangeBestAverageValue = min($averageValueArray);
+
+            } else {
+                // convert all negative value to positive
+                array_walk($averageValueArray,
+                    function (&$item1, $key) {
+                        if ($item1 < 0) {
+                            $item1 = -$item1;
+                        }
+                    }
+                );
+
+                // get the closest to zero value for sideway
+                $rangeBestAverageValue = min($averageValueArray);
+            }
+
+            // get the key from array
+            $rangeBestAverageKey = array_search($rangeBestAverageValue, $averageValueArray);
+
+            // set the array for return
+            $rangeBestAverage[$range] = $bestAverageDataArray[$rangeBestAverageKey][$range];
+
+            // save memory
+            unset(
+            $range,
+            $rangeBestAverageValue,
+            $rangeBestAverageKey,
+            $averageValueArray
+            );
+        }
+
+        // save memory
+        unset($bestAverageDataArray);
+
+        // return best average data
+        return $rangeBestAverage;
+    }
+
+
+    /**
+     * @param string $movement
+     * @param $enters
+     * @param $exits
+     * @return array
+     */
+    public function getHighestChanceEnterExitResult($movement = 'bullish', $enters, $exits)
+    {
+        // put side way range into more readable
+        $ranges = array();
+        foreach ($this->rangeSection as $key => $rangeSection) {
+            $ranges[$key] = strval($rangeSection);
+        }
+
+        // create a max edge result array
+        $highestChanceDataArray = array();
+        if ($enters == 'open+last') {
+            if ($exits == 'open+last') {
+                $highestChanceDataArray['open-open'] = $this->getHighestChanceResult($movement, 'open', 'open');
+                $highestChanceDataArray['open-last'] = $this->getHighestChanceResult($movement, 'open', 'last');
+                $highestChanceDataArray['last-open'] = $this->getHighestChanceResult($movement, 'last', 'open');
+                $highestChanceDataArray['last-last'] = $this->getHighestChanceResult($movement, 'last', 'last');
+            } else {
+                $highestChanceDataArray['open-' . $exits] =
+                    $this->getHighestChanceResult($movement, 'open', $exits);
+                $highestChanceDataArray['last-' . $exits] =
+                    $this->getHighestChanceResult($movement, 'last', $exits);
+            }
+        } else {
+            if ($exits == 'open+last') {
+                $highestChanceDataArray[$enters . '-open'] =
+                    $this->getHighestChanceResult($movement, $enters, 'open');
+                $highestChanceDataArray[$enters . '-last'] =
+                    $this->getHighestChanceResult($movement, $enters, 'last');
+            }
+        }
+
+        // set the percent string
+        if ($movement == 'bullish') {
+            $movementPercentStr = 'bullishPercent';
+        } else if ($movement == 'bearish') {
+            $movementPercentStr = 'bearishPercent';
+        } else {
+            $movementPercentStr = 'sideWayPercent';
+        }
+
+        // get highest chance from data array
+        $rangeHighestChance = array();
+        foreach ($ranges as $range) {
+            $chanceValueArray = array();
+            $edgeValueArray = array();
+            foreach ($highestChanceDataArray as $enterExitKey => $highestChanceData) {
+
+                $chanceValueArray[$enterExitKey] =
+                    $highestChanceData[$range]['data']['summary'][$range][$movementPercentStr];
+
+                $edgeValueArray[$enterExitKey] =
+                    $highestChanceData[$range]['edge'];
+            }
+
+            // get the max value for array, only highest chance
+            $highestChanceValue = max($chanceValueArray);
+
+            // if more than 1 same percentage, use highest edge
+            $highestChanceArray = array_filter($chanceValueArray,
+                function ($value) use ($highestChanceValue) {
+                    return $value == $highestChanceValue ? 1 : 0;
+                }
+            );
+
+            // get an array of same chances for edge value
+            $highestChanceMaxEdgeArray = array_intersect_key($edgeValueArray, $highestChanceArray);
+
+            // get the max value for array
+            if ($movement == 'bullish') {
+                // get the max value for bullish
+                $highestChanceMaxEdgeValue = max($highestChanceMaxEdgeArray);
+            } else if ($movement == 'bearish') {
+                // get the min value for bearish
+                $highestChanceMaxEdgeValue = min($highestChanceMaxEdgeArray);
+
+            } else {
+                // convert all negative value to positive
+                array_walk($highestChanceMaxEdgeArray,
+                    function (&$item1, $key) {
+                        if ($item1 < 0) {
+                            $item1 = -$item1;
+                        }
+                    }
+                );
+
+                // get the closest to zero value for sideway
+                $highestChanceMaxEdgeValue = min($highestChanceMaxEdgeArray);
+            }
+
+            // get the key from array
+            $highestChanceMaxEdgeKey = array_search($highestChanceMaxEdgeValue, $highestChanceMaxEdgeArray);
+
+            // set the array for return
+            $rangeHighestChance[$range] = $highestChanceDataArray[$highestChanceMaxEdgeKey][$range];
+
+            // save memory
+            unset
+            (
+            $highestChanceMaxEdgeKey,
+            $highestChanceMaxEdgeValue,
+            $highestChanceMaxEdgeArray,
+            $highestChanceValue,
+            $chanceValueArray,
+            $highestChanceArray,
+            $highestChanceData,
+            $edgeValueArray,
+            $rangeSection,
+            $key
+            );
+        }
+
+        return $rangeHighestChance;
+    }
+
+
+    /**
+     * @param string $movement
+     * @param $enters
+     * @param $exits
+     * @return array
+     */
+    public function getMaxEdgeEnterExitResult($movement = 'bullish', $enters, $exits)
+    {
+        // put side way range into more readable
+        $ranges = array();
+        foreach ($this->rangeSection as $key => $rangeSection) {
+            $ranges[$key] = strval($rangeSection);
+        }
+
+        // create a max edge result array
+        $maxEdgeDataArray = array();
+        if ($enters == 'open+last') {
+            if ($exits == 'open+last') {
+                $maxEdgeDataArray['open-open'] = $this->getMaxEdgeResult($movement, 'open', 'open');
+                $maxEdgeDataArray['open-last'] = $this->getMaxEdgeResult($movement, 'open', 'last');
+                $maxEdgeDataArray['last-open'] = $this->getMaxEdgeResult($movement, 'last', 'open');
+                $maxEdgeDataArray['last-last'] = $this->getMaxEdgeResult($movement, 'last', 'last');
+            } else {
+                $maxEdgeDataArray['open-' . $exits] = $this->getMaxEdgeResult($movement, 'open', $exits);
+                $maxEdgeDataArray['last-' . $exits] = $this->getMaxEdgeResult($movement, 'last', $exits);
+            }
+        } else {
+            if ($exits == 'open+last') {
+                $maxEdgeDataArray[$enters . '-open'] = $this->getMaxEdgeResult($movement, $enters, 'open');
+                $maxEdgeDataArray[$enters . '-last'] = $this->getMaxEdgeResult($movement, $enters, 'last');
+            }
+        }
+
+        // loop for every range
+        $rangeMaxEdge = array();
+        foreach ($ranges as $range) {
+            // compare all range edge result to get the max for each
+            $edgeValueArray = array();
+            foreach ($maxEdgeDataArray as $maxEdgeDataKey => $maxEdgeData) {
+                $edgeValueArray[$range][$maxEdgeDataKey] = $maxEdgeData[$range]['edge'];
+            }
+
+            // get the max value for array
+            if ($movement == 'bullish') {
+                // get the max value for bullish
+                $maxEdgeValue = max($edgeValueArray[$range]);
+            } else if ($movement == 'bearish') {
+                // get the min value for bearish
+                $maxEdgeValue = min($edgeValueArray[$range]);
+            } else {
+                // convert all negative value to positive
+                array_walk($edgeValueArray[$range], function (&$item1, $key) {
+                    if ($item1 < 0) {
+                        $item1 = -$item1;
+                    }
+                });
+
+                // sort the array remain key
+                asort($edgeValueArray[$range]);
+
+                // get the closest to zero value for sideway
+                $maxEdgeValue = current($edgeValueArray[$range]);
+            }
+
+            // get the key from array
+            $maxEdgeEnterExitKey = array_search($maxEdgeValue, $edgeValueArray[$range]);
+            //$maxEdgeKey = array_search($maxEdgeValue, $maxEdgeDataArray[$maxEdgeEnterExitKey][$range]['edge']);
+
+            // set the data
+            $rangeMaxEdge[$range] = $maxEdgeDataArray[$maxEdgeEnterExitKey][$range];
+
+        }
+
+        return $rangeMaxEdge;
     }
 
 
@@ -508,7 +809,7 @@ class SweetSpotController extends EstimateController
                     for ($forward = 0; $forward < $maxForward; $forward++) {
 
                         // calculate the summary result
-                        list($max, $min, $average, $summary) =
+                        list($max, $min, $average, $daily, $summary) =
                             $this->getSummaryResult($sideWayRange, $enter, $exit, $forward, $backward);
 
                         // save the data into array
@@ -524,6 +825,7 @@ class SweetSpotController extends EstimateController
                             'max' => $max,
                             'min' => $min,
                             'average' => $average,
+                            'daily' => $daily,
 
                             'summary' => $summary,
                         );
@@ -591,6 +893,7 @@ class SweetSpotController extends EstimateController
                     'open' => 'Open Price',
                     'high' => 'Day High',
                     'low' => 'Day Low',
+                    'open+last' => 'Open/Close',
                 ),
                 'required' => true,
                 'multiple' => false,
@@ -601,6 +904,7 @@ class SweetSpotController extends EstimateController
                     'open' => 'Open Price',
                     'high' => 'Day High',
                     'low' => 'Day Low',
+                    'open+last' => 'Open/Close',
                 ),
                 'required' => true,
                 'multiple' => false,
@@ -695,24 +999,29 @@ class SweetSpotController extends EstimateController
         // get price estimates for all
         list($this->priceEstimates, $dateArray) = $this->getPriceEstimates();
 
+        // set total days
+        $totalDays = $this->countEarningDays();
+
         // calculate the min, max and average
-        list($max, $min, $average) = $this->getMinMaxAverage($from, $to);
+        list($max, $min, $average, $daily) = $this->getMinMaxAverage($from, $to, $totalDays);
 
         // summary calculation
         $summaryReport = array(
-            strval($sideWayRange[0]) => $this->calculateSummary($sideWayRange[0], $from, $to),
-            strval($sideWayRange[1]) => $this->calculateSummary($sideWayRange[1] / 100, $from, $to),
-            strval($sideWayRange[2]) => $this->calculateSummary($sideWayRange[2] / 100, $from, $to),
-            strval($sideWayRange[3]) => $this->calculateSummary($sideWayRange[3] / 100, $from, $to),
-            strval($sideWayRange[4]) => $this->calculateSummary($sideWayRange[4] / 100, $from, $to),
-            strval($sideWayRange[5]) => $this->calculateSummary($sideWayRange[5] / 100, $from, $to)
+            strval($sideWayRange[0]) => $this->calculateSummary($sideWayRange[0], $from, $to, $totalDays),
+            strval($sideWayRange[1]) => $this->calculateSummary($sideWayRange[1] / 100, $from, $to, $totalDays),
+            strval($sideWayRange[2]) => $this->calculateSummary($sideWayRange[2] / 100, $from, $to, $totalDays),
+            strval($sideWayRange[3]) => $this->calculateSummary($sideWayRange[3] / 100, $from, $to, $totalDays),
+            strval($sideWayRange[4]) => $this->calculateSummary($sideWayRange[4] / 100, $from, $to, $totalDays),
+            strval($sideWayRange[5]) => $this->calculateSummary($sideWayRange[5] / 100, $from, $to, $totalDays)
         );
 
         return array(
             0 => $max,
             1 => $min,
             2 => $average,
-            3 => $summaryReport
+            3 => $daily,
+
+            4 => $summaryReport
         );
     }
 

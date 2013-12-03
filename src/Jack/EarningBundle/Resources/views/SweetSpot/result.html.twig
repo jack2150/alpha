@@ -117,7 +117,12 @@
                                 <td>
                                     {{ "%+.2f"|format(maxEdge.data.min * 100) }}%
                                 </td>
-                                <td colspan="2" rowspan="2"></td>
+                                <th>
+                                    ADaily:
+                                </th>
+                                <td>
+                                    {{ "%+.2f"|format(maxEdge.data.daily * 100) }}%
+                                </td>
                             </tr>
                             {% for summaryName, summaryData in maxEdge.data.summary %}
                                 {% if summaryName == edgeSidewayRange %}
@@ -155,6 +160,16 @@
                                                     {{ "%+.2f"|format(summaryData.sideWayAvg * 100) }}%
                                                 {% endif %}
                                             </b>
+                                        </td>
+                                        <th>RDaily:</th>
+                                        <td>
+                                            {% if movement == 'bullish' %}
+                                                {{ "%+.2f"|format(summaryData.bullishDaily * 100) }}%
+                                            {% elseif movement == 'bearish' %}
+                                                {{ "%+.2f"|format(summaryData.bearishDaily * 100) }}%
+                                            {% elseif movement == 'sideway' %}
+                                                {{ "%+.2f"|format(summaryData.sideWayDaily * 100) }}%
+                                            {% endif %}
                                         </td>
                                     </tr>
                                     <tr>
