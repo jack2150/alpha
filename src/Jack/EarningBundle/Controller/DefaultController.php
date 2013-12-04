@@ -60,6 +60,7 @@ class DefaultController extends FindController
                     'searchUnderlying' => 'Find earning/underlyings data',
                     'estimatePriceMove' => 'Estimate price movement before/after earning',
                     'earningSweetSpot' => 'Find the "Sweep Spot" before/after earning',
+                    'quarterMovementResult' => 'Quarterly earning price movement result',
                 ),
                 'required' => true,
                 'multiple' => false,
@@ -97,6 +98,13 @@ class DefaultController extends FindController
                         'symbol' => strtolower($symbol)
                     );
                     break;
+                case 'quarterMovementResult':
+                    $returnUrl = 'jack_earning_quarter_result';
+                    $params = array(
+                        'symbol' => strtolower($symbol)
+                    );
+                    break;
+
             }
 
             return $this->redirect($this->generateUrl($returnUrl, $params));

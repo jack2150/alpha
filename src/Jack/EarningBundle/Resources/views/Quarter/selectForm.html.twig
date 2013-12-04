@@ -1,0 +1,54 @@
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <b>
+            Analysis Form
+        </b>
+    </div>
+    <div class="panel-body a">
+
+        {{ form_start(quarterForm, {'attr': {'class': 'form-inline', 'role': 'form' }}) }}
+        {{ form_errors(quarterForm) }}
+
+        <div class="form-group">
+            {{ form_label(quarterForm.enter, 'Start Day:') }}
+            {{ form_errors(quarterForm.enter) }}
+            {{ form_widget(quarterForm.enter, {'attr': {'class': 'form-control' }}) }}
+        </div>
+
+
+        <div class="form-group">
+            {{ form_label(quarterForm.exit, 'End Day:') }}
+            {{ form_errors(quarterForm.exit) }}
+            {{ form_widget(quarterForm.exit, {'attr': {'class': 'form-control' }}) }}
+        </div>
+
+
+        <div class="form-group">
+            {{ form_label(quarterForm.backward, 'Backward Day:') }}
+            {{ form_errors(quarterForm.backward) }}
+            {{ form_widget(quarterForm.backward, {'attr': {'class': 'form-control' }}) }}
+        </div>
+
+        <div class="form-group">
+            {{ form_label(quarterForm.forward, 'Forward Day:') }}
+            {{ form_errors(quarterForm.forward) }}
+            {{ form_widget(quarterForm.forward, {'attr': {'class': 'form-control' }}) }}
+        </div>
+
+
+        <div class="marginbottom10px">
+            <div class="form-group">
+                {{ form_label(quarterForm.format, 'Format:') }}
+                {{ form_errors(quarterForm.format) }}
+                {{ form_widget(quarterForm.format, {'attr': {'class': 'form-control' }}) }}
+            </div>
+        </div>
+
+        <div class="form-group">
+            {{ form_widget(quarterForm.generate,
+            {'attr': {'class': 'btn btn-primary' }}) }}
+        </div>
+
+        {{ form_end(quarterForm) }}
+    </div>
+</div>

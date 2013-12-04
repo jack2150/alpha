@@ -6,6 +6,10 @@ use Jack\EarningBundle\Controller\DefaultController;
 
 use Jack\ImportBundle\Entity\Underlying;
 
+/**
+ * Class EstimateController
+ * @package Jack\EarningBundle\Controller
+ */
 class EstimateController extends DefaultController
 {
     protected $priceEstimates;
@@ -33,7 +37,30 @@ class EstimateController extends DefaultController
         list($from, $to, $forward, $backward, $format) =
             $this->validateSelectData($from, $to, $forward, $backward, $format);
 
-
+        switch ($format) {
+            case 'smallest':
+                $sideWayRange = array(0, 0.25, 0.75, 1.25, 1.75, 2.25);
+                break;
+            case 'smaller':
+                $sideWayRange = array(0, 0.5, 1, 1.5, 2, 2.5);
+                break;
+            case 'small':
+                $sideWayRange = array(0, 1, 2, 3, 4, 5);
+                break;
+            case 'large':
+                $sideWayRange = array(0, 2.5, 5, 7.5, 10, 12.5);
+                break;
+            case 'larger':
+                $sideWayRange = array(0, 3, 6, 9, 12, 15);
+                break;
+            case 'largest':
+                $sideWayRange = array(0, 4, 8, 12, 16, 20);
+                break;
+            case 'medium':
+            default:
+                $sideWayRange = array(0, 2, 4, 6, 8, 10);
+        }
+        /*
         switch ($format) {
             case 'smallest':
                 $sideWayRange = array(0, 0.1, 0.25, 0.5, 0.75, 1);
@@ -57,6 +84,7 @@ class EstimateController extends DefaultController
             default:
                 $sideWayRange = array(0, 1.25, 2.5, 5, 7.5, 10);
         }
+        */
 
 
         // get underlying date using earning
@@ -113,6 +141,14 @@ class EstimateController extends DefaultController
         );
     }
 
+    /**
+     * @param $from
+     * @param $to
+     * @param $forward
+     * @param $backward
+     * @param $format
+     * @return array
+     */
     public function validateSelectData($from, $to, $forward, $backward, $format)
     {
         // validate from
@@ -163,6 +199,9 @@ class EstimateController extends DefaultController
 
     }
 
+    /**
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse
+     */
     public function resultRedirectAction()
     {
         $formData = $this->getRequest()->get('form');
@@ -204,6 +243,14 @@ class EstimateController extends DefaultController
     }
 
 
+    /**
+     * @param string $from
+     * @param string $to
+     * @param int $forward
+     * @param int $backward
+     * @param string $format
+     * @return \Symfony\Component\Form\FormView
+     */
     public function createSummaryForm(
         $from = 'last', $to = 'last', $forward = 0, $backward = 0, $format = 'medium'
     )

@@ -21,3 +21,11 @@ jack_earning_sweetspot_result:
 jack_earning_sweetspot_redirect:
     pattern: /sweetspot/result/redirect
     defaults: { _controller: JackEarningBundle:SweetSpot:redirect }
+
+jack_earning_quarter_result:
+    pattern: /quarter/result/index/{enter}/{exit}/{backward}/{forward}/{format}/{symbol}
+    defaults: { _controller: JackEarningBundle:Quarter:result, enter: 'last', exit: 'last', forward: 0, backward: 0, format: 'medium' }
+
+jack_earning_quarter_redirect:
+    pattern: /quarter/result/redirect
+    defaults: { _controller: JackEarningBundle:Quarter:redirect }
