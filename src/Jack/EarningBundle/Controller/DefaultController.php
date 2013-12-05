@@ -240,6 +240,98 @@ class DefaultController extends FindController
     }
 
     /**
+     * @param int $forward
+     * @param int $backward
+     * @return array
+     * @throws \Symfony\Component\HttpKernel\Exception\NotFoundHttpException
+     */
+    public function findUnderlyingByEarning2($forward = 0, $backward = 0)
+    {
+        $earningUnderlying = array();
+
+        // if underlying is not set
+        if (!count($this->underlyings)) {
+            $this->underlyings = $this->getUnderlyingDateArray();
+        }
+
+        $underlyingDateArray = array_keys($this->underlyings);
+
+
+        foreach ($this->earnings as $dateKey => $earning) {
+            // error checking
+            if (!($earning instanceof Earning)) {
+                throw $this->createNotFoundException(
+                    'Error [ Earning ] object from entity manager'
+                );
+            }
+
+            $searchDate = $dateKey;
+
+            $marketHour = strtolower($earning->getMarkethour());
+
+            // find position in date array
+            $currentPosition = array_search($searchDate, $underlyingDateArray);
+            $startPosition = 0;
+            $arrayLength = 0;
+            switch ($marketHour) {
+                case 'before':
+                    $startPosition = $currentPosition - $backward - 1;
+                    $arrayLength = $backward + $forward + 2;
+                    break;
+                case 'during':
+                    $startPosition = $currentPosition - $backward;
+                    $arrayLength = $backward + $forward + 1;
+
+                    break;
+                case 'after':
+                    $startPosition = $currentPosition - $backward;
+                    $arrayLength = $backward + $forward + 2;
+                    break;
+            }
+
+            // get the array of earning underlying
+            $underlyingData = array_slice($this->underlyings, $startPosition, $arrayLength);
+
+            // put into a array of earnings and underlyings
+            $earningUnderlying[$dateKey] = array(
+                'earning' => $earning,
+                'underlyings' => $underlyingData
+            );
+
+            // save memory
+            unset($dateKey, $earning, $searchDate, $marketHour,
+            $currentPosition, $startPosition, $arrayLength);
+        }
+
+        return $earningUnderlying;
+    }
+
+    /**
+     * @return array
+     * @throws \Symfony\Component\HttpKernel\Exception\NotFoundHttpException
+     */
+    public function getUnderlyingDateArray()
+    {
+        $underlyings = $this->findUnderlyingAll();
+
+        $newUnderlyings = array();
+        foreach ($underlyings as $underlying) {
+            // error checking
+            if (!($underlying instanceof Underlying)) {
+                throw $this->createNotFoundException(
+                    'Error [ Underlying ] object from entity manager'
+                );
+            }
+
+            // using date as key
+            $newUnderlyings[$underlying->getDate()->format('Y-m-d')] = $underlying;
+        }
+        unset($underlyings);
+
+        return $newUnderlyings;
+    }
+
+    /**
      * @return array
      * @throws \Symfony\Component\HttpKernel\Exception\NotFoundHttpException
      */

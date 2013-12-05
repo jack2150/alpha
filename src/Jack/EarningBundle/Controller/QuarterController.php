@@ -4,7 +4,7 @@ namespace Jack\EarningBundle\Controller;
 
 use Jack\ImportBundle\Entity\Earning;
 
-class QuarterController extends SweetSpotController
+class QuarterController extends EstimateController
 {
     protected $rangeSection;
 
@@ -75,6 +75,11 @@ class QuarterController extends SweetSpotController
             (
                 'symbol' => $symbol,
 
+                'enter' => $enter,
+                'exit' => $exit,
+                'backward' => $backward,
+                'forward' => $forward,
+
                 'quarterReports' => $quarterReports,
 
                 'quarterForm' => $this->createQuarterForm(
@@ -87,6 +92,9 @@ class QuarterController extends SweetSpotController
 
     }
 
+    /**
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse
+     */
     public function redirectAction()
     {
         $formData = $this->getRequest()->get('form');

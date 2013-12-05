@@ -8,7 +8,31 @@
 
             <div class="panel panel-default">
                 <div class="panel-heading">
-                    Title
+                    Quarterly Price Movement Analysis using
+                    {% if enter == 'last' %}
+                        "Close Price"
+                    {% elseif enter == 'open' %}
+                        "Open Price"
+                    {% elseif enter == 'high' %}
+                        "Day High"
+                    {% else %}
+                        "Day Low"
+                    {% endif %}
+                    as Enter and
+                    {% if exit == 'last' %}
+                        "Close Price"
+                    {% elseif exit == 'open' %}
+                        "Open Price"
+                    {% elseif exit == 'high' %}
+                        "Day High"
+                    {% else %}
+                        "Day Low"
+                    {% endif %}
+                    as Exit
+                    with Backward {{ backward }} days
+                    and Forward {{ forward }} days
+
+
                 </div>
                 <div class="panel-body">
 
