@@ -66,9 +66,6 @@ class QuarterController extends EstimateController
             strval($this->rangeSection[5]) => $this->getQuarterResult($this->rangeSection[5] / 100, $enter, $exit)
         );
 
-        $a = 1;
-
-        // todo: next display data, create form
         return $this->render(
             'JackEarningBundle:Quarter:result.html.twig',
             array

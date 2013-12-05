@@ -45,7 +45,7 @@ class DefaultController extends FindController
     {
         $earningFormData = array(
             'symbol' => null,
-            'action' => '20'
+            'action' => 'earningSweetSpot'
 
         );
 
@@ -57,10 +57,11 @@ class DefaultController extends FindController
             ))
             ->add('action', 'choice', array(
                 'choices' => array(
-                    'searchUnderlying' => 'Find earning/underlyings data',
-                    'estimatePriceMove' => 'Estimate price movement before/after earning',
-                    'earningSweetSpot' => 'Find the "Sweep Spot" before/after earning',
-                    'quarterMovementResult' => 'Quarterly earning price movement result',
+                    'searchUnderlying' => 'N. Find earning/underlyings data',
+                    'estimatePriceMove' => '0. Earning price movement by before/after backward/forward',
+                    'earningSweetSpot' => '1. Find the "Sweep Spot" earning price movement',
+                    'quarterMovementResult' => '2. Quarterly separate earning price movement',
+                    'EpsReactionResult' => '3. Eps impact on earning price movement',
                 ),
                 'required' => true,
                 'multiple' => false,
@@ -100,6 +101,12 @@ class DefaultController extends FindController
                     break;
                 case 'quarterMovementResult':
                     $returnUrl = 'jack_earning_quarter_result';
+                    $params = array(
+                        'symbol' => strtolower($symbol)
+                    );
+                    break;
+                case 'EpsReactionResult':
+                    $returnUrl = 'jack_earning_eps_result';
                     $params = array(
                         'symbol' => strtolower($symbol)
                     );
@@ -449,6 +456,10 @@ class DefaultController extends FindController
         $this->earnings = $newEarnings;
     }
 
+    /**
+     * @param $date
+     * @return int
+     */
     public function checkDateIsHoliday($date)
     {
         $found = 0;

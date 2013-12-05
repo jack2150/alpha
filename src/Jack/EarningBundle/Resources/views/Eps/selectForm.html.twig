@@ -1,0 +1,54 @@
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <b>
+            Analysis Form
+        </b>
+    </div>
+    <div class="panel-body a">
+
+        {{ form_start(form, {'attr': {'class': 'form-inline', 'role': 'form' }}) }}
+        {{ form_errors(form) }}
+
+        <div class="form-group">
+            {{ form_label(form.enter, 'Start Day:') }}
+            {{ form_errors(form.enter) }}
+            {{ form_widget(form.enter, {'attr': {'class': 'form-control' }}) }}
+        </div>
+
+
+        <div class="form-group">
+            {{ form_label(form.exit, 'End Day:') }}
+            {{ form_errors(form.exit) }}
+            {{ form_widget(form.exit, {'attr': {'class': 'form-control' }}) }}
+        </div>
+
+
+        <div class="form-group">
+            {{ form_label(form.backward, 'Backward Day:') }}
+            {{ form_errors(form.backward) }}
+            {{ form_widget(form.backward, {'attr': {'class': 'form-control' }}) }}
+        </div>
+
+        <div class="form-group">
+            {{ form_label(form.forward, 'Forward Day:') }}
+            {{ form_errors(form.forward) }}
+            {{ form_widget(form.forward, {'attr': {'class': 'form-control' }}) }}
+        </div>
+
+
+        <div class="marginbottom10px">
+            <div class="form-group">
+                {{ form_label(form.format, 'Format:') }}
+                {{ form_errors(form.format) }}
+                {{ form_widget(form.format, {'attr': {'class': 'form-control' }}) }}
+            </div>
+        </div>
+
+        <div class="form-group">
+            {{ form_widget(form.generate,
+            {'attr': {'class': 'btn btn-primary' }}) }}
+        </div>
+
+        {{ form_end(form) }}
+    </div>
+</div>

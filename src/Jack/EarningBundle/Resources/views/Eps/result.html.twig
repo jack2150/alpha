@@ -1,0 +1,126 @@
+{% extends "JackEarningBundle::layout.html.twig" %}
+
+{% block title %}Earning Bundle: Eps Result{% endblock %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-md-10">
+
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    Quarterly Price Movement Analysis using
+                    {% if enter == 'last' %}
+                        "Close Price"
+                    {% elseif enter == 'open' %}
+                        "Open Price"
+                    {% elseif enter == 'high' %}
+                        "Day High"
+                    {% else %}
+                        "Day Low"
+                    {% endif %}
+                    as Enter and
+                    {% if exit == 'last' %}
+                        "Close Price"
+                    {% elseif exit == 'open' %}
+                        "Open Price"
+                    {% elseif exit == 'high' %}
+                        "Day High"
+                    {% else %}
+                        "Day Low"
+                    {% endif %}
+                    as Exit
+                    with Backward {{ backward }} days
+                    and Forward {{ forward }} days
+
+
+                </div>
+                <div class="panel-body">
+
+                    {% for sidewayRange, epsReport in epsReports %}
+                        <table class="table table-bordered">
+                            <tr>
+                                <td style="text-align: center; vertical-align: middle; width: 100px">
+                                    <small>RANGE</small>
+                                    <h2>{{ sidewayRange }}%</h2>
+                                </td>
+
+                                <td>
+                                    {% for epsCompare, epsData in epsReport %}
+                                        <table class="table">
+                                            <tr>
+                                                <td colspan="6" style="background-color: ivory">
+                                                    {% if epsCompare == 'above' %}
+                                                        Actual Eps is Higher than Estimate Eps (Actual >= Estimate)
+                                                    {% else %}
+                                                        Actual Eps is Lower than Estimate Eps (Actual < Estimate)
+                                                    {% endif %}
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>Bullish</td>
+                                                <td>Count: {{ epsData.bullish.count }}</td>
+                                                <td>Percent:
+                                                    <b style="color: green">
+                                                        {{ "%d"|format(epsData.bullish.percent*100) }}%
+                                                    </b>
+                                                </td>
+                                                <td>Average:
+                                <span style="color: green">
+                                    {{ "%.2f"|format(epsData.bullish.average*100) }}%
+                                </span>
+                                                </td>
+                                                <td>Edge: {{ "%.2f"|format(epsData.bullish.edge*100) }}%</td>
+                                                <td>Daily: {{ "%.2f"|format(epsData.bullish.daily*100) }}%</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Sideway</td>
+                                                <td>Count: {{ epsData.sideway.count }}</td>
+                                                <td>Percent:
+                                                    <b style="color: orange">
+                                                        {{ "%d"|format(epsData.sideway.percent*100) }}%
+                                                    </b>
+                                                </td>
+                                                <td>
+                                                    Average:
+                                <span style="color: orange">
+                                    {{ "%.2f"|format(epsData.sideway.average*100) }}%
+                                </span>
+                                                </td>
+                                                <td>Edge: {{ "%.2f"|format(epsData.sideway.edge*100) }}%</td>
+                                                <td>Daily: {{ "%.2f"|format(epsData.sideway.daily*100) }}%</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Bearish</td>
+                                                <td>Count: {{ epsData.bearish.count }}</td>
+                                                <td>Percent:
+                                                    <b style="color: red">
+                                                        {{ "%d"|format(epsData.bearish.percent*100) }}%
+                                                    </b>
+                                                </td>
+                                                <td>Average:
+                                <span style="color: red">
+                                    {{ "%.2f"|format(epsData.bearish.average*100) }}%
+                                </span>
+                                                </td>
+                                                <td>Edge: {{ "%.2f"|format(epsData.bearish.edge*100) }}%</td>
+                                                <td>Daily: {{ "%.2f"|format(epsData.bearish.daily*100) }}%</td>
+                                            </tr>
+                                        </table>
+                                    {% endfor %}
+                                </td>
+                            </tr>
+
+                        </table>
+                    {% endfor %}
+
+                </div>
+            </div>
+
+
+        </div>
+        <div class="col-md-2">
+            {{ include('JackEarningBundle:Eps:selectForm.html.twig') }}
+        </div>
+    </div>
+
+{% endblock %}

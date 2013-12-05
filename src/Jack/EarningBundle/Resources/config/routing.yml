@@ -29,3 +29,11 @@ jack_earning_quarter_result:
 jack_earning_quarter_redirect:
     pattern: /quarter/result/redirect
     defaults: { _controller: JackEarningBundle:Quarter:redirect }
+
+jack_earning_eps_result:
+    pattern: /eps/result/index/{enter}/{exit}/{backward}/{forward}/{format}/{symbol}
+    defaults: { _controller: JackEarningBundle:Eps:result, enter: 'last', exit: 'last', forward: 0, backward: 0, format: 'medium' }
+
+jack_earning_eps_redirect:
+    pattern: /eps/result/redirect
+    defaults: { _controller: JackEarningBundle:Eps:redirect }
