@@ -1,6 +1,6 @@
 jack_import_default:
-    pattern:  /default
-    defaults: { _controller: JackImportBundle:Default:index }
+    pattern:  /index/{start}
+    defaults: { _controller: JackImportBundle:Default:index, start: 0 }
 
 jack_import_check_form:
     pattern: /check/form
@@ -35,3 +35,11 @@ jack_import_event_manage:
 jack_import_event_remove:
     pattern: /event/remove/{symbol}/{id}/{redirect}
     defaults: { _controller: JackImportBundle:Event:removeEvent }
+
+jack_import_parallel_index:
+    pattern: /parallel/index
+    defaults: { _controller: JackImportBundle:Parallel:index }
+
+jack_import_parallel_result:
+    pattern: /parallel/result
+    defaults: { _controller: JackImportBundle:Parallel:result }

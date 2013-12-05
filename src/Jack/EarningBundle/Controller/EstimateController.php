@@ -302,13 +302,13 @@ class EstimateController extends DefaultController
 
             ->add('format', 'choice', array(
                 'choices' => array(
-                    'smallest' => 'SIDEWAY RANGE: 0, 0.25, 0.75, 1.25, 1.75, 2.25',
-                    'smaller' => 'SIDEWAY RANGE: 0, 0.5, 1, 1.5, 2, 2.5',
-                    'small' => 'SIDEWAY RANGE: 0, 1, 2, 3, 4, 5',
-                    'medium' => 'SIDEWAY RANGE: 0, 2, 4, 6, 8, 10',
-                    'large' => 'SIDEWAY RANGE: 0, 2.5, 5, 7.5, 10, 12.5',
-                    'larger' => 'SIDEWAY RANGE: 0, 3, 6, 9, 12, 15',
-                    'largest' => 'SIDEWAY RANGE: 0, 4, 8, 12, 16, 20',
+                    'smallest' => 'Sideway Range: 0, 0.25, 0.75, 1.25, 1.75, 2.25',
+                    'smaller' => 'Sideway Range: 0, 0.5, 1, 1.5, 2, 2.5',
+                    'small' => 'Sideway Range: 0, 1, 2, 3, 4, 5',
+                    'medium' => 'Sideway Range: 0, 2, 4, 6, 8, 10',
+                    'large' => 'Sideway Range: 0, 2.5, 5, 7.5, 10, 12.5',
+                    'larger' => 'Sideway Range: 0, 3, 6, 9, 12, 15',
+                    'largest' => 'Sideway Range: 0, 4, 8, 12, 16, 20',
                 ),
                 'required' => true,
                 'multiple' => false,

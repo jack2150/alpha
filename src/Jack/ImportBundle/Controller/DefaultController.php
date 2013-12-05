@@ -39,15 +39,20 @@ class DefaultController extends Controller
     protected $cycleObjects;
     protected $strikeObjects;
 
+
     /**
+     * @param int $start
      * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function indexAction()
+    public function indexAction($start = 0)
     {
         $importDirectory = '..\web\import';
 
-        $result = $this->getFiles($importDirectory);
+        //$result = $this->getFiles($importDirectory);
+        $result = $this->getFiles2($importDirectory, $start);
 
+        // declare import url and template array
+        $importURL = '';
         $templateArray = array();
 
         $error = 0;
@@ -63,6 +68,7 @@ class DefaultController extends Controller
                 'error' => $error,
             );
         }
+
 
         if (!$error) {
 
@@ -90,7 +96,7 @@ class DefaultController extends Controller
             $this->updateSymbolTable($currentSymbol, $importedPaths);
 
             // check still have other remaining underlying
-            $importURL = "";
+
             if (count($remainSymbols)) {
                 // repeating until no more files in import folder
                 $importURL = $this->generateUrl('jack_import_default');
@@ -108,11 +114,152 @@ class DefaultController extends Controller
 
         }
 
-
         return $this->render(
             'JackImportBundle:Default:index.html.twig',
             $templateArray
         );
+    }
+
+    /**
+     * @param $folder
+     * @param $start
+     * @return array
+     * @throws \Symfony\Component\HttpKernel\Exception\NotFoundHttpException
+     */
+    private function getFiles2($folder, $start)
+    {
+        $finder = new Finder();
+
+        /** @noinspection PhpUndefinedMethodInspection */
+        $finder = $finder->files()
+            ->in($folder)
+            ->name('*.csv')
+            ->size('> 1K')
+            ->contains('thinkBack')
+            ->sortByName()
+            ->ignoreUnreadableDirs();
+
+        if (count($finder) == 0) {
+            return array(array(), '', '', '');
+        }
+
+        $holidayDate = $this->getHolidays();
+
+        // check similar underlying symbol using file name
+        //
+        $files = Array();
+        $notFirstFile = 0;
+        $firstSymbol = "";
+        $remainSymbols = Array();
+        $fileLinks = Array();
+        $maxFilesInsert = self::$maxFilesInsert;
+
+        foreach ($finder as $file) {
+            if (!($file instanceof SplFileInfo)) {
+                throw $this->createNotFoundException(
+                    "Passing invalid object (not SplFileInf) type!"
+                );
+            }
+
+            // only get similar underlying symbol
+            $fileSymbol = substr(
+                $file->getFilename(), 33,
+                strpos($file->getFilename(), '.') - 33
+            );
+
+            if ($notFirstFile == 0) {
+                $firstSymbol = substr(
+                    $file->getFilename(), 33,
+                    strpos($file->getFilename(), '.') - 33
+                );
+
+                // only run once for first files
+                $notFirstFile++;
+            }
+
+            $currentDate = substr(basename($file->getFilename()), 0, 10);
+            $weekday = date('l', strtotime($currentDate));
+
+            $notWeekend = 0;
+            if ($weekday != 'Saturday' && $weekday != 'Sunday') {
+                $notWeekend = 1;
+            }
+
+            // now check is not holiday
+            // open system table, get all holiday
+            $notHoliday = 1;
+            if (isset($holidayDate)) {
+                foreach ($holidayDate as $holiday) {
+                    if ($currentDate == $holiday) {
+                        $notHoliday = 0;
+                    }
+                }
+            }
+
+            // if same symbol then add content into files array
+            // then delete the files in the import folder
+            if ($notWeekend && $notHoliday) {
+                if ($fileSymbol == $firstSymbol) {
+                    // set content into files
+                    $files[] = $file->getContents();
+
+                    // get link path for display
+                    $fileLinks[] = $file;
+                } else {
+                    // set the remaining symbol
+                    $remainSymbols[] = $fileSymbol;
+                }
+            }
+
+            // save memory
+            unset($file);
+        }
+
+        // split data content into set
+        $totalFiles = count($files);
+        if ($totalFiles > $start) {
+
+            $files = array_slice($files, $start, $maxFilesInsert);
+            $fileLinks = array_slice($fileLinks, $start, $maxFilesInsert);
+        } else {
+            // if not more files than start, then stop
+            $files = array();
+            $fileLinks = array();
+        }
+
+        return array($files, $firstSymbol, array_unique($remainSymbols), $fileLinks);
+    }
+
+    /**
+     * @return array
+     * @throws \Symfony\Component\HttpKernel\Exception\NotFoundHttpException
+     */
+    private function getHolidays()
+    {
+        // declare holiday
+        $holidayDate = array();
+
+        // get all holiday data
+        $systemEM = $this->getDoctrine()->getManager('system');
+
+        // highlight holiday date from array
+        $holidays = $systemEM->getRepository('JackImportBundle:Holiday')
+            ->findAll();
+
+        if ($holidays) {
+            foreach ($holidays as $holiday) {
+                if (!$holiday instanceof Holiday) {
+                    throw $this->createNotFoundException(
+                        'Error [ Holiday ] object from entity manager!'
+                    );
+                }
+
+                $holidayDate[] = $holiday->getDate()->format('Y-m-d');
+            }
+            unset($holidays);
+        }
+
+        return $holidayDate;
     }
 
 
@@ -148,26 +295,8 @@ class DefaultController extends Controller
             return array(array(), '', '', '');
         }
 
-
-        // get all holiday data
-        $systemEM = $this->getDoctrine()->getManager('system');
-
-        // highlight holiday date from array
-        $holidays = $systemEM->getRepository('JackImportBundle:Holiday')
-            ->findAll();
-
-        if ($holidays) {
-            foreach ($holidays as $holiday) {
-                if (!$holiday instanceof Holiday) {
-                    throw $this->createNotFoundException(
-                        'Error [ Holiday ] object from entity manager!'
-                    );
-                }
-
-                $holidayDate[] = $holiday->getDate()->format('Y-m-d');
-            }
-            unset($holidays);
-        }
+        // set the holiday date
+        $holidayDate = $this->getHolidays();
 
         // check similar underlying symbol using file name
         //

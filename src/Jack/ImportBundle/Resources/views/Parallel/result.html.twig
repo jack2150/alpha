@@ -1,0 +1,20 @@
+{% extends "JackDefaultBundle::layout.html.twig" %}
+
+{% block title %}Import Bundle: Paralle Import: Execute{% endblock %}
+
+{% block content %}
+    <h3><span class="glyphicon glyphicon-forward"></span> Parallel Import: Initial</h3>
+
+    <div class="panel panel-primary">
+        <div class="panel-heading">Request Done</div>
+        <div class="panel-body">
+            <div class="alert alert-info">
+                {{ countParallel }} Parallels are now running.
+                Please wait for about 30 seconds and check the import folder.
+            </div>
+
+            <p><a href="{{ path('jack_import_parallel_result') }}">Restart Parallel Again</a></p>
+        </div>
+    </div>
+
+{% endblock %}

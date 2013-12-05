@@ -34,9 +34,24 @@
         </div>
     </div>
 
+    {% if deleteList %}
+        <div class="panel panel-danger">
+            <div class="panel-heading"><b>Require Re-import Report!</b></div>
+            <div class="panel-body">
+                {% for deleteData in deleteList %}
+                    <p>
+                        Deleted: Underlying ID: {{ deleteData.id }}
+                        with Date: {{ deleteData.date }} -
+                        Error: {{ deleteData.error }}
+                    </p>
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
+
     {% if missingDates %}
         <div class="panel panel-danger">
-            <div class="panel-heading"><b>Warning Report</b></div>
+            <div class="panel-heading"><b>Missing Date Report, No Data Days</b></div>
             <div class="panel-body">
                 <div class="row">
                     <div class="col-md-12">

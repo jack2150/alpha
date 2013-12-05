@@ -1,0 +1,19 @@
+{% extends "JackDefaultBundle::layout.html.twig" %}
+
+{% block title %}Import Bundle: Parallel Import: Initial{% endblock %}
+
+{% block content %}
+    <h3><span class="glyphicon glyphicon-forward"></span> Parallel Import: Initial</h3>
+
+    <div class="panel panel-primary">
+        <div class="panel-heading">Request Done</div>
+        <div class="panel-body">
+            <div class="alert alert-success">
+                First request have completed. Related underlying database and tables have been created.
+            </div>
+
+            <p><a href="{{ path('jack_import_parallel_result') }}">Start Parallel Now</a></p>
+        </div>
+    </div>
+
+{% endblock %}

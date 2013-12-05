@@ -23,6 +23,11 @@ class CheckController extends Controller
 {
     // primary check first and last date within database exist
     // addition check symbol table is correct
+    /**
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse|\Symfony\Component\HttpFoundation\Response
+     * @throws \Symfony\Component\HttpKernel\Exception\NotFoundHttpException
+     */
     public function formAction(Request $request)
     {
         $search = new Symbol();
@@ -277,6 +282,65 @@ class CheckController extends Controller
             $missingDates[] = implode(" , ", $missingDate);
         }
 
+        // todo: not empty underlying date and not same as yesterday
+        $lastTickLastPrice = 0;
+        $lastTickVolume = 0;
+        $deleteIDs = array();
+        $deleteList = array();
+        foreach ($underlyings as $underlying) {
+            // error checking
+            if (!$underlying instanceof Underlying) {
+                throw $this->createNotFoundException(
+                    'Error [ Underlying ] object from entity manager!'
+                );
+            }
+
+            // check not empty underlying date
+            $lastPrice = $underlying->getLast();
+            $volume = $underlying->getVolume();
+
+            // if last price and volume is empty
+            if (!$lastPrice && !$volume) {
+                $deleteIDs[] = $underlying->getId();
+
+                $deleteList[] = array(
+                    'id' => $underlying->getId(),
+                    'date' => $underlying->getDate()->format('m/d/y'),
+                    'error' => 'No data or no trading days!'
+                );
+            } else {
+                // check is duplicate date
+                if ($lastPrice == $lastTickLastPrice && $volume == $lastTickVolume) {
+                    $deleteIDs[] = $underlying->getId();
+
+                    $deleteList[] = array(
+                        'id' => $underlying->getId(),
+                        'date' => $underlying->getDate()->format('m/d/y'),
+                        'error' => 'Duplicate underlying, same data as yesterday!'
+                    );
+                }
+            }
+
+            // set current price and volume to later use
+            $lastTickLastPrice = $lastPrice;
+            $lastTickVolume = $volume;
+        }
+
+        // delete all files in id, both underlying and chains
+        if (count($deleteIDs)) {
+            $ids = implode($deleteIDs, ', ');
+
+            $query = $symbolEM->createQuery(
+                "DELETE FROM JackImportBundle:Chain c WHERE c.underlyingid in ($ids)"
+            );
+            $query->getResult();
+
+            $query = $symbolEM->createQuery(
+                "DELETE FROM JackImportBundle:Underlying u WHERE u.id in ($ids)"
+            );
+            $query->getResult();
+        }
+
 
         // count underlying, cycle, strike, and chain
         // underlying section
@@ -307,51 +371,6 @@ class CheckController extends Controller
 
         $chainCount = implode($query->getSingleResult());
 
-        /*
-        $qb = $symbolEM->createQueryBuilder();
-        if ($qb instanceof QueryBuilder) {
-            $underlyingCount = 0;
-            $cycleCount = 0;
-            $strikeCount = 0;
-            $chainCount = 0;
-
-
-            $qb->select('count(underlying.id)');
-            $qb->from('JackImportBundle:Underlying', 'underlying');
-            $underlyingCount = $qb->getQuery()->getSingleScalarResult();
-
-            $em = $this->getDoctrine()->getManager('symbol');
-            $query = $em->createQuery(
-                'SELECT COUNT(u.id) FROM JackImportBundle:Underlying u'
-            );
-
-            $underlyingCount = $query->getSingleResult();
-            $underlyingCount = $underlyingCount[1];
-
-
-
-
-
-
-            $qb->select('count(cycle.id)');
-            $qb->from('JackImportBundle:Cycle', 'cycle');
-            $cycleCount = $qb->getQuery()->getSingleScalarResult();
-
-
-            $qb->select('count(strike.id)');
-            $qb->from('JackImportBundle:Strike', 'strike');
-            $strikeCount = $qb->getQuery()->getSingleScalarResult();
-
-            $qb->select('count(chain.id)');
-            $qb->from('JackImportBundle:Chain', 'chain');
-            $chainCount = $qb->getQuery()->getSingleScalarResult();
-
-        } else {
-            throw $this->createNotFoundException(
-                'Error [ QueryBuilder ] object from entity manager!'
-            );
-        }
-        */
 
         return $this->render(
             'JackImportBundle:Check:report.html.twig',
@@ -367,7 +386,7 @@ class CheckController extends Controller
                 'cycleCount' => $cycleCount,
                 'strikeCount' => $strikeCount,
                 'chainCount' => $chainCount,
-
+                'deleteList' => $deleteList,
             )
         );
     }
