@@ -3,6 +3,9 @@
 namespace Jack\ImportBundle\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Finder\Finder;
+use Symfony\Component\Finder\SplFileInfo;
 use Symfony\Component\HttpFoundation\Request;
 
 use Jack\ImportBundle\Entity\Symbol;
@@ -17,6 +20,173 @@ use Jack\ImportBundle\Entity\Analyst;
  */
 class EventController extends Controller
 {
+    protected $underlyings;
+
+    /**
+     * @param $symbol
+     * @return \Symfony\Component\HttpFoundation\Response
+     * @throws \Symfony\Component\HttpKernel\Exception\NotFoundHttpException
+     */
+    public function importEarningAction($symbol)
+    {
+        /*
+         * copy the earning data from earning table in
+         * https://eresearch.fidelity.com/eresearch/evaluate/fundamentals/earnings.jhtml?tab=details&symbols=SNDK
+         * and put it into a text file with symbol name as filename
+         */
+
+        $this->setUnderlyingByDate($symbol);
+
+        $folder = '..\web\earning';
+
+        // count total files in folder
+        $finder = new Finder();
+
+        /** @noinspection PhpUndefinedMethodInspection */
+        $finder = $finder->files()
+            ->in($folder)
+            ->name('*.txt')
+            ->sortByName()
+            ->ignoreUnreadableDirs();
+
+        $filename = '';
+        $content = '';
+
+        foreach ($finder as $file) {
+            // error checking
+            if (!($file instanceof SplFileInfo)) {
+                throw $this->createNotFoundException(
+                    "Passing invalid object (not SplFileInf) type!"
+                );
+            }
+
+            $filename = $file->getFilename();
+
+            $pos = strpos($filename, $symbol);
+
+            if ($pos !== false) {
+                // symbol found in filename
+                $content = $file->getContents();
+            }
+        }
+
+        // split file content into array
+        $earningCount = 0;
+        if ($content) {
+            $content = explode("\n", $content);
+
+            // replace all white space and newline
+            array_walk($content, function (&$value) {
+                    $value = preg_replace('/[\t]/', ' ', preg_replace('/[\r()]/', '', $value));
+                }
+            );
+
+            // add a new item into array
+            array_unshift($content, '');
+
+            // start db
+            $symbolEM = $this->getDoctrine()->getManager('symbol');
+
+            // declare data
+            $temp = null;
+
+            $periodEnding = null;
+            $earningDate = null;
+            $marketHour = null;
+            $estimate = null;
+            $actual = null;
+            $analyst1 = null;
+            $analyst2 = null;
+
+            foreach ($content as $key => $line) {
+                if ($key % 3 == 1) {
+                    //$data = explode(' ', $line);
+                    // 1st
+                    list($periodEnding, $temp, $earningDate) = explode(' ', $line);
+                } elseif ($key % 3 == 2) {
+                    //$data = explode(' ', $line);
+                    // 2nd
+                    list($marketHour, $temp, $estimate) = explode(' ', $line);
+                } else {
+                    //$data = explode(' ', $line);
+                    // 3rd
+                    if (strlen($line)) {
+                        // not empty
+                        list($analyst1, $analyst2, $actual) = explode(' ', $line);
+
+                        $event = new Event();
+                        $earning = new Earning();
+
+                        $event->setName('earning');
+                        $event->setContext($analyst1 . ' ' . $analyst2);
+                        $event->setUnderlyingid($this->underlyings[$earningDate]);
+
+                        $earning->setPeriodending(strtolower($periodEnding));
+                        $earning->setMarkethour(strtolower($marketHour));
+                        $earning->setEstimate($estimate);
+                        $earning->setActual($actual);
+                        $earning->setEventid($event);
+
+                        // add into query
+                        $symbolEM->persist($event);
+                        $symbolEM->persist($earning);
+
+                        $earningCount++;
+                    }
+                }
+            }
+
+            // save into database
+            $symbolEM->flush();
+
+            // all done remove file in folder
+            $fileSystem = new Filesystem();
+            $fileSystem->remove($folder . '\\' . $filename);
+        }
+
+
+        return $this->render(
+            'JackImportBundle:Event:importEarning.html.twig',
+            array(
+                'symbol' => $symbol,
+                'earningCount' => $earningCount,
+            )
+        );
+    }
+
+
+    /**
+     * @param $symbol
+     * @throws \Symfony\Component\HttpKernel\Exception\NotFoundHttpException
+     */
+    public function setUnderlyingByDate($symbol)
+    {
+        // switch the symbol db before it run valid
+        $this->get('jack_service.fastdb')->switchSymbolDb($symbol);
+        $symbolEM = $this->getDoctrine()->getManager('symbol');
+
+        $underlyings = $symbolEM
+            ->getRepository('JackImportBundle:Underlying')
+            ->findAll();
+
+        $dateUnderlyings = array();
+        foreach ($underlyings as $underlying) {
+            // error checking
+            if (!($underlying instanceof Underlying)) {
+                throw $this->createNotFoundException(
+                    "Invalid [ Underlying ] Object from database!"
+                );
+            }
+
+            $key = $underlying->getDate()->format('m/d/y');
+
+            $dateUnderlyings[$key] = $underlying;
+        }
+
+
+        $this->underlyings = $dateUnderlyings;
+    }
+
     /**
      * @param Request $request
      * data symbol name and event action
@@ -89,6 +259,7 @@ class EventController extends Controller
                     'addEvent' => 'Add Other Events Data',
                     'addAnalyst' => 'Add Target Price Analyst Data',
                     'manageEvent' => 'Manage Event',
+                    'importEarning' => 'Import Earnings Using Text File'
                 ),
                 'required' => true,
                 'multiple' => false,
@@ -127,6 +298,9 @@ class EventController extends Controller
                     break;
                 case 'manageEvent':
                     $actionURL = 'jack_import_event_manage';
+                    break;
+                case 'importEarning':
+                    $actionURL = 'jack_import_earning_file';
                     break;
                 default:
                     throw $this->createNotFoundException(

@@ -1,0 +1,20 @@
+{% extends "JackImportBundle::layout.html.twig" %}
+
+{% block title %}Import Bundle: Earning: Import Text File{% endblock %}
+
+{% block content %}
+
+    <h3><span class="glyphicon glyphicon-calendar"></span> Earning: Import Text File</h3>
+
+    <div class="panel panel-primary">
+        <div class="panel-heading">Earning Import</div>
+        <div class="panel-body">
+            <div class="alert alert-info">
+                {{ earningCount }} Earnings event have been add into database for Underlying {{ symbol|upper }}!
+            </div>
+
+            <p><a href="{{ path('jack_import_event_manage', {'symbol': symbol}) }}">Check the data now!</a></p>
+        </div>
+    </div>
+
+{% endblock %}
